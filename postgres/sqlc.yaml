@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - schema: "schema/schema.sql"
+    queries: "query/query.sql"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "softdare"
+        out: "."

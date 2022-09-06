@@ -1,16 +1,22 @@
 package web
 
 import (
+	"context"
 	mux_router "github.com/eneskzlcn/mux-router"
 	"go.uber.org/zap"
 	"net/http"
+	"softdare/web/login"
 	"sync"
 )
 
+type LoginService interface {
+	Login(ctx context.Context, input login.LoginInput) (*login.User, error)
+}
 type Handler struct {
-	logger  *zap.SugaredLogger
-	handler http.Handler
-	once    sync.Once
+	logger       *zap.SugaredLogger
+	loginService LoginService
+	handler      http.Handler
+	once         sync.Once
 }
 
 func NewHandler(logger *zap.SugaredLogger) *Handler {
