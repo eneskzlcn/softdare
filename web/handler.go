@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	mux_router "github.com/eneskzlcn/mux-router"
+	"github.com/golangcollege/sessions"
 	"go.uber.org/zap"
 	"net/http"
 	"softdare/web/login"
@@ -14,6 +15,8 @@ type LoginService interface {
 }
 type Handler struct {
 	logger       *zap.SugaredLogger
+	session      *sessions.Session
+	SessionKey   []byte
 	loginService LoginService
 	handler      http.Handler
 	once         sync.Once
