@@ -3,9 +3,10 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/lib/pq"
-	"softdare/internal/config"
+	"softdare/config"
 )
 
 type DB interface {
@@ -15,16 +16,15 @@ type DB interface {
 	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
 }
 
-func New(config config.DB) DB {
+func New(config config.DB) (DB, error) {
 	db, err := sql.Open("postgres", createDSN(config))
-	defer db.Close()
 	if err != nil {
-		return nil
+		return nil, errors.New("error opening the database")
 	}
 	if err = db.Ping(); err != nil {
-		return nil
+		return nil, errors.New("error pinging the database")
 	}
-	return db
+	return db, nil
 }
 
 func createDSN(config config.DB) string {

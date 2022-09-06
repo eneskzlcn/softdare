@@ -1,8 +1,10 @@
 db:
-  username:
-  password:
-  driver:
-  dbName:
-  Host:
-  Port:
+  username: "softdare"
+  password: "softdare"
+  dbName: "postgres"
+  host: "localhost"
+  port: "5432"
 
+app:
+  address: ":4000"
+  sessionKey: "u46IpCV9y5Vlur8YvODJEhgOY8m9JVE4"
