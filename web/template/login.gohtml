@@ -1,0 +1,19 @@
+{{template "layout.gohtml" .}}
+
+{{define "content"}}
+
+<main>
+    <h1> Login </h1>
+    <form action="/login" method="POST">
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" placeholder="example@mail.com" required>
+        </div>
+        <div>
+            <label for="username">Username</label>
+            <input type="email" name="username" placeholder="user" required>
+        </div>
+        <button> Login </button>
+    </form>
+</main>
+{{end}}
