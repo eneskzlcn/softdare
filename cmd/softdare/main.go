@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/config"
+	"github.com/eneskzlcn/softdare/internal/home"
+	"github.com/eneskzlcn/softdare/internal/login"
+	"github.com/eneskzlcn/softdare/postgres"
+	"github.com/eneskzlcn/softdare/server"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
-	"softdare/config"
-	"softdare/postgres"
-	"softdare/web"
-	"softdare/web/login"
 )
 
 func main() {
@@ -24,12 +25,13 @@ func run() error {
 	logger := zap.NewExample().Sugar()
 	defer logger.Sync()
 
-	config, err := config.LoadConfig(".dev/", "local", "yaml")
+	configs, err := config.LoadConfig(".dev/", "local", "yaml")
 	if err != nil {
 		return err
 	}
-	logger.Infof("Config Loaded %v", config)
-	db, err := postgres.New(config.Db)
+
+	logger.Debugf("CONFIG LOADED %v", configs)
+	db, err := postgres.New(configs.Db)
 	if err != nil {
 		return err
 	}
@@ -37,23 +39,27 @@ func run() error {
 		return err
 	}
 
+	renderer := server.NewRenderer(logger)
+	sessionProvider := server.NewSessionProvider(logger, configs.Server.SessionKey)
+
 	loginRepository := login.NewRepository(db)
 	loginService := login.NewService(loginRepository)
+	loginHandler := login.NewHandler(logger, loginService, renderer, sessionProvider)
 
-	handler := web.NewHandler(logger, loginService, []byte(config.App.SessionKey))
-
+	homeHandler := home.NewHandler(logger, renderer, sessionProvider)
+	handler, err := server.NewHandler(logger, []server.RouteHandler{
+		loginHandler,
+		homeHandler,
+	}, sessionProvider)
 	if err != nil {
 		return err
 	}
-	srv := http.Server{
-		Addr:    config.App.Address,
-		Handler: handler,
-	}
+	server := server.New(configs.Server, handler)
 
-	defer srv.Close()
+	defer server.Close()
 
-	logger.Infof("server started to listening and serve at address %s", config.App.Address)
-	err = srv.ListenAndServe()
+	logger.Infof("server started to listening and serve at address %s", configs.Server.Address)
+	err = server.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("listen and serve %w", err)
 	}

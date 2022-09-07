@@ -1,2 +1,8 @@
+build:
+	go build -o bin/softdare  ./cmd/softdare
+
 run:
-	go build ./cmd/softdare -o ./bin/softdare && .bin/softdare
+	./bin/softdare
+
+start:
+	go build -o bin/softdare  ./cmd/softdare && ./bin/softdare

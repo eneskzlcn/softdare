@@ -1,0 +1,29 @@
+{{template "layout.gohtml" .}}
+
+{{define "content"}}
+
+<main>
+    <h1> Login </h1>
+    <form action="/login" method="POST">
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" placeholder="example@mail.com" value='{{$.Form.Get "email"}}' required>
+        </div>
+        {{with .Err}}
+        {{if or (eq .Error "user not found") (eq .Error "username already taken")}}
+        <div>
+            <label for="username">Username</label>
+            <input type="username" name="username" placeholder="example123" value='{{$.Form.Get "username"}}' required>
+        </div>
+        {{end}}
+        {{end}}
+
+        {{with .Err}}
+            <p> Could Not login: <code> {{.Error}}</code></p>
+        {{end}}
+        <button> Login </button>
+    </form>
+
+
+</main>
+{{end}}

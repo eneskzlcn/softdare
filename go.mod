@@ -1,4 +1,4 @@
-module softdare
+module github.com/eneskzlcn/softdare
 
 go 1.18
 

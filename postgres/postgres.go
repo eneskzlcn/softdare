@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/config"
 	_ "github.com/lib/pq"
-	"softdare/config"
 )
 
 type DB interface {
