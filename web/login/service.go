@@ -17,6 +17,11 @@ type Service struct {
 	repository LoginRepository
 }
 
+var (
+	ErrUserNotFound         = errors.New("user not found")
+	ErrUsernameAlreadyTaken = errors.New("username already taken")
+)
+
 func NewService(repository LoginRepository) *Service {
 	return &Service{repository: repository}
 }
@@ -30,14 +35,14 @@ func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
 		return s.repository.GetUserByEmail(ctx, inp.Email)
 	}
 	if inp.Username == nil {
-		return nil, errors.New("user not found")
+		return nil, ErrUserNotFound
 	}
 	exists, err = s.repository.IsUserExistsByUsername(ctx, *inp.Username)
 	if err != nil {
 		return nil, err
 	}
 	if exists {
-		return nil, errors.New("username already taken")
+		return nil, ErrUsernameAlreadyTaken
 	}
 	// if both username and email is given bot not found in db then create the user
 	id := xid.New().String()

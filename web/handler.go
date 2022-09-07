@@ -30,9 +30,8 @@ func (h *Handler) init() {
 	router := mux_router.New()
 	router.HandleFunc(http.MethodGet, "/login", h.showLogin)
 	router.HandleFunc(http.MethodPost, "/login", h.login)
-	router.HandleFunc(http.MethodGet, "/", func(writer http.ResponseWriter, request *http.Request) {
-
-	})
+	router.HandleFunc(http.MethodGet, "/", h.showHome)
+	router.HandleFunc(http.MethodPost, "/logout", h.logout)
 	h.session = sessions.New(h.sessionKey)
 	gob.Register(login.User{})
 	h.handler = router

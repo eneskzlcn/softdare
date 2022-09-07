@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"go.uber.org/zap"
 	"net/http"
 	"net/url"
@@ -37,7 +38,14 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	user, err := h.loginService.Login(ctx, inp)
 	if err != nil {
 		h.logger.Debug("could not login", zap.Error(err))
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		if errors.Is(err, login.ErrUserNotFound) || errors.Is(err, login.ErrUsernameAlreadyTaken) {
+			h.renderLogin(w, loginData{
+				Form: r.PostForm,
+				Err:  err,
+			}, http.StatusBadRequest)
+			return
+		}
+		http.Error(w, "could not login", http.StatusInternalServerError)
 		return
 	}
 	h.logger.Debugf("Successfully logged in user %v", user)
@@ -45,7 +53,10 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debugf("Session defined for the user %v", user)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
-
+func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
+	h.session.Remove(r, "user")
+	http.Redirect(w, r, "/", http.StatusFound)
+}
 func extractFormValue(form url.Values, key string) *string {
 	if !form.Has(key) {
 		return nil
