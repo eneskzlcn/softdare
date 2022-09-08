@@ -1,8 +1,9 @@
 package server_test
 
 import (
-	"github.com/eneskzlcn/softdare/internal/config"
-	server2 "github.com/eneskzlcn/softdare/internal/server"
+	mocks "github.com/eneskzlcn/softdare/internal/mocks/server"
+	server "github.com/eneskzlcn/softdare/internal/server"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"testing"
@@ -11,35 +12,37 @@ import (
 func TestNewHandler(t *testing.T) {
 	type testCase struct {
 		logger          *zap.SugaredLogger
-		routeHandlers   []server2.RouteHandler
-		sessionProvider server2.Session
+		routeHandlers   []server.RouteHandler
+		sessionProvider server.Session
 		scenario        string
-		expectedObject  *server2.Handler
+		expectedObject  *server.Handler
 		expectedError   error
 	}
 	exLogger := zap.NewExample().Sugar()
-	exSessionProvider := server2.NewSessionProvider(zap.NewExample().Sugar(), config.Session{Key: "test"})
+	controller := gomock.NewController(t)
+	exSessionProvider := mocks.NewMockSession(controller)
+	exSessionProvider.EXPECT().Enable(gomock.Any()).Return(nil)
 	handlerCreateScenarios := []testCase{
 		{
 			logger:          exLogger,
 			routeHandlers:   nil,
 			sessionProvider: nil,
 			scenario:        "test given empty session provider then it should return nil with error when new handler called",
-			expectedError:   server2.ErrSessionProviderNil,
+			expectedError:   server.ErrSessionProviderNil,
 		},
 		{
 			logger:          nil,
 			routeHandlers:   nil,
 			sessionProvider: exSessionProvider,
 			scenario:        "test given empty logger then it should return nil with error when new handler called",
-			expectedError:   server2.ErrLoggerNil,
+			expectedError:   server.ErrLoggerNil,
 		},
 		{
 			logger:          exLogger,
-			routeHandlers:   []server2.RouteHandler{nil, nil, nil},
+			routeHandlers:   []server.RouteHandler{nil, nil, nil},
 			sessionProvider: exSessionProvider,
 			scenario:        "test given a nil route handler then it should return nil with error when new handler called",
-			expectedError:   server2.ErrGivenRouteHandlerNil,
+			expectedError:   server.ErrGivenRouteHandlerNil,
 		},
 		{
 			logger:          exLogger,
@@ -50,7 +53,7 @@ func TestNewHandler(t *testing.T) {
 		},
 	}
 	for _, testCase := range handlerCreateScenarios {
-		_, err := server2.NewHandler(testCase.logger, testCase.routeHandlers, testCase.sessionProvider)
+		_, err := server.NewHandler(testCase.logger, testCase.routeHandlers, testCase.sessionProvider)
 		assert.Equal(t, err, testCase.expectedError)
 	}
 }

@@ -79,7 +79,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.Login(ctx, inp)
 	if err != nil {
 		h.logger.Debug("could not login", zap.Error(err))
-		if errors.Is(err, ErrUserNotFound) || errors.Is(err, ErrUsernameAlreadyTaken) {
+		if errors.Is(err, ErrUserNotFound) || errors.Is(err, ErrUsernameAlreadyTaken) || errors.Is(err, ErrValidation) {
 			h.Render(w, loginPageData{
 				Form: r.PostForm,
 				Err:  err,

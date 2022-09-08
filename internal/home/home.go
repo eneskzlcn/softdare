@@ -1,29 +1,17 @@
 package home
 
-import "encoding/json"
-
 const DomainName = "home"
 
 type UserSessionData struct {
-	Email    string
-	Username string
+	Email    string `json:"email"`
+	Username string `json:"username"`
 }
 
 type SessionData struct {
-	IsLoggedIn bool
-	User       UserSessionData
+	IsLoggedIn bool            `json:"is_logged_in"`
+	User       UserSessionData `json:"user"`
 }
 
 type homeData struct {
 	Session SessionData
-}
-
-func SessionDataFromAny(data any) (UserSessionData, error) {
-	var sessionData UserSessionData
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		return sessionData, err
-	}
-	err = json.Unmarshal(bytes, &sessionData)
-	return sessionData, err
 }

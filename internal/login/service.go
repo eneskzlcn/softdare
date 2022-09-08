@@ -62,7 +62,7 @@ func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
 		Username: *inp.Username,
 	}
 	if err = createUserRequest.Validate(); err != nil {
-		return nil, err
+		return nil, ErrValidation
 	}
 	//if validated then create the user
 	createdAt, err := s.repository.CreateUser(ctx, createUserRequest)

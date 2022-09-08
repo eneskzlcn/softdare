@@ -7,6 +7,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/config"
 	"github.com/eneskzlcn/softdare/internal/home"
 	"github.com/eneskzlcn/softdare/internal/login"
+	"github.com/eneskzlcn/softdare/internal/post"
 	"github.com/eneskzlcn/softdare/internal/server"
 	"github.com/eneskzlcn/softdare/postgres"
 	"go.uber.org/zap"
@@ -47,9 +48,15 @@ func run() error {
 	loginHandler := login.NewHandler(logger, loginService, renderer, sessionProvider)
 
 	homeHandler := home.NewHandler(logger, renderer, sessionProvider)
+
+	postRepository := post.NewRepository(db, logger)
+	postService := post.NewService(postRepository, logger)
+	postHandler := post.NewHandler(logger, postService, renderer, sessionProvider)
+
 	handler, err := server.NewHandler(logger, []server.RouteHandler{
 		loginHandler,
 		homeHandler,
+		postHandler,
 	}, sessionProvider)
 	if err != nil {
 		return err

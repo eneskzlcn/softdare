@@ -5,6 +5,7 @@ import (
 	"fmt"
 	muxRouter "github.com/eneskzlcn/mux-router"
 	"github.com/eneskzlcn/softdare/internal/pkg"
+	sessionUtils "github.com/eneskzlcn/softdare/internal/util/session"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -72,7 +73,7 @@ func sessionFromRequest(session SessionProvider, r *http.Request) SessionData {
 	var out SessionData
 	if session.Exists(r, "user") {
 		user := session.Get(r, "user")
-		userData, _ := SessionDataFromAny(user)
+		userData, _ := sessionUtils.SessionDataFromAny[UserSessionData](user)
 		out.User = userData
 		out.IsLoggedIn = true
 		fmt.Printf("Session data exist for the user. Session data:%v\n", out)

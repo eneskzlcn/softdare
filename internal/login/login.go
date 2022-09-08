@@ -33,14 +33,14 @@ func (c *CreateUserRequest) Validate() error {
 }
 
 type User struct {
-	ID        string
-	Email     string
-	Username  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type UserSessionData struct {
-	Email    string
-	Username string
+	Email    string `json:"email"`
+	Username string `json:"username"`
 }
