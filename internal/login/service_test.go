@@ -78,7 +78,7 @@ func TestService_Login(t *testing.T) {
 		assert.Nil(t, user)
 		assert.Equal(t, err, login.ErrUsernameAlreadyTaken)
 	})
-	t.Run("given not exist user with email and given a username that not already taken then should return new created user without error", func(t *testing.T) {
+	t.Run("given not exist email and username that not already taken and valid then should return new created user without error", func(t *testing.T) {
 		username := "valid"
 		inp := login.LoginInput{
 			Email:    "found@email.com",
@@ -101,5 +101,19 @@ func TestService_Login(t *testing.T) {
 		assert.Nil(t, err)
 		expectedUser.ID = user.ID
 		assert.Equal(t, *user, expectedUser)
+	})
+	t.Run("given not exist email and username that not already taken but invalid then should return nil with error", func(t *testing.T) {
+		username := "no"
+		inp := login.LoginInput{
+			Email:    "notemail",
+			Username: &username,
+		}
+		createTime := time.Now()
+		ctx := context.Background()
+		mockRepo.EXPECT().IsUserExistsByEmail(ctx, inp.Email).Return(false, nil)
+		mockRepo.EXPECT().IsUserExistsByUsername(ctx, username).Return(false, nil)
+		mockRepo.EXPECT().CreateUser(ctx, gomock.Any()).Return(createTime, nil)
+		_, err := service.Login(ctx, inp)
+		assert.NotNil(t, err)
 	})
 }

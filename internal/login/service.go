@@ -54,13 +54,18 @@ func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
 	if exists {
 		return nil, ErrUsernameAlreadyTaken
 	}
-	// if both username and email is given bot not found in db then create the user
+	// if both username and email is given bot not found in db then validate the username and email
 	id := xid.New().String()
-	createdAt, err := s.repository.CreateUser(ctx, CreateUserRequest{
+	createUserRequest := CreateUserRequest{
 		ID:       id,
 		Email:    inp.Email,
 		Username: *inp.Username,
-	})
+	}
+	if err = createUserRequest.Validate(); err != nil {
+		return nil, err
+	}
+	//if validated then create the user
+	createdAt, err := s.repository.CreateUser(ctx, createUserRequest)
 	if err != nil {
 		return nil, err
 	}

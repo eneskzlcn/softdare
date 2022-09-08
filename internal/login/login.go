@@ -1,6 +1,8 @@
 package login
 
 import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"net/url"
 	"time"
 )
@@ -21,6 +23,13 @@ type CreateUserRequest struct {
 	ID       string
 	Email    string
 	Username string
+}
+
+func (c *CreateUserRequest) Validate() error {
+	return validation.ValidateStruct(c,
+		validation.Field(&c.Email, is.Email),
+		validation.Field(&c.Username, is.Alphanumeric, validation.Length(5, 12)),
+	)
 }
 
 type User struct {
