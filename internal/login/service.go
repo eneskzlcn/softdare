@@ -3,7 +3,9 @@ package login
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/rs/xid"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -22,7 +24,15 @@ var (
 	ErrUsernameAlreadyTaken = errors.New("username already taken")
 )
 
-func NewService(repository LoginRepository) *Service {
+func NewService(logger *zap.SugaredLogger, repository LoginRepository) *Service {
+	if logger == nil {
+		fmt.Println("Given logger to service is nil.")
+		return nil
+	}
+	if repository == nil {
+		logger.Error(ErrRepositoryNil)
+		return nil
+	}
 	return &Service{repository: repository}
 }
 

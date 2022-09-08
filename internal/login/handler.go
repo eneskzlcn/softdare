@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/gob"
 	"errors"
+	"fmt"
 	muxRouter "github.com/eneskzlcn/mux-router"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	"go.uber.org/zap"
@@ -31,8 +32,17 @@ type Handler struct {
 }
 
 func NewHandler(logger *zap.SugaredLogger, service LoginService, renderer Renderer, provider SessionProvider) *Handler {
+	if logger == nil {
+		fmt.Printf("logger can not be nil")
+		return nil
+	}
+	if service == nil || renderer == nil || provider == nil {
+		logger.Error(ErrInvalidHandlerArgs)
+		return nil
+	}
 	handler := Handler{logger: logger, service: service, renderer: renderer, sessionProvider: provider}
 	if err := handler.init(); err != nil {
+		logger.Error(err)
 		return nil
 	}
 	return &handler

@@ -3,6 +3,8 @@ package login
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -19,14 +21,24 @@ const userExistsByEmailQuery = `SELECT EXISTS ( SELECT 1 FROM users WHERE email 
 const userExistsByUsernameQuery = `SELECT EXISTS ( SELECT 1 FROM users WHERE username ILIKE $1 )`
 
 type Repository struct {
-	db DB
+	db     DB
+	logger *zap.SugaredLogger
 }
 
-func NewRepository(db DB) *Repository {
-	return &Repository{db: db}
+func NewRepository(logger *zap.SugaredLogger, db DB) *Repository {
+	if logger == nil {
+		fmt.Println("given logger is nil")
+		return nil
+	}
+	if db == nil {
+		logger.Error(ErrDBNil)
+		return nil
+	}
+	return &Repository{db: db, logger: logger}
 }
 
 func (r *Repository) CreateUser(ctx context.Context, request CreateUserRequest) (time.Time, error) {
+	r.logger.Debug("CREATING NEW USER WITH ", zap.String("User ID", request.ID))
 	row := r.db.QueryRowContext(ctx, createUserQuery, request.ID, request.Email, request.Username)
 	var createdAt time.Time
 	err := row.Scan(&createdAt)
