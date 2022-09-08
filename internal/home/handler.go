@@ -36,6 +36,17 @@ type Handler struct {
 }
 
 func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionProvider) *Handler {
+	if logger == nil {
+		return nil
+	}
+	if renderer == nil {
+		logger.Error(ErrRendererNil)
+		return nil
+	}
+	if provider == nil {
+		logger.Error(ErrSessionProviderNil)
+		return nil
+	}
 	handler := Handler{logger: logger, renderer: renderer, sessionProvider: provider}
 	if err := handler.init(); err != nil {
 		logger.Error("Error occurred when initializing home handler ", zap.Error(err))
