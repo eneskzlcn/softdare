@@ -3,9 +3,9 @@ package post_test
 import (
 	"context"
 	"fmt"
-	contextUtil "github.com/eneskzlcn/softdare/internal/context"
 	mocks "github.com/eneskzlcn/softdare/internal/mocks/post"
 	"github.com/eneskzlcn/softdare/internal/post"
+	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	"github.com/golang/mock/gomock"
 	"github.com/rs/xid"
 	"github.com/stretchr/testify/assert"
@@ -52,12 +52,10 @@ func TestService_CreatePost(t *testing.T) {
 		notValidInput := post.CreatePostInput{
 			Content: strings.Repeat("a", 1200),
 		}
-		ctx := contextUtil.ContextWith[post.User](context.Background(), "user", post.User{
-			ID:        xid.New().String(),
-			Email:     "valid@gmail.com",
-			Username:  "validname",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+		ctx := contextUtil.WithContext[post.User](context.Background(), "user", post.User{
+			ID:       xid.New().String(),
+			Email:    "valid@gmail.com",
+			Username: "validname",
 		})
 		resp, err := service.CreatePost(ctx, notValidInput)
 		assert.NotNil(t, err)
@@ -69,12 +67,10 @@ func TestService_CreatePost(t *testing.T) {
 			Content: "I am a content",
 		}
 		createTime := time.Now()
-		ctx := contextUtil.ContextWith[post.User](context.Background(), "user", post.User{
-			ID:        xid.New().String(),
-			Email:     "valid@gmail.com",
-			Username:  "validname",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+		ctx := contextUtil.WithContext[post.User](context.Background(), "user", post.User{
+			ID:       xid.New().String(),
+			Email:    "valid@gmail.com",
+			Username: "validname",
 		})
 		mockPostRepo.EXPECT().CreatePost(gomock.Any(), gomock.Any()).Return(createTime, nil)
 		resp, err := service.CreatePost(ctx, validInput)

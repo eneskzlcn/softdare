@@ -34,15 +34,15 @@ func (s *Service) CreatePost(ctx context.Context, in CreatePostInput) (*CreatePo
 	if err := in.Validate(); err != nil {
 		return nil, err
 	}
-	_, exists := contextUtil.FromContext[User](userContextKey, ctx)
+	user, exists := contextUtil.FromContext[User](userContextKey, ctx)
 	if !exists {
 		return nil, ErrUnauthorized
 	}
-	return nil, nil
+
 	id := xid.New().String()
 	createPostRequest := CreatePostRequest{
 		ID:      id,
-		UserID:  "",
+		UserID:  user.ID,
 		Content: in.Content,
 	}
 	createdAt, err := s.repo.CreatePost(ctx, createPostRequest)

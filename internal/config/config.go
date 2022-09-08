@@ -20,3 +20,8 @@ func LoadConfig(path, name, configType string) (config Config, err error) {
 	err = viper.Unmarshal(&config)
 	return
 }
+
+var EnvConfigNameMap = map[string]string{
+	"":     "local",
+	"test": "test",
+}

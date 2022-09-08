@@ -17,4 +17,6 @@ generate-mocks:
 	mockgen -destination=internal/mocks/login/mock_login_service.go -package mocks github.com/eneskzlcn/softdare/internal/login LoginService
 	mockgen -destination=internal/mocks/login/mock_login_repository.go -package mocks github.com/eneskzlcn/softdare/internal/login LoginRepository
 	mockgen -destination=internal/mocks/post/mock_post_repository.go -package mocks github.com/eneskzlcn/softdare/internal/post PostRepository
+	mockgen -destination=internal/mocks/post/mock_post_service.go -package mocks github.com/eneskzlcn/softdare/internal/post PostService
+	mockgen -destination=internal/mocks/post/mock_session_provider.go -package mocks github.com/eneskzlcn/softdare/internal/post SessionProvider
 

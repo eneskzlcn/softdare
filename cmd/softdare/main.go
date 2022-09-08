@@ -9,8 +9,10 @@ import (
 	"github.com/eneskzlcn/softdare/internal/login"
 	"github.com/eneskzlcn/softdare/internal/post"
 	"github.com/eneskzlcn/softdare/internal/server"
+	loggerUtil "github.com/eneskzlcn/softdare/internal/util/logger"
+	osUtil "github.com/eneskzlcn/softdare/internal/util/os"
 	"github.com/eneskzlcn/softdare/postgres"
-	"go.uber.org/zap"
+
 	"net/http"
 	"os"
 )
@@ -23,10 +25,14 @@ func main() {
 }
 
 func run() error {
-	logger := zap.NewExample().Sugar()
+	env := osUtil.GetEnv("DEPLOYMENT_ENVIRONMENT", "local")
+	logger, err := loggerUtil.NewLoggerForEnv(env)
+	if err != nil {
+		return err
+	}
 	defer logger.Sync()
 
-	configs, err := config.LoadConfig(".dev/", "local", "yaml")
+	configs, err := config.LoadConfig(".dev/", env, "yaml")
 	if err != nil {
 		return err
 	}

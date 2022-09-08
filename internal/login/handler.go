@@ -90,7 +90,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.logger.Debugf("Successfully logged in user %v", user)
-	h.sessionProvider.Put(r, "user", UserSessionData{Email: user.Email, Username: user.Username})
+	h.sessionProvider.Put(r, "user", UserSessionData{ID: user.ID, Email: user.Email, Username: user.Username})
 	h.logger.Debugf("Session defined for the user %v", user)
 
 	http.Redirect(w, r, "/", http.StatusFound)
