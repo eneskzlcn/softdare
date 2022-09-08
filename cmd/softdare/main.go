@@ -7,8 +7,8 @@ import (
 	"github.com/eneskzlcn/softdare/internal/config"
 	"github.com/eneskzlcn/softdare/internal/home"
 	"github.com/eneskzlcn/softdare/internal/login"
+	"github.com/eneskzlcn/softdare/internal/server"
 	"github.com/eneskzlcn/softdare/postgres"
-	"github.com/eneskzlcn/softdare/server"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -40,10 +40,10 @@ func run() error {
 	}
 
 	renderer := server.NewRenderer(logger)
-	sessionProvider := server.NewSessionProvider(logger, configs.Server.SessionKey)
+	sessionProvider := server.NewSessionProvider(logger, configs.Session)
 
-	loginRepository := login.NewRepository(db)
-	loginService := login.NewService(loginRepository)
+	loginRepository := login.NewRepository(logger, db)
+	loginService := login.NewService(logger, loginRepository)
 	loginHandler := login.NewHandler(logger, loginService, renderer, sessionProvider)
 
 	homeHandler := home.NewHandler(logger, renderer, sessionProvider)
@@ -54,7 +54,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	server := server.New(configs.Server, handler)
+	server := server.New(configs.Server, handler, logger)
 
 	defer server.Close()
 
