@@ -15,6 +15,7 @@ type PostService interface {
 }
 type SessionProvider interface {
 	Get(r *http.Request, key string) any
+	Put(r *http.Request, key string, data interface{})
 }
 type Handler struct {
 	logger          *zap.SugaredLogger
@@ -62,7 +63,9 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	ctx := contextUtil.WithContext[User](r.Context(), userContextKey, user)
 	_, err = h.service.CreatePost(ctx, CreatePostInput{Content: r.PostFormValue("content")})
 	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusFound)
+		h.logger.Error("oops creating post from server", zap.Error(err))
+		h.sessionProvider.Put(r, "create-post-oops", err.Error())
+		http.Redirect(w, r, "/", http.StatusInternalServerError)
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
 }

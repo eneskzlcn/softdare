@@ -37,7 +37,7 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 
 	const userByEmailQuery = `SELECT id, email, username, created_at, updated_at FROM users WHERE email = $1`
 
-	t.Run("given exist user email then it should return user without error", func(t *testing.T) {
+	t.Run("given exist user email then it should return user without oops", func(t *testing.T) {
 		expectedUser := login.User{
 			ID:        xid.New().String(),
 			Email:     "test@gmail.com",
@@ -56,7 +56,7 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, *user, expectedUser)
 	})
-	t.Run("given not exist user email then it should return nil with error", func(t *testing.T) {
+	t.Run("given not exist user email then it should return nil with oops", func(t *testing.T) {
 		expectedUser := login.User{
 			ID:        xid.New().String(),
 			Email:     "test@gmail.com",

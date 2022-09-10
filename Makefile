@@ -11,6 +11,7 @@ generate-mocks:
 	mockgen -destination=internal/mocks/server/mock_root_handler.go -package mocks github.com/eneskzlcn/softdare/internal/server RootHandler
 	mockgen -destination=internal/mocks/server/mock_session_provider.go -package mocks github.com/eneskzlcn/softdare/internal/server Session
 	mockgen -destination=internal/mocks/home/mock_home_renderer.go -package mocks github.com/eneskzlcn/softdare/internal/home Renderer
+	mockgen -destination=internal/mocks/home/mock_home_service.go -package mocks github.com/eneskzlcn/softdare/internal/home HomeService
 	mockgen -destination=internal/mocks/home/mock_session_provider.go -package mocks github.com/eneskzlcn/softdare/internal/home SessionProvider
 	mockgen -destination=internal/mocks/login/mock_session_provider.go -package mocks github.com/eneskzlcn/softdare/internal/login SessionProvider
 	mockgen -destination=internal/mocks/login/mock_login_renderer.go -package mocks github.com/eneskzlcn/softdare/internal/login Renderer

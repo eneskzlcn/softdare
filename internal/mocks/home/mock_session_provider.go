@@ -61,3 +61,45 @@ func (mr *MockSessionProviderMockRecorder) Get(arg0, arg1 interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSessionProvider)(nil).Get), arg0, arg1)
 }
+
+// GetString mocks base method.
+func (m *MockSessionProvider) GetString(arg0 *http.Request, arg1 string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetString", arg0, arg1)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetString indicates an expected call of GetString.
+func (mr *MockSessionProviderMockRecorder) GetString(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetString", reflect.TypeOf((*MockSessionProvider)(nil).GetString), arg0, arg1)
+}
+
+// Pop mocks base method.
+func (m *MockSessionProvider) Pop(arg0 *http.Request, arg1 string) interface{} {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Pop", arg0, arg1)
+	ret0, _ := ret[0].(interface{})
+	return ret0
+}
+
+// Pop indicates an expected call of Pop.
+func (mr *MockSessionProviderMockRecorder) Pop(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Pop", reflect.TypeOf((*MockSessionProvider)(nil).Pop), arg0, arg1)
+}
+
+// PopError mocks base method.
+func (m *MockSessionProvider) PopError(arg0 *http.Request, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PopError", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PopError indicates an expected call of PopError.
+func (mr *MockSessionProviderMockRecorder) PopError(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PopError", reflect.TypeOf((*MockSessionProvider)(nil).PopError), arg0, arg1)
+}

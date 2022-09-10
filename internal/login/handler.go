@@ -67,13 +67,14 @@ func (h *Handler) Render(w http.ResponseWriter, data loginPageData, statusCode i
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	h.logger.Infof("LOGIN HANDLER ACCEPTED A REQUEST WITH email %s", r.PostFormValue("email"))
 	if err := r.ParseForm(); err != nil {
-		h.logger.Debugf("error occurred when parsing request's form with email %s", r.PostFormValue("email"))
+		h.logger.Debugf("oops occurred when parsing request's form with email %s", r.PostFormValue("email"))
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 	ctx := r.Context()
 	inp := LoginInput{
-		Email:    r.PostFormValue("email"),
+		Email: r.PostFormValue("email"),
+
 		Username: ExtractFormValue(r.Form, "username"),
 	}
 	user, err := h.service.Login(ctx, inp)

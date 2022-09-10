@@ -19,10 +19,10 @@ type DB interface {
 func New(config config.DB) (DB, error) {
 	db, err := sql.Open("postgres", createDSN(config))
 	if err != nil {
-		return nil, errors.New("error opening the database")
+		return nil, errors.New("oops opening the database")
 	}
 	if err = db.Ping(); err != nil {
-		return nil, errors.New("error pinging the database")
+		return nil, errors.New("oops pinging the database")
 	}
 	return db, nil
 }

@@ -16,6 +16,11 @@ type DB interface {
 }
 
 const createPostQuery = `INSERT INTO posts (id, user_id, content) VALUES ($1, $2, $3) RETURNING created_at`
+const postsQuery = `SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, users.username
+FROM posts INNER JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC`
+
+const postById = `SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, users.username
+FROM posts INNER JOIN users ON posts.user_id = users.id WHERE posts.id = $1`
 
 type Repository struct {
 	logger *zap.SugaredLogger
@@ -39,4 +44,49 @@ func (r *Repository) CreatePost(ctx context.Context, request CreatePostRequest) 
 	var createdAt time.Time
 	err := row.Scan(&createdAt)
 	return createdAt, err
+}
+
+func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
+	r.logger.Debug("query arrived for all posts")
+	rows, err := r.db.QueryContext(ctx, postsQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Username,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+func (r *Repository) GetPostById(ctx context.Context, postID string) (*Post, error) {
+	r.logger.Debug("Query arrived for post", zap.String("post_id", postID))
+	row := r.db.QueryRowContext(ctx, postById, postID)
+	var i Post
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Username,
+	)
+	return &i, err
 }

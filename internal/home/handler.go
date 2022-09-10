@@ -1,11 +1,11 @@
 package home
 
 import (
+	"context"
 	"encoding/gob"
-	"fmt"
 	muxRouter "github.com/eneskzlcn/mux-router"
+	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
-	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -17,6 +17,9 @@ type Renderer interface {
 type SessionProvider interface {
 	Exists(r *http.Request, key string) bool
 	Get(r *http.Request, key string) any
+	GetString(r *http.Request, key string) string
+	PopError(r *http.Request, key string) error
+	Pop(r *http.Request, key string) any
 }
 
 func (h *Handler) init() error {
@@ -29,14 +32,18 @@ func (h *Handler) init() error {
 	return nil
 }
 
+type HomeService interface {
+	GetPosts(context.Context) ([]Post, error)
+}
 type Handler struct {
 	logger          *zap.SugaredLogger
 	homeTemplate    *template.Template
 	renderer        Renderer
+	service         HomeService
 	sessionProvider SessionProvider
 }
 
-func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionProvider) *Handler {
+func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionProvider, service HomeService) *Handler {
 	if logger == nil {
 		return nil
 	}
@@ -48,7 +55,11 @@ func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionPr
 		logger.Error(ErrSessionProviderNil)
 		return nil
 	}
-	handler := Handler{logger: logger, renderer: renderer, sessionProvider: provider}
+	if service == nil {
+		logger.Error("given service is nil")
+		return nil
+	}
+	handler := Handler{logger: logger, renderer: renderer, sessionProvider: provider, service: service}
 	if err := handler.init(); err != nil {
 		logger.Error("Error occurred when initializing home handler ", zap.Error(err))
 		return nil
@@ -64,19 +75,15 @@ func (h *Handler) Render(w http.ResponseWriter, data homeData, statusCode int) {
 	h.logger.Debugf("RENDERING TEMPLATE %s", h.homeTemplate.Name())
 	h.renderer.RenderTemplate(w, h.homeTemplate, data, statusCode)
 }
+
 func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debugf("HOME SHOW HANDLER ACCEPTED A REQUEST")
 	session := sessionFromRequest(h.sessionProvider, r)
-	h.Render(w, homeData{Session: session}, http.StatusOK)
-}
-func sessionFromRequest(session SessionProvider, r *http.Request) SessionData {
-	var out SessionData
-	if session.Exists(r, "user") {
-		user := session.Get(r, "user")
-		userData, _ := convertionUtil.AnyToGivenType[UserSessionData](user)
-		out.User = userData
-		out.IsLoggedIn = true
-		fmt.Printf("Session data exist for the user. Session data:%v\n", out)
+	posts, err := h.service.GetPosts(r.Context())
+	if err != nil {
+		h.logger.Error("oops getting posts from service")
+		oops.RenderPage(h.renderer, h.logger, w, oops.ErrData{Err: err}, http.StatusFound)
+		return
 	}
-	return out
+	h.Render(w, homeData{Session: session, Posts: posts}, http.StatusOK)
 }

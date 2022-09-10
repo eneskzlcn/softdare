@@ -47,3 +47,15 @@ func (mr *MockSessionProviderMockRecorder) Get(arg0, arg1 interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSessionProvider)(nil).Get), arg0, arg1)
 }
+
+// Put mocks base method.
+func (m *MockSessionProvider) Put(arg0 *http.Request, arg1 string, arg2 interface{}) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Put", arg0, arg1, arg2)
+}
+
+// Put indicates an expected call of Put.
+func (mr *MockSessionProviderMockRecorder) Put(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Put", reflect.TypeOf((*MockSessionProvider)(nil).Put), arg0, arg1, arg2)
+}

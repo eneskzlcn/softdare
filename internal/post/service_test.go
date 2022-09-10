@@ -40,7 +40,7 @@ func TestService_CreatePost(t *testing.T) {
 	service := post.NewService(mockPostRepo, logger)
 	assert.NotNil(t, service)
 
-	t.Run("given unauthorized (not exist) user then it should return nil and error when CreatePost called", func(t *testing.T) {
+	t.Run("given unauthorized (not exist) user then it should return nil and oops when CreatePost called", func(t *testing.T) {
 		validInput := post.CreatePostInput{
 			Content: "I am a content",
 		}
@@ -48,7 +48,7 @@ func TestService_CreatePost(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.Nil(t, resp)
 	})
-	t.Run("given authorized user with not valid post content then it should return nil and error when CreatePost called", func(t *testing.T) {
+	t.Run("given authorized user with not valid post content then it should return nil and oops when CreatePost called", func(t *testing.T) {
 		notValidInput := post.CreatePostInput{
 			Content: strings.Repeat("a", 1200),
 		}
@@ -62,7 +62,7 @@ func TestService_CreatePost(t *testing.T) {
 		fmt.Println(err.Error())
 		assert.Nil(t, resp)
 	})
-	t.Run("given authorized user with  valid post content then it should return created post without error when CreatePost called", func(t *testing.T) {
+	t.Run("given authorized user with  valid post content then it should return created post without oops when CreatePost called", func(t *testing.T) {
 		validInput := post.CreatePostInput{
 			Content: "I am a content",
 		}

@@ -91,7 +91,7 @@ func TestHandler_Login(t *testing.T) {
 	})
 	router := mux_router.New()
 	router.HandleFunc(http.MethodPost, "/login", handler.Login)
-	//it redirects to home after logic ends, so I add a mock render page below to avoid error.
+	//it redirects to home after logic ends, so I add a mock render page below to avoid oops.
 	router.HandleFunc(http.MethodGet, "/", handler.Show)
 	server := http.Server{Handler: router, Addr: ":4200"}
 	go server.ListenAndServe()

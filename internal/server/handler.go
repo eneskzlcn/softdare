@@ -1,9 +1,11 @@
 package server
 
 import (
+	"encoding/gob"
 	muxRouter "github.com/eneskzlcn/mux-router"
 	"go.uber.org/zap"
 	"net/http"
+	"net/url"
 	"sync"
 )
 
@@ -38,6 +40,8 @@ func NewHandler(logger *zap.SugaredLogger, routeHandlers []RouteHandler, session
 	}
 	handler.handler = router
 	handler.handler = sessionProvider.Enable(handler.handler)
+	gob.Register(url.Values{})
+
 	return &handler, nil
 }
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

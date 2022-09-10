@@ -50,3 +50,33 @@ func (mr *MockPostRepositoryMockRecorder) CreatePost(arg0, arg1 interface{}) *go
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePost", reflect.TypeOf((*MockPostRepository)(nil).CreatePost), arg0, arg1)
 }
+
+// GetPostById mocks base method.
+func (m *MockPostRepository) GetPostById(arg0 context.Context, arg1 string) (*post.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostById", arg0, arg1)
+	ret0, _ := ret[0].(*post.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostById indicates an expected call of GetPostById.
+func (mr *MockPostRepositoryMockRecorder) GetPostById(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostById", reflect.TypeOf((*MockPostRepository)(nil).GetPostById), arg0, arg1)
+}
+
+// GetPosts mocks base method.
+func (m *MockPostRepository) GetPosts(arg0 context.Context) ([]*post.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPosts", arg0)
+	ret0, _ := ret[0].([]*post.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPosts indicates an expected call of GetPosts.
+func (mr *MockPostRepositoryMockRecorder) GetPosts(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPosts", reflect.TypeOf((*MockPostRepository)(nil).GetPosts), arg0)
+}

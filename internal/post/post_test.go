@@ -8,12 +8,12 @@ import (
 )
 
 func TestCreatePostInput_Validate(t *testing.T) {
-	t.Run("given too long content then it should return error when validate called", func(t *testing.T) {
+	t.Run("given too long content then it should return oops when validate called", func(t *testing.T) {
 		tooLongContentInp := post.CreatePostInput{Content: strings.Repeat("a", 1200)}
 		err := tooLongContentInp.Validate()
 		assert.NotNil(t, err)
 	})
-	t.Run("given too short content then it should return error when validate called", func(t *testing.T) {
+	t.Run("given too short content then it should return oops when validate called", func(t *testing.T) {
 		tooShortContentInp := post.CreatePostInput{Content: "a"}
 		err := tooShortContentInp.Validate()
 		assert.NotNil(t, err)

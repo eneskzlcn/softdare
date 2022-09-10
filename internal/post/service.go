@@ -11,6 +11,8 @@ import (
 
 type PostRepository interface {
 	CreatePost(ctx context.Context, request CreatePostRequest) (time.Time, error)
+	GetPostById(ctx context.Context, postID string) (*Post, error)
+	GetPosts(ctx context.Context) ([]*Post, error)
 }
 type Service struct {
 	logger *zap.SugaredLogger
@@ -32,10 +34,12 @@ func NewService(repo PostRepository, logger *zap.SugaredLogger) *Service {
 func (s *Service) CreatePost(ctx context.Context, in CreatePostInput) (*CreatePostResponse, error) {
 	in.Prepare()
 	if err := in.Validate(); err != nil {
+		s.logger.Error("validation oops on creating post")
 		return nil, err
 	}
 	user, exists := contextUtil.FromContext[User](userContextKey, ctx)
 	if !exists {
+		s.logger.Error("unauthorized request user not exist on context")
 		return nil, ErrUnauthorized
 	}
 
@@ -47,10 +51,26 @@ func (s *Service) CreatePost(ctx context.Context, in CreatePostInput) (*CreatePo
 	}
 	createdAt, err := s.repo.CreatePost(ctx, createPostRequest)
 	if err != nil {
+		s.logger.Error("oops creating post on repository")
 		return nil, err
 	}
 	return &CreatePostResponse{
 		ID:        id,
 		CreatedAt: createdAt,
 	}, nil
+}
+func (s *Service) GetPosts(ctx context.Context) ([]*Post, error) {
+	return s.repo.GetPosts(ctx)
+}
+func (s *Service) GetPostByID(ctx context.Context, postID string) (*Post, error) {
+	_, err := xid.FromString(postID)
+	if err != nil {
+		s.logger.Error("post id validation oops")
+		return nil, err
+	}
+	if err != nil {
+		s.logger.Error("oops getting post from repository")
+		return nil, err
+	}
+	return s.repo.GetPostById(ctx, postID)
 }

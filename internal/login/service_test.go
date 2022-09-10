@@ -35,7 +35,7 @@ func TestService_Login(t *testing.T) {
 	mockRepo := mocks.NewMockLoginRepository(controller)
 	service := login.NewService(zap.NewExample().Sugar(), mockRepo)
 
-	t.Run("given exist user with email then it should return the user without error when Login called", func(t *testing.T) {
+	t.Run("given exist user with email then it should return the user without oops when Login called", func(t *testing.T) {
 		inp := login.LoginInput{
 			Email:    "found@email.com",
 			Username: new(string),
@@ -54,7 +54,7 @@ func TestService_Login(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, user, expectedUser)
 	})
-	t.Run("given not exist user with email and username is nil then should return nil and error", func(t *testing.T) {
+	t.Run("given not exist user with email and username is nil then should return nil and oops", func(t *testing.T) {
 		inp := login.LoginInput{
 			Email:    "found@email.com",
 			Username: nil,
@@ -65,7 +65,7 @@ func TestService_Login(t *testing.T) {
 		assert.Nil(t, user)
 		assert.Equal(t, err, login.ErrUserNotFound)
 	})
-	t.Run("given not exist user with email and given a username that already taken then should return nil and error", func(t *testing.T) {
+	t.Run("given not exist user with email and given a username that already taken then should return nil and oops", func(t *testing.T) {
 		username := "valid"
 		inp := login.LoginInput{
 			Email:    "found@email.com",
@@ -78,7 +78,7 @@ func TestService_Login(t *testing.T) {
 		assert.Nil(t, user)
 		assert.Equal(t, err, login.ErrUsernameAlreadyTaken)
 	})
-	t.Run("given not exist email and username that not already taken and valid then should return new created user without error", func(t *testing.T) {
+	t.Run("given not exist email and username that not already taken and valid then should return new created user without oops", func(t *testing.T) {
 		username := "valid"
 		inp := login.LoginInput{
 			Email:    "found@email.com",
@@ -102,7 +102,7 @@ func TestService_Login(t *testing.T) {
 		expectedUser.ID = user.ID
 		assert.Equal(t, *user, expectedUser)
 	})
-	t.Run("given not exist email and username that not already taken but invalid then should return nil with error", func(t *testing.T) {
+	t.Run("given not exist email and username that not already taken but invalid then should return nil with oops", func(t *testing.T) {
 		username := "no"
 		inp := login.LoginInput{
 			Email:    "notemail",

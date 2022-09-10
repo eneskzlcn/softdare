@@ -12,7 +12,6 @@ import (
 	loggerUtil "github.com/eneskzlcn/softdare/internal/util/logger"
 	osUtil "github.com/eneskzlcn/softdare/internal/util/os"
 	"github.com/eneskzlcn/softdare/postgres"
-
 	"net/http"
 	"os"
 )
@@ -53,22 +52,23 @@ func run() error {
 	loginService := login.NewService(logger, loginRepository)
 	loginHandler := login.NewHandler(logger, loginService, renderer, sessionProvider)
 
-	homeHandler := home.NewHandler(logger, renderer, sessionProvider)
-
 	postRepository := post.NewRepository(db, logger)
 	postService := post.NewService(postRepository, logger)
-	postHandler := post.NewHandler(logger, postService, renderer, sessionProvider)
+	postHandler := post.NewHandler(logger, postService, sessionProvider)
+
+	homeService := home.NewService(postService, logger)
+	homeHandler := home.NewHandler(logger, renderer, sessionProvider, homeService)
 
 	handler, err := server.NewHandler(logger, []server.RouteHandler{
 		loginHandler,
 		homeHandler,
 		postHandler,
 	}, sessionProvider)
+
 	if err != nil {
 		return err
 	}
 	server := server.New(configs.Server, handler, logger)
-
 	defer server.Close()
 
 	logger.Infof("server started to listening and serve at address %s", configs.Server.Address)

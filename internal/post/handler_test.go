@@ -53,7 +53,6 @@ func TestHandler_CreatePost(t *testing.T) {
 	go server.ListenAndServe()
 
 	t.Run("given valid content", func(t *testing.T) {
-		// TODO: Posts Handler Tests
 		content := "valid content"
 		req, err := http.NewRequest(http.MethodPost, "http://localhost:4300/posts", nil)
 		assert.Nil(t, err)
@@ -65,7 +64,24 @@ func TestHandler_CreatePost(t *testing.T) {
 			Username: "valids",
 		}
 		mockSessionProvider.EXPECT().Get(gomock.Any(), "user").Return(user)
-		mockPostService.EXPECT().CreatePost(gomock.Any(), post.CreatePostInput{Content: content}).Return(nil, nil)
+		mockPostService.EXPECT().CreatePost(gomock.Any(), gomock.Any()).Return(nil, nil)
+		resp, err := http.DefaultClient.Do(req)
+		assert.Nil(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+	})
+	t.Run("given not valid content then there should be oops", func(t *testing.T) {
+		content := ""
+		req, err := http.NewRequest(http.MethodPost, "http://localhost:4300/posts", nil)
+		assert.Nil(t, err)
+		req.PostForm = make(url.Values)
+		req.PostForm.Set("content", content)
+		user := post.User{
+			ID:       xid.New().String(),
+			Email:    "valid@sm.com",
+			Username: "valids",
+		}
+		mockSessionProvider.EXPECT().Get(gomock.Any(), "user").Return(user)
+		mockPostService.EXPECT().CreatePost(gomock.Any(), gomock.Any()).Return(nil, err)
 		resp, err := http.DefaultClient.Do(req)
 		assert.Nil(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)

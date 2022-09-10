@@ -17,8 +17,14 @@
     {{if .Session.IsLoggedIn}}
         <form action="/posts" method="POST">
             <textarea name="content" aria-label="content" placeholder="Write something..." required></textarea>
+            {{with .Session.CreatePostError}}
+                <p> Could not create post: <code>{{.Error}}</code></p>
+            {{end}}
             <button>Post</button>
         </form>
+    {{end}}
+    {{range .Posts}}
+        {{template "post-article.gohtml" .}}
     {{end}}
 </main>
 {{end}}
