@@ -4,9 +4,9 @@
             <h2 style="display: inline">{{.Username}}</h2>
         </a>
         <a href="/posts/{{.ID}}">
-            <timestamp>{{.CreatedAt}}</timestamp>
+            {{.CreatedAt}}
         </a>
     </div>
-
-    <p> {{ .Content}}</p>
+        <p> {{linkify .Content}}</p>
+        <p>Comment Count: {{.CommentCount}}</p>
 </article>
