@@ -37,10 +37,11 @@ func (s *Service) GetPosts(ctx context.Context) ([]Post, error) {
 	posts := make([]Post, 0)
 	for _, postPtr := range postPtrs {
 		post := Post{
-			ID:       postPtr.ID,
-			Username: postPtr.Username,
+			ID:           postPtr.ID,
+			Username:     postPtr.Username,
+			Content:      postPtr.Content,
+			CommentCount: postPtr.CommentCount,
 		}
-		post.Content = postUtil.FormatPostContent(postPtr.Content)
 		post.CreatedAt = postUtil.FormatPostTime(postPtr.CreatedAt)
 		posts = append(posts, post)
 	}

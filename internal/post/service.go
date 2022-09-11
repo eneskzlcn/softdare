@@ -2,6 +2,7 @@ package post
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	"github.com/rs/xid"
@@ -11,8 +12,9 @@ import (
 
 type PostRepository interface {
 	CreatePost(ctx context.Context, request CreatePostRequest) (time.Time, error)
-	GetPostById(ctx context.Context, postID string) (*Post, error)
+	GetPostByID(ctx context.Context, postID string) (*Post, error)
 	GetPosts(ctx context.Context) ([]*Post, error)
+	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 type Service struct {
 	logger *zap.SugaredLogger
@@ -72,5 +74,17 @@ func (s *Service) GetPostByID(ctx context.Context, postID string) (*Post, error)
 		s.logger.Error("oops getting post from repository")
 		return nil, err
 	}
-	return s.repo.GetPostById(ctx, postID)
+	return s.repo.GetPostByID(ctx, postID)
+}
+func (s *Service) IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error) {
+	_, err := xid.FromString(postID)
+	if err != nil {
+		s.logger.Error("not valid postID", zap.String("postID", postID))
+		return time.Time{}, err
+	}
+	if increaseAmount <= 0 || increaseAmount >= 10 {
+		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
+		return time.Time{}, errors.New("increase amount not valid")
+	}
+	return s.repo.IncreasePostCommentCount(ctx, postID, increaseAmount)
 }
