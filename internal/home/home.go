@@ -3,6 +3,7 @@ package home
 import (
 	"fmt"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
+	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -36,13 +37,13 @@ type Post struct {
 
 func sessionDataFromRequest(session SessionProvider, r *http.Request) SessionData {
 	var out SessionData
-	if session.Exists(r, "user") {
-		user := session.Get(r, "user")
-		userData, err := convertionUtil.AnyToGivenType[UserSessionData](user)
-		if err == nil {
-			out.User = userData
-			out.IsLoggedIn = true
-		}
+	generalSessionData := sessionUtil.GeneralSessionDataFromRequest(session, r)
+	if generalSessionData.IsLoggedIn {
+		out.IsLoggedIn = generalSessionData.IsLoggedIn
+		out.User.ID = generalSessionData.User.ID
+		out.User.Email = generalSessionData.User.Email
+		out.User.Username = generalSessionData.User.Email
+
 		out.CreatePostError = session.PopError(r, "create-post-oops")
 		if session.Exists(r, "create-post-form") {
 			form := session.Pop(r, "create-post-form")

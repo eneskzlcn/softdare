@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
@@ -23,6 +24,7 @@ type Renderer interface {
 type SessionProvider interface {
 	Get(r *http.Request, key string) any
 	Put(r *http.Request, key string, data interface{})
+	Exists(r *http.Request, key string) bool
 }
 type Handler struct {
 	logger          *zap.SugaredLogger
@@ -87,7 +89,8 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	}
 	post, err := h.service.GetPostByID(ctx, postID)
 	if err != nil {
-		h.logger.Error("can not take post from repository", zap.String("postID", postID))
+		h.logger.Error("can not take post from service", zap.String("postID", postID))
+		oops.RenderPage(h.renderer, h.logger, h.sessionProvider, r, w, err, http.StatusFound)
 		return
 	}
 	formattedPost := FormatPost(post)

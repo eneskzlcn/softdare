@@ -22,19 +22,10 @@ type SessionProvider interface {
 	Pop(r *http.Request, key string) any
 }
 
-func (h *Handler) init() error {
-	gob.Register(UserSessionData{})
-	template, err := pkg.ParseTemplate(DomainName)
-	if err != nil {
-		return err
-	}
-	h.homeTemplate = template
-	return nil
-}
-
 type HomeService interface {
 	GetPosts(context.Context) ([]Post, error)
 }
+
 type Handler struct {
 	logger          *zap.SugaredLogger
 	homeTemplate    *template.Template
@@ -67,6 +58,16 @@ func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionPr
 	return &handler
 }
 
+func (h *Handler) init() error {
+	gob.Register(UserSessionData{})
+	template, err := pkg.ParseTemplate(DomainName)
+	if err != nil {
+		return err
+	}
+	h.homeTemplate = template
+	return nil
+}
+
 func (h *Handler) Render(w http.ResponseWriter, data homeData, statusCode int) {
 	h.logger.Debugf("RENDERING TEMPLATE %s", h.homeTemplate.Name())
 	h.renderer.RenderTemplate(w, h.homeTemplate, data, statusCode)
@@ -77,7 +78,7 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	posts, err := h.service.GetPosts(r.Context())
 	if err != nil {
 		h.logger.Error("oops getting posts from service")
-		oops.RenderPage(h.renderer, h.logger, w, oops.ErrData{Err: err}, http.StatusFound)
+		oops.RenderPage(h.renderer, h.logger, h.sessionProvider, r, w, err, http.StatusFound)
 		return
 	}
 	h.Render(w, homeData{Session: session, Posts: posts}, http.StatusOK)

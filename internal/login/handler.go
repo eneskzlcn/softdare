@@ -19,6 +19,8 @@ type Renderer interface {
 type SessionProvider interface {
 	Put(r *http.Request, key string, data any)
 	Remove(r *http.Request, key string)
+	Exists(r *http.Request, key string) bool
+	Get(r *http.Request, key string) any
 }
 type LoginService interface {
 	Login(ctx context.Context, inp LoginInput) (*User, error)
@@ -58,7 +60,8 @@ func (h *Handler) init() error {
 	return nil
 }
 func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
-	h.Render(w, loginPageData{}, http.StatusOK)
+	sessionData := sessionDataFromRequest(h.sessionProvider, r)
+	h.Render(w, loginPageData{Session: sessionData}, http.StatusOK)
 }
 func (h *Handler) Render(w http.ResponseWriter, data loginPageData, statusCode int) {
 	h.renderer.RenderTemplate(w, h.loginTemplate, data, statusCode)

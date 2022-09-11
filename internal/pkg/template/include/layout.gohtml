@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Softdare</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-</head>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Softdare</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    </head>
     <body>
+        <nav>
+            <a href="/">Home</a>
+            {{if .Session.IsLoggedIn}}
+                <a href="#!">{{.Session.User.Username}}</a>
+                <form action="/logout" method="POST" style="display: contents;">
+                    <button>Logout</button>
+                </form>
+            {{else}}
+                <a href="/login">Login</a>
+            {{end}}
+        </nav>
+        <hr>
         {{template "content" .}}
+
     </body>
 
 </html>

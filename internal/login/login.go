@@ -1,8 +1,10 @@
 package login
 
 import (
+	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"net/http"
 	"net/url"
 	"time"
 )
@@ -15,10 +17,14 @@ type LoginInput struct {
 }
 
 type loginPageData struct {
-	Form url.Values
-	Err  error
+	Form    url.Values
+	Err     error
+	Session SessionData
 }
-
+type SessionData struct {
+	User       UserSessionData
+	IsLoggedIn bool
+}
 type CreateUserRequest struct {
 	ID       string
 	Email    string
@@ -44,4 +50,16 @@ type UserSessionData struct {
 	ID       string `json:"id"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
+}
+
+func sessionDataFromRequest(session SessionProvider, r *http.Request) SessionData {
+	var out SessionData
+	generalSession := sessionUtil.GeneralSessionDataFromRequest(session, r)
+	if generalSession.IsLoggedIn {
+		out.IsLoggedIn = generalSession.IsLoggedIn
+		out.User.ID = generalSession.User.ID
+		out.User.Email = generalSession.User.Email
+		out.User.Username = generalSession.User.Username
+	}
+	return out
 }

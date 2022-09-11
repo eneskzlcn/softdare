@@ -1,8 +1,6 @@
 {{template "layout.gohtml" .}}
 
 {{define "content"}}
-
-<main>
     <h1> Home </h1>
     {{if .Session.IsLoggedIn}}
         <p> Welcome back, {{.Session.User.Username}}.</p>
@@ -10,7 +8,7 @@
             <button> Logout </button>
         </form>
     {{else}}
-        <p> You are not logged in</p>
+        <code> You are not logged in</code>
         <a href="/login">Login</a>
     {{end}}
 
