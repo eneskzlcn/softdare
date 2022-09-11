@@ -4,7 +4,6 @@ import (
 	"fmt"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
-	"html/template"
 	"net/http"
 	"net/url"
 )
@@ -29,10 +28,11 @@ type homeData struct {
 	Posts   []Post
 }
 type Post struct {
-	ID        string
-	CreatedAt string
-	Content   template.HTML
-	Username  string
+	ID           string
+	CreatedAt    string
+	Content      string
+	CommentCount int
+	Username     string
 }
 
 func sessionDataFromRequest(session SessionProvider, r *http.Request) SessionData {

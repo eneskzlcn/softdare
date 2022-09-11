@@ -2,8 +2,6 @@ package post
 
 import (
 	"fmt"
-	"github.com/mvdan/xurls"
-	"html/template"
 	"time"
 )
 
@@ -26,9 +24,4 @@ func FormatPostTime(createdAt time.Time) string {
 		return fmt.Sprintf("%dyears ago", durationMinutes/483840)
 	}
 	return ""
-}
-func FormatPostContent(content string) template.HTML {
-	content = template.HTMLEscapeString(content)
-	return template.HTML(xurls.Relaxed.
-		ReplaceAllString(content, `<a href ="$0" target="_blank" rel="noopener noreferror">$0</a>`))
 }
