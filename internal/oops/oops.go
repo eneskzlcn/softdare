@@ -28,15 +28,11 @@ type SessionProvider interface {
 
 func RenderPage(renderer Renderer, logger *zap.SugaredLogger, sessionProvider SessionProvider, r *http.Request, w http.ResponseWriter, data error, statusCode int) {
 	logger.Debugf("Rendering the ooops page.")
-	tmpl, err := pkg.ParseTemplate(DomainName)
-	if err != nil {
-		logger.Error("can not parse oops template", zap.Error(err))
-		return
-	}
+	tmpl := pkg.ParseTemplate("oops.gohtml")
 	generalSessionData := sessionUtil.GeneralSessionDataFromRequest(sessionProvider, r)
 	session := SessionData{
 		IsLoggedIn: generalSessionData.IsLoggedIn,
 		User:       generalSessionData.User,
 	}
-	renderer.RenderTemplate(w, tmpl, ErrData{Err: err, Session: session}, statusCode)
+	renderer.RenderTemplate(w, tmpl, ErrData{Err: data, Session: session}, statusCode)
 }
