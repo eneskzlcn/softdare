@@ -7,18 +7,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     </head>
     <body>
-        <nav>
-            <a href="/">Home</a>
-            {{if .Session.IsLoggedIn}}
-                <a href="#!">{{.Session.User.Username}}</a>
-                <form action="/logout" method="POST" style="display: contents;">
-                    <button>Logout</button>
-                </form>
-            {{else}}
-                <a href="/login">Login</a>
-            {{end}}
-        </nav>
-        <hr>
+        {{template "header.gohtml" .}}
         {{template "content" .}}
 
     </body>
