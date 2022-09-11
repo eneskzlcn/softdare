@@ -5,7 +5,7 @@ run:
 	./bin/softdare
 
 start:
-	go build -o bin/softdare  ./cmd/softdare && ./bin/softdare
+	clear && go build -o bin/softdare  ./cmd/softdare && ./bin/softdare
 
 generate-mocks:
 	mockgen -destination=internal/mocks/server/mock_root_handler.go -package mocks github.com/eneskzlcn/softdare/internal/server RootHandler
@@ -20,4 +20,5 @@ generate-mocks:
 	mockgen -destination=internal/mocks/post/mock_post_repository.go -package mocks github.com/eneskzlcn/softdare/internal/post PostRepository
 	mockgen -destination=internal/mocks/post/mock_post_service.go -package mocks github.com/eneskzlcn/softdare/internal/post PostService
 	mockgen -destination=internal/mocks/post/mock_session_provider.go -package mocks github.com/eneskzlcn/softdare/internal/post SessionProvider
+	mockgen -destination=internal/mocks/post/mock_renderer.go -package mocks github.com/eneskzlcn/softdare/internal/post Renderer
 
