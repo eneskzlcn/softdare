@@ -1,17 +1,7 @@
 {{template "layout.gohtml" .}}
 
 {{define "content"}}
-    <h1> Home </h1>
-    {{if .Session.IsLoggedIn}}
-        <p> Welcome back, {{.Session.User.Username}}.</p>
-        <form action="/logout" method="POST" style="display: contents;">
-            <button> Logout </button>
-        </form>
-    {{else}}
-        <code> You are not logged in</code>
-        <a href="/login">Login</a>
-    {{end}}
-
+    <h1> Home</h1>
     {{if .Session.IsLoggedIn}}
         <form action="/posts" method="POST">
             <textarea name="content" aria-label="content" placeholder="Write something..." required></textarea>
