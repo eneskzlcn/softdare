@@ -15,11 +15,6 @@ type DB interface {
 	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
 }
 
-const createUserQuery = `INSERT INTO users (id, email, username) VALUES ($1, $2, $3) RETURNING created_at`
-const userByEmailQuery = `SELECT id, email, username, created_at, updated_at FROM users WHERE email = $1`
-const userExistsByEmailQuery = `SELECT EXISTS ( SELECT 1 FROM users WHERE email = $1) `
-const userExistsByUsernameQuery = `SELECT EXISTS ( SELECT 1 FROM users WHERE username ILIKE $1 )`
-
 type Repository struct {
 	db     DB
 	logger *zap.SugaredLogger
@@ -39,14 +34,23 @@ func NewRepository(logger *zap.SugaredLogger, db DB) *Repository {
 
 func (r *Repository) CreateUser(ctx context.Context, request CreateUserRequest) (time.Time, error) {
 	r.logger.Debug("CREATING NEW USER WITH ", zap.String("User ID", request.ID))
-	row := r.db.QueryRowContext(ctx, createUserQuery, request.ID, request.Email, request.Username)
+
+	query := `
+		INSERT INTO users (id, email, username) 
+		VALUES ($1, $2, $3) 
+		RETURNING created_at`
+	row := r.db.QueryRowContext(ctx, query, request.ID, request.Email, request.Username)
 	var createdAt time.Time
 	err := row.Scan(&createdAt)
 	return createdAt, err
 }
 
 func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	row := r.db.QueryRowContext(ctx, userByEmailQuery, email)
+	query := `
+		SELECT id, email, username, created_at, updated_at 
+		FROM users 
+		WHERE email = $1`
+	row := r.db.QueryRowContext(ctx, query, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -59,14 +63,24 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, e
 }
 
 func (r *Repository) IsUserExistsByEmail(ctx context.Context, email string) (bool, error) {
-	row := r.db.QueryRowContext(ctx, userExistsByEmailQuery, email)
+	query := `
+	SELECT EXISTS ( 
+		SELECT 1 
+		FROM users 
+		WHERE email = $1) `
+	row := r.db.QueryRowContext(ctx, query, email)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
 }
 
 func (r *Repository) IsUserExistsByUsername(ctx context.Context, username string) (bool, error) {
-	row := r.db.QueryRowContext(ctx, userExistsByUsernameQuery, username)
+	query := `
+	SELECT EXISTS (
+		SELECT 1 
+		FROM users 
+		WHERE username ILIKE $1 )`
+	row := r.db.QueryRowContext(ctx, query, username)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err

@@ -15,13 +15,6 @@ type DB interface {
 	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
 }
 
-const createPostQuery = `INSERT INTO posts (id, user_id, content) VALUES ($1, $2, $3) RETURNING created_at`
-const postsQuery = `SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, users.username
-FROM posts INNER JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC`
-
-const postById = `SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, users.username
-FROM posts INNER JOIN users ON posts.user_id = users.id WHERE posts.id = $1`
-
 type Repository struct {
 	logger *zap.SugaredLogger
 	db     DB
@@ -40,7 +33,11 @@ func NewRepository(db DB, logger *zap.SugaredLogger) *Repository {
 }
 func (r *Repository) CreatePost(ctx context.Context, request CreatePostRequest) (time.Time, error) {
 	r.logger.Debug("A request for creating new post arrived to post repository", zap.String("id", request.ID))
-	row := r.db.QueryRowContext(ctx, createPostQuery, request.ID, request.UserID, request.Content)
+	query := `
+		INSERT INTO posts (id, user_id, content) 
+		VALUES ($1, $2, $3) 
+		RETURNING created_at`
+	row := r.db.QueryRowContext(ctx, query, request.ID, request.UserID, request.Content)
 	var createdAt time.Time
 	err := row.Scan(&createdAt)
 	return createdAt, err
@@ -48,7 +45,12 @@ func (r *Repository) CreatePost(ctx context.Context, request CreatePostRequest) 
 
 func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
 	r.logger.Debug("query arrived for all posts")
-	rows, err := r.db.QueryContext(ctx, postsQuery)
+	query := `
+		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at,posts.comment_count, users.username
+		FROM posts 
+		INNER JOIN users ON posts.user_id = users.id 
+		ORDER BY posts.id DESC`
+	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +64,7 @@ func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CommentCount,
 			&i.Username,
 		); err != nil {
 			return nil, err
@@ -76,9 +79,16 @@ func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
 	}
 	return items, nil
 }
-func (r *Repository) GetPostById(ctx context.Context, postID string) (*Post, error) {
+func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, error) {
 	r.logger.Debug("Query arrived for post", zap.String("post_id", postID))
-	row := r.db.QueryRowContext(ctx, postById, postID)
+
+	query := `
+		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username
+		FROM posts 
+		INNER JOIN users ON posts.user_id = users.id 
+		WHERE posts.id = $1`
+
+	row := r.db.QueryRowContext(ctx, query, postID)
 	var i Post
 	err := row.Scan(
 		&i.ID,
@@ -86,7 +96,24 @@ func (r *Repository) GetPostById(ctx context.Context, postID string) (*Post, err
 		&i.Content,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CommentCount,
 		&i.Username,
 	)
+	if err != nil {
+		r.logger.Error("error on getting the post from database")
+	}
 	return &i, err
+}
+func (r *Repository) IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error) {
+	query := `
+	UPDATE posts
+	SET comment_count = comment_count + $1, updated_at = now()
+	WHERE id = $2;`
+	row := r.db.QueryRowContext(ctx, query, increaseAmount, postID)
+	var updatedAt time.Time
+	if err := row.Scan(&updatedAt); err != nil {
+		r.logger.Error("error scanning query returning")
+		return updatedAt, err
+	}
+	return updatedAt, nil
 }
