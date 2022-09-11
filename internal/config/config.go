@@ -3,9 +3,10 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	Db      DB      `mapstructure:"db"`
-	Server  Server  `mapstructure:"server"`
-	Session Session `mapstructure:"session"`
+	Db       DB       `mapstructure:"db"`
+	Server   Server   `mapstructure:"server"`
+	Session  Session  `mapstructure:"session"`
+	RabbitMQ RabbitMQ `mapstructure:"rabbitmq"`
 }
 
 func LoadConfig(path, name, configType string) (config Config, err error) {

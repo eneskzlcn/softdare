@@ -10,3 +10,11 @@ server:
 
 session:
   key: "u46IpCV9y5Vlur8YvODJEhgOY8m9JVE4"
+
+rabbitmq:
+  username: "softdare"
+  password: "softdare"
+  host: "localhost"
+  port: "6001"
+  queues:
+    - "increase-post-comment-count"
