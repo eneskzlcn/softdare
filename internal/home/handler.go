@@ -3,9 +3,9 @@ package home
 import (
 	"context"
 	"encoding/gob"
-	muxRouter "github.com/eneskzlcn/mux-router"
 	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
+	"github.com/nicolasparada/go-mux"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -67,18 +67,13 @@ func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionPr
 	return &handler
 }
 
-func (h *Handler) RegisterHandlers(router *muxRouter.Router) {
-	router.HandleFunc(http.MethodGet, "/", h.Show)
-
-}
 func (h *Handler) Render(w http.ResponseWriter, data homeData, statusCode int) {
 	h.logger.Debugf("RENDERING TEMPLATE %s", h.homeTemplate.Name())
 	h.renderer.RenderTemplate(w, h.homeTemplate, data, statusCode)
 }
-
 func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debugf("HOME SHOW HANDLER ACCEPTED A REQUEST")
-	session := sessionFromRequest(h.sessionProvider, r)
+	session := sessionDataFromRequest(h.sessionProvider, r)
 	posts, err := h.service.GetPosts(r.Context())
 	if err != nil {
 		h.logger.Error("oops getting posts from service")
@@ -86,4 +81,10 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.Render(w, homeData{Session: session, Posts: posts}, http.StatusOK)
+}
+
+func (h *Handler) RegisterHandlers(router *mux.Router) {
+	router.Handle("/", mux.MethodHandler{
+		http.MethodGet: h.Show,
+	})
 }

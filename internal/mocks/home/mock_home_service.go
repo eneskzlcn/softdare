@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	post "github.com/eneskzlcn/softdare/internal/post"
+	home "github.com/eneskzlcn/softdare/internal/home"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -36,10 +36,10 @@ func (m *MockHomeService) EXPECT() *MockHomeServiceMockRecorder {
 }
 
 // GetPosts mocks base method.
-func (m *MockHomeService) GetPosts(arg0 context.Context) ([]post.Post, error) {
+func (m *MockHomeService) GetPosts(arg0 context.Context) ([]home.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPosts", arg0)
-	ret0, _ := ret[0].([]post.Post)
+	ret0, _ := ret[0].([]home.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

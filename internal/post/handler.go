@@ -2,16 +2,23 @@ package post
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	mux_router "github.com/eneskzlcn/mux-router"
+	"github.com/eneskzlcn/softdare/internal/pkg"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
+	"github.com/nicolasparada/go-mux"
 	"go.uber.org/zap"
+	"html/template"
 	"net/http"
 )
 
 type PostService interface {
 	CreatePost(ctx context.Context, in CreatePostInput) (*CreatePostResponse, error)
+	GetPostByID(ctx context.Context, postID string) (*Post, error)
+}
+type Renderer interface {
+	RenderTemplate(w http.ResponseWriter, template *template.Template, data any, statusCode int)
 }
 type SessionProvider interface {
 	Get(r *http.Request, key string) any
@@ -20,24 +27,21 @@ type SessionProvider interface {
 type Handler struct {
 	logger          *zap.SugaredLogger
 	service         PostService
+	template        *template.Template
 	sessionProvider SessionProvider
+	renderer        Renderer
 }
 
-func NewHandler(logger *zap.SugaredLogger, service PostService, sessionProvider SessionProvider) *Handler {
+func NewHandler(logger *zap.SugaredLogger, service PostService, sessionProvider SessionProvider, renderer Renderer) *Handler {
 	if logger == nil {
 		fmt.Printf("given logger is nil\n")
 		return nil
 	}
-	if service == nil {
-		logger.Error(ErrPostServiceNil)
+	if service == nil || sessionProvider == nil || renderer == nil {
+		logger.Error(errors.New("invalid arguments for post handler"))
 		return nil
 	}
-
-	if sessionProvider == nil {
-		logger.Error(ErrSessionProviderNil)
-		return nil
-	}
-	handler := Handler{logger: logger, service: service, sessionProvider: sessionProvider}
+	handler := Handler{logger: logger, service: service, sessionProvider: sessionProvider, renderer: renderer}
 	if err := handler.init(); err != nil {
 		logger.Error(err)
 		return nil
@@ -45,6 +49,11 @@ func NewHandler(logger *zap.SugaredLogger, service PostService, sessionProvider 
 	return &handler
 }
 func (h *Handler) init() error {
+	tmpl, err := pkg.ParseTemplate("post")
+	h.template = tmpl
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -69,6 +78,30 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
 }
-func (h *Handler) RegisterHandlers(router *mux_router.Router) {
-	router.HandleFunc(http.MethodPost, "/posts", h.CreatePost)
+func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	postID := mux.URLParam(ctx, "postID")
+	if postID == "" {
+		h.logger.Error("can not parse post id", zap.Any("postID", postID))
+		return
+	}
+	post, err := h.service.GetPostByID(ctx, postID)
+	if err != nil {
+		h.logger.Error("can not take post from repository", zap.String("postID", postID))
+		return
+	}
+	formattedPost := FormatPost(post)
+	h.Render(w, postData{Post: formattedPost}, http.StatusFound)
+}
+func (h *Handler) Render(w http.ResponseWriter, data postData, statusCode int) {
+	h.logger.Debug("RENDERING THE POST TEMPLATE")
+	h.renderer.RenderTemplate(w, h.template, data, statusCode)
+}
+func (h *Handler) RegisterHandlers(router *mux.Router) {
+	router.Handle("/posts", mux.MethodHandler{
+		http.MethodPost: h.CreatePost,
+	})
+	router.Handle("/posts/{postID}", mux.MethodHandler{
+		http.MethodGet: h.Show,
+	})
 }

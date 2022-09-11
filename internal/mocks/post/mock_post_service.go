@@ -49,3 +49,18 @@ func (mr *MockPostServiceMockRecorder) CreatePost(arg0, arg1 interface{}) *gomoc
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePost", reflect.TypeOf((*MockPostService)(nil).CreatePost), arg0, arg1)
 }
+
+// GetPostById mocks base method.
+func (m *MockPostService) GetPostById(arg0 context.Context, arg1 string) (*post.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostById", arg0, arg1)
+	ret0, _ := ret[0].(*post.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostById indicates an expected call of GetPostById.
+func (mr *MockPostServiceMockRecorder) GetPostById(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostById", reflect.TypeOf((*MockPostService)(nil).GetPostById), arg0, arg1)
+}

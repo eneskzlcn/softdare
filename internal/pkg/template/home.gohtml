@@ -22,9 +22,10 @@
             {{end}}
             <button>Post</button>
         </form>
+        {{range .Posts}}
+            {{template "post-article.gohtml" .}}
+        {{end}}
     {{end}}
-    {{range .Posts}}
-        {{template "post-article.gohtml" .}}
-    {{end}}
+
 </main>
 {{end}}

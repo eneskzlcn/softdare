@@ -54,7 +54,7 @@ func run() error {
 
 	postRepository := post.NewRepository(db, logger)
 	postService := post.NewService(postRepository, logger)
-	postHandler := post.NewHandler(logger, postService, sessionProvider)
+	postHandler := post.NewHandler(logger, postService, sessionProvider, renderer)
 
 	homeService := home.NewService(postService, logger)
 	homeHandler := home.NewHandler(logger, renderer, sessionProvider, homeService)

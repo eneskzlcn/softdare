@@ -5,8 +5,8 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	muxRouter "github.com/eneskzlcn/mux-router"
 	"github.com/eneskzlcn/softdare/internal/pkg"
+	"github.com/nicolasparada/go-mux"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -101,10 +101,15 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (h *Handler) RegisterHandlers(router *muxRouter.Router) {
-	router.HandleFunc(http.MethodGet, "/login", h.Show)
-	router.HandleFunc(http.MethodPost, "/login", h.Login)
-	router.HandleFunc(http.MethodPost, "/logout", h.Logout)
+func (h *Handler) RegisterHandlers(router *mux.Router) {
+	router.Handle("/login", mux.MethodHandler{
+		http.MethodGet:  h.Show,
+		http.MethodPost: h.Login,
+	})
+	router.Handle("/logout", mux.MethodHandler{
+		http.MethodPost: h.Logout,
+	})
+
 }
 
 func ExtractFormValue(form url.Values, key string) *string {

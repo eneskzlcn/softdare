@@ -1,7 +1,9 @@
 package post
 
 import (
+	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"html/template"
 	"strings"
 	"time"
 )
@@ -45,4 +47,26 @@ type Post struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Username  string
+}
+type FormattedPost struct {
+	ID        string
+	UserID    string
+	Content   template.HTML
+	CreatedAt string
+	UpdatedAt string
+	Username  string
+}
+
+func FormatPost(post *Post) (formattedPost FormattedPost) {
+	formattedPost.Content = postUtil.FormatPostContent(post.Content)
+	formattedPost.CreatedAt = postUtil.FormatPostTime(post.CreatedAt)
+	formattedPost.UpdatedAt = postUtil.FormatPostTime(post.UpdatedAt)
+	formattedPost.ID = post.ID
+	formattedPost.UserID = post.UserID
+	formattedPost.Username = post.Username
+	return
+}
+
+type postData struct {
+	Post FormattedPost
 }

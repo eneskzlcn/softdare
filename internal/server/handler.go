@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/gob"
-	muxRouter "github.com/eneskzlcn/mux-router"
+	"github.com/nicolasparada/go-mux"
 	"go.uber.org/zap"
 	"net/http"
 	"net/url"
@@ -10,7 +10,7 @@ import (
 )
 
 type RouteHandler interface {
-	RegisterHandlers(router *muxRouter.Router)
+	RegisterHandlers(router *mux.Router)
 }
 type Session interface {
 	Enable(handler http.Handler) http.Handler
@@ -30,7 +30,7 @@ func NewHandler(logger *zap.SugaredLogger, routeHandlers []RouteHandler, session
 		return nil, ErrSessionProviderNil
 	}
 	handler := Handler{logger: logger, sessionProvider: sessionProvider}
-	router := muxRouter.New()
+	router := mux.NewRouter()
 	for _, routeHandler := range routeHandlers {
 		if routeHandler == nil {
 			logger.Error("One of the given routeHandlers to the server handler is nil")

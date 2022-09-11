@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/post"
+	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 	"go.uber.org/zap"
 )
 
@@ -39,8 +40,8 @@ func (s *Service) GetPosts(ctx context.Context) ([]Post, error) {
 			ID:       postPtr.ID,
 			Username: postPtr.Username,
 		}
-		post.Content = FormatPostContent(postPtr.Content)
-		post.CreatedAt = FormatPostTime(postPtr.CreatedAt)
+		post.Content = postUtil.FormatPostContent(postPtr.Content)
+		post.CreatedAt = postUtil.FormatPostTime(postPtr.CreatedAt)
 		posts = append(posts, post)
 	}
 	return posts, nil
