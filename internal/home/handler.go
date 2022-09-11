@@ -51,21 +51,13 @@ func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionPr
 		return nil
 	}
 	handler := Handler{logger: logger, renderer: renderer, sessionProvider: provider, service: service}
-	if err := handler.init(); err != nil {
-		logger.Error("Error occurred when initializing home handler ", zap.Error(err))
-		return nil
-	}
+	handler.init()
 	return &handler
 }
 
-func (h *Handler) init() error {
+func (h *Handler) init() {
 	gob.Register(UserSessionData{})
-	template, err := pkg.ParseTemplate(DomainName)
-	if err != nil {
-		return err
-	}
-	h.homeTemplate = template
-	return nil
+	h.homeTemplate = pkg.ParseTemplate("home.gohtml")
 }
 
 func (h *Handler) Render(w http.ResponseWriter, data homeData, statusCode int) {

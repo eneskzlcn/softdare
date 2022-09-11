@@ -43,21 +43,13 @@ func NewHandler(logger *zap.SugaredLogger, service LoginService, renderer Render
 		return nil
 	}
 	handler := Handler{logger: logger, service: service, renderer: renderer, sessionProvider: provider}
-	if err := handler.init(); err != nil {
-		logger.Error(err)
-		return nil
-	}
+	handler.init()
 	return &handler
 }
 
-func (h *Handler) init() error {
-	template, err := pkg.ParseTemplate(DomainName)
-	if err != nil {
-		return err
-	}
-	h.loginTemplate = template
+func (h *Handler) init() {
 	gob.Register(UserSessionData{})
-	return nil
+	h.loginTemplate = pkg.ParseTemplate("login.gohtml")
 }
 func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	sessionData := sessionDataFromRequest(h.sessionProvider, r)

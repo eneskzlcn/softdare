@@ -2,7 +2,7 @@ package pkg
 
 import (
 	"embed"
-	"fmt"
+	"github.com/mvdan/xurls"
 	"html/template"
 )
 
@@ -10,19 +10,18 @@ import (
 
 var templateFS embed.FS
 
-func ParseTemplate(name string) (*template.Template, error) {
-	tmpl := template.New(name)
-	//first parses the layout the files that all template should include
-	tmpl, err := template.ParseFS(templateFS, "template/include/*.gohtml")
-	if err != nil {
-		fmt.Printf("Error occurred when parsing the including templates with name %s\n", name)
-		return nil, err
-	}
-	//parsing the exact template and merge with layout then return.
-	tmpl, err = tmpl.ParseFS(templateFS, "template/"+name+".gohtml")
-	if err != nil {
-		fmt.Printf("Error occurred when parsing the exact template with name %s\n", name)
-		return nil, err
-	}
-	return tmpl, nil
+var templateFuncs = template.FuncMap{
+	"linkify": linkify,
+}
+
+func ParseTemplate(name string) *template.Template {
+	tmpl := template.New(name).Funcs(templateFuncs)
+	tmpl = template.Must(tmpl.ParseFS(templateFS, "template/include/*.gohtml"))
+	return template.Must(tmpl.ParseFS(templateFS, "template/"+name))
+}
+
+func linkify(s string) template.HTML {
+	s = template.HTMLEscapeString(s)
+	return template.HTML(xurls.Relaxed.
+		ReplaceAllString(s, `<a href ="$0" target="_blank" rel="noopener noreferror">$0</a>`))
 }
