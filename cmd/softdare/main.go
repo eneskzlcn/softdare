@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/comment"
 	"github.com/eneskzlcn/softdare/internal/config"
 	"github.com/eneskzlcn/softdare/internal/home"
 	"github.com/eneskzlcn/softdare/internal/login"
@@ -12,6 +13,7 @@ import (
 	loggerUtil "github.com/eneskzlcn/softdare/internal/util/logger"
 	osUtil "github.com/eneskzlcn/softdare/internal/util/os"
 	"github.com/eneskzlcn/softdare/postgres"
+	"github.com/eneskzlcn/softdare/rabbitmq"
 	"net/http"
 	"os"
 )
@@ -47,14 +49,18 @@ func run() error {
 
 	renderer := server.NewRenderer(logger)
 	sessionProvider := server.NewSessionProvider(logger, configs.Session)
-
+	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, logger)
 	loginRepository := login.NewRepository(logger, db)
 	loginService := login.NewService(logger, loginRepository)
 	loginHandler := login.NewHandler(logger, loginService, renderer, sessionProvider)
 
+	commentRepository := comment.NewRepository(db, logger)
+	commentService := comment.NewService(logger, commentRepository)
+	commentHandler := comment.NewHandler(logger, commentService, sessionProvider, rabbitmqClient)
+
 	postRepository := post.NewRepository(db, logger)
 	postService := post.NewService(postRepository, logger)
-	postHandler := post.NewHandler(logger, postService, sessionProvider, renderer)
+	postHandler := post.NewHandler(logger, postService, sessionProvider, renderer, commentService)
 
 	homeService := home.NewService(postService, logger)
 	homeHandler := home.NewHandler(logger, renderer, sessionProvider, homeService)
@@ -63,8 +69,10 @@ func run() error {
 		loginHandler,
 		homeHandler,
 		postHandler,
+		commentHandler,
 	}, sessionProvider)
 
+	go post.IncreasePostCommentCountConsumer(rabbitmqClient, postService, logger)
 	if err != nil {
 		return err
 	}
