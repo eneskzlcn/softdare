@@ -15,3 +15,10 @@ SELECT posts.*, users.username
 FROM posts
 INNER JOIN users ON posts.user_id = users.id
 WHERE posts.id = @post_id;
+
+-- name: UpdatePost :one
+
+UPDATE posts
+SET comment_count = comment_count + @comment_count_increase_amount, updated_at = now()
+WHERE id = @post_id
+RETURNING updated_at;
