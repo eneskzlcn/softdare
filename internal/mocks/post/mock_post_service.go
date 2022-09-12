@@ -7,6 +7,7 @@ package mocks
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	post "github.com/eneskzlcn/softdare/internal/post"
 	gomock "github.com/golang/mock/gomock"
@@ -63,4 +64,19 @@ func (m *MockPostService) GetPostByID(arg0 context.Context, arg1 string) (*post.
 func (mr *MockPostServiceMockRecorder) GetPostByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostService)(nil).GetPostByID), arg0, arg1)
+}
+
+// IncreasePostCommentCount mocks base method.
+func (m *MockPostService) IncreasePostCommentCount(arg0 context.Context, arg1 string, arg2 int) (time.Time, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncreasePostCommentCount", arg0, arg1, arg2)
+	ret0, _ := ret[0].(time.Time)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IncreasePostCommentCount indicates an expected call of IncreasePostCommentCount.
+func (mr *MockPostServiceMockRecorder) IncreasePostCommentCount(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreasePostCommentCount", reflect.TypeOf((*MockPostService)(nil).IncreasePostCommentCount), arg0, arg1, arg2)
 }
