@@ -27,7 +27,7 @@ type Comment struct {
 	Username  string
 }
 
-func (c *CreateCommentInput) prepare() {
+func (c *CreateCommentInput) Prepare() {
 	c.Content = strings.TrimSpace(c.Content)
 	c.Content = strings.ReplaceAll(c.Content, "\n\n", "\n")
 	c.Content = strings.ReplaceAll(c.Content, "  ", " ")

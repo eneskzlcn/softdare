@@ -5,44 +5,36 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	coreTemplate "github.com/eneskzlcn/softdare/internal/core/html/template"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/router"
+	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/pkg"
-	"github.com/nicolasparada/go-mux"
 	"html/template"
 	"net/http"
 	"net/url"
 )
 
-type Renderer interface {
-	RenderTemplate(w http.ResponseWriter, template *template.Template, data any, statusCode int)
-}
-type SessionProvider interface {
-	Put(r *http.Request, key string, data any)
-	Remove(r *http.Request, key string)
-	Exists(r *http.Request, key string) bool
-	Get(r *http.Request, key string) any
-}
 type LoginService interface {
 	Login(ctx context.Context, inp LoginInput) (*User, error)
 }
 type Handler struct {
-	logger          logger.Logger
-	service         LoginService
-	loginTemplate   *template.Template
-	renderer        Renderer
-	sessionProvider SessionProvider
+	logger        logger.Logger
+	service       LoginService
+	loginTemplate *template.Template
+	session       session.Session
 }
 
-func NewHandler(logger logger.Logger, service LoginService, renderer Renderer, provider SessionProvider) *Handler {
+func NewHandler(logger logger.Logger, service LoginService, provider session.Session) *Handler {
 	if logger == nil {
 		fmt.Printf("logger can not be nil")
 		return nil
 	}
-	if service == nil || renderer == nil || provider == nil {
+	if service == nil || provider == nil {
 		logger.Error(ErrInvalidHandlerArgs)
 		return nil
 	}
-	handler := Handler{logger: logger, service: service, renderer: renderer, sessionProvider: provider}
+	handler := Handler{logger: logger, service: service, session: provider}
 	handler.init()
 	return &handler
 }
@@ -52,11 +44,11 @@ func (h *Handler) init() {
 	h.loginTemplate = pkg.ParseTemplate("login.gohtml")
 }
 func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
-	sessionData := sessionDataFromRequest(h.sessionProvider, r)
-	h.Render(w, loginPageData{Session: sessionData}, http.StatusOK)
+	sessionData := sessionDataFromRequest(h.session, r, h.logger)
+	h.Render(w, loginPageData{Session: sessionData}, http.StatusOK, coreTemplate.Render)
 }
-func (h *Handler) Render(w http.ResponseWriter, data loginPageData, statusCode int) {
-	h.renderer.RenderTemplate(w, h.loginTemplate, data, statusCode)
+func (h *Handler) Render(w http.ResponseWriter, data loginPageData, statusCode int, renderFn coreTemplate.RenderFn) {
+	renderFn(h.logger, w, h.loginTemplate, data, statusCode)
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -68,8 +60,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := r.Context()
 	inp := LoginInput{
-		Email: r.PostFormValue("email"),
-
+		Email:    r.PostFormValue("email"),
 		Username: ExtractFormValue(r.Form, "username"),
 	}
 	user, err := h.service.Login(ctx, inp)
@@ -79,32 +70,27 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			h.Render(w, loginPageData{
 				Form: r.PostForm,
 				Err:  err,
-			}, http.StatusBadRequest)
+			}, http.StatusBadRequest, coreTemplate.Render)
 			return
 		}
 		http.Error(w, "could not login", http.StatusInternalServerError)
 		return
 	}
 	h.logger.Debugf("Successfully logged in user %v", user)
-	h.sessionProvider.Put(r, "user", UserSessionData{ID: user.ID, Email: user.Email, Username: user.Username})
+	h.session.Put(r, "user", UserSessionData{ID: user.ID, Email: user.Email, Username: user.Username})
 	h.logger.Debugf("Session defined for the user %v", user)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	h.sessionProvider.Remove(r, "user")
+	h.session.Remove(r, "user")
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (h *Handler) RegisterHandlers(router *mux.Router) {
-	router.Handle("/login", mux.MethodHandler{
-		http.MethodGet:  h.Show,
-		http.MethodPost: h.Login,
-	})
-	router.Handle("/logout", mux.MethodHandler{
-		http.MethodPost: h.Logout,
-	})
-
+func (h *Handler) RegisterHandlers(router router.Router) {
+	router.Handle("/login", http.MethodGet, h.Show)
+	router.Handle("/login", http.MethodPost, h.Login)
+	router.Handle("/logout", http.MethodPost, h.Logout)
 }
 
 func ExtractFormValue(form url.Values, key string) *string {

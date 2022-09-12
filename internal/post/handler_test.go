@@ -1,7 +1,6 @@
 package post_test
 
 import (
-	mux_router "github.com/eneskzlcn/mux-router"
 	mocks "github.com/eneskzlcn/softdare/internal/mocks/post"
 	"github.com/eneskzlcn/softdare/internal/post"
 	"github.com/golang/mock/gomock"
@@ -17,22 +16,32 @@ func TestNewHandler(t *testing.T) {
 	controller := gomock.NewController(t)
 	mockPostService := mocks.NewMockPostService(controller)
 	mockSessionProvider := mocks.NewMockSessionProvider(controller)
+	mockRenderer := mocks.NewMockRenderer(controller)
+	commentService := mocks.NewMockCommentService(controller)
 	logger := zap.NewExample().Sugar()
 
 	t.Run("given nil logger then it should return nil when NewHandler called", func(t *testing.T) {
-		handler := post.NewHandler(nil, mockPostService, mockSessionProvider)
+		handler := post.NewHandler(nil, mockPostService, mockSessionProvider, mockRenderer, commentService)
 		assert.Nil(t, handler)
 	})
 	t.Run("given nil post service then it should return nil when NewHandler called", func(t *testing.T) {
-		handler := post.NewHandler(logger, nil, mockSessionProvider)
+		handler := post.NewHandler(logger, nil, mockSessionProvider, mockRenderer, commentService)
 		assert.Nil(t, handler)
 	})
 	t.Run("given nil session provider then it should return nil when NewHandler called", func(t *testing.T) {
-		handler := post.NewHandler(logger, mockPostService, nil)
+		handler := post.NewHandler(logger, mockPostService, nil, mockRenderer, commentService)
+		assert.Nil(t, handler)
+	})
+	t.Run("given nil renderer then it should return nil when NewHandler called", func(t *testing.T) {
+		handler := post.NewHandler(logger, mockPostService, mockSessionProvider, nil, commentService)
+		assert.Nil(t, handler)
+	})
+	t.Run("given nil comment service then it should return nil when NewHandler called", func(t *testing.T) {
+		handler := post.NewHandler(logger, mockPostService, mockSessionProvider, mockRenderer, nil)
 		assert.Nil(t, handler)
 	})
 	t.Run("given valid args then it should return handler when NewHandler called", func(t *testing.T) {
-		handler := post.NewHandler(logger, mockPostService, mockSessionProvider)
+		handler := post.NewHandler(logger, mockPostService, mockSessionProvider, mockRenderer, commentService)
 		assert.NotNil(t, handler)
 	})
 }
@@ -41,7 +50,7 @@ func TestHandler_CreatePost(t *testing.T) {
 	mockPostService := mocks.NewMockPostService(controller)
 	mockSessionProvider := mocks.NewMockSessionProvider(controller)
 	logger := zap.NewExample().Sugar()
-	handler := post.NewHandler(logger, mockPostService, mockSessionProvider)
+	handler := post.NewHandler(logger, mockPostService, mockSessionProvider, nil, nil)
 
 	router := mux_router.New()
 	router.HandleFunc(http.MethodPost, "/posts", handler.CreatePost)

@@ -27,11 +27,6 @@ func New(config config.Server, handler RootHandler, logger logger.Logger) *Serve
 		logger.Error("Given root handler to server is nil")
 		return nil
 	}
-	err := validateServerAddress(config.Address)
-	if err != nil {
-		logger.Error("Error when validating server address")
-		return nil
-	}
 	server.server = &http.Server{Addr: config.Address, Handler: handler}
 	return &server
 }

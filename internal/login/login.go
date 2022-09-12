@@ -1,6 +1,8 @@
 package login
 
 import (
+	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/session"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
@@ -52,9 +54,9 @@ type UserSessionData struct {
 	Username string `json:"username"`
 }
 
-func sessionDataFromRequest(session SessionProvider, r *http.Request) SessionData {
+func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) SessionData {
 	var out SessionData
-	generalSession := sessionUtil.GeneralSessionDataFromRequest(session, r)
+	generalSession := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
 	if generalSession.IsLoggedIn {
 		out.IsLoggedIn = generalSession.IsLoggedIn
 		out.User.ID = generalSession.User.ID

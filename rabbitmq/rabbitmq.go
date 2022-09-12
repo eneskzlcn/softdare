@@ -5,22 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/config"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.uber.org/zap"
-	"log"
 	"time"
 )
 
-type Logger interface {
-	Error(args ...interface{})
-	Debug(args ...interface{})
-}
 type Client struct {
 	connection *amqp.Connection
-	logger     Logger
+	logger     logger.Logger
 }
 
-func New(config config.RabbitMQ, logger Logger) *Client {
+func New(config config.RabbitMQ, logger logger.Logger) *Client {
 	if logger == nil {
 		fmt.Println("given logger is nil")
 		return nil
@@ -89,7 +85,7 @@ func (c *Client) Consume(messageReceived chan []byte, consumer string, queue str
 	var forever chan struct{}
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
+			c.logger.Debugf("Received a message: %s", string(d.Body))
 			messageReceived <- d.Body
 		}
 	}()

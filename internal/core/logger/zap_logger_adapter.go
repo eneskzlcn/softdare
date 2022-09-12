@@ -11,10 +11,10 @@ type ZapLoggerAdapter struct {
 
 func newLoggerForEnv(env string) (*zap.SugaredLogger, error) {
 	if env == "" || env == "local" || env == "test" || env == "qa" || env == "dev" {
-		logger, err := zap.NewDevelopment(zap.AddCaller())
+		logger, err := zap.NewDevelopment(zap.AddCallerSkip(1))
 		return logger.Sugar(), err
 	} else {
-		logger, err := zap.NewProduction(zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
+		logger, err := zap.NewProduction(zap.AddCallerSkip(1), zap.AddStacktrace(zap.ErrorLevel))
 		return logger.Sugar(), err
 	}
 }

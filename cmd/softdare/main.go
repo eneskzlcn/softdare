@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/comment"
 	"github.com/eneskzlcn/softdare/internal/config"
-	logger "github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/home"
 	"github.com/eneskzlcn/softdare/internal/login"
 	"github.com/eneskzlcn/softdare/internal/post"
@@ -44,31 +45,30 @@ func run() error {
 	if err = postgres.MigrateTables(context.Background(), db); err != nil {
 		return err
 	}
-
-	renderer := server.NewRenderer(logger)
-	sessionProvider := server.NewSessionProvider(logger, configs.Session)
+	session := session.NewCollegeSessionAdapter(logger, configs.Session)
 	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, logger)
+
 	loginRepository := login.NewRepository(logger, db)
 	loginService := login.NewService(logger, loginRepository)
-	loginHandler := login.NewHandler(logger, loginService, renderer, sessionProvider)
+	loginHandler := login.NewHandler(logger, loginService, session)
 
 	commentRepository := comment.NewRepository(db, logger)
 	commentService := comment.NewService(logger, commentRepository)
-	commentHandler := comment.NewHandler(logger, commentService, sessionProvider, rabbitmqClient)
+	commentHandler := comment.NewHandler(logger, commentService, session, rabbitmqClient)
 
 	postRepository := post.NewRepository(db, logger)
 	postService := post.NewService(postRepository, logger)
-	postHandler := post.NewHandler(logger, postService, sessionProvider, renderer, commentService)
+	postHandler := post.NewHandler(logger, postService, session, commentService)
 
 	homeService := home.NewService(postService, logger)
-	homeHandler := home.NewHandler(logger, renderer, sessionProvider, homeService)
+	homeHandler := home.NewHandler(logger, session, homeService)
 
 	handler, err := server.NewHandler(logger, []server.RouteHandler{
 		loginHandler,
 		homeHandler,
 		postHandler,
 		commentHandler,
-	}, sessionProvider)
+	}, session)
 
 	go post.IncreasePostCommentCountConsumer(rabbitmqClient, postService, logger)
 	if err != nil {

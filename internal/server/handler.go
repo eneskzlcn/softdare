@@ -3,34 +3,34 @@ package server
 import (
 	"encoding/gob"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
-	"github.com/nicolasparada/go-mux"
+	"github.com/eneskzlcn/softdare/internal/core/router"
 	"net/http"
 	"net/url"
 	"sync"
 )
 
 type RouteHandler interface {
-	RegisterHandlers(router *mux.Router)
+	RegisterHandlers(router router.Router)
 }
 type Session interface {
 	Enable(handler http.Handler) http.Handler
 }
 type Handler struct {
-	logger          logger.Logger
-	sessionProvider Session
-	handler         http.Handler
-	once            sync.Once
+	logger  logger.Logger
+	session Session
+	handler http.Handler
+	once    sync.Once
 }
 
-func NewHandler(logger logger.Logger, routeHandlers []RouteHandler, sessionProvider Session) (*Handler, error) {
+func NewHandler(logger logger.Logger, routeHandlers []RouteHandler, session Session) (*Handler, error) {
 	if logger == nil {
 		return nil, ErrLoggerNil
 	}
-	if sessionProvider == nil {
+	if session == nil {
 		return nil, ErrSessionProviderNil
 	}
-	handler := Handler{logger: logger, sessionProvider: sessionProvider}
-	router := mux.NewRouter()
+	handler := Handler{logger: logger, session: session}
+	router := router.NewMuxRouterAdapter()
 	for _, routeHandler := range routeHandlers {
 		if routeHandler == nil {
 			logger.Error("One of the given routeHandlers to the server handler is nil")
@@ -39,7 +39,7 @@ func NewHandler(logger logger.Logger, routeHandlers []RouteHandler, sessionProvi
 		routeHandler.RegisterHandlers(router)
 	}
 	handler.handler = router
-	handler.handler = sessionProvider.Enable(handler.handler)
+	handler.handler = session.Enable(handler.handler)
 	gob.Register(url.Values{})
 
 	return &handler, nil

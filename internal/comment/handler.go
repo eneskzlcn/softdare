@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/router"
+	"github.com/eneskzlcn/softdare/internal/core/session"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
-	"github.com/nicolasparada/go-mux"
 	"github.com/rs/xid"
 	"net/http"
 )
@@ -18,32 +19,23 @@ type CommentService interface {
 type RabbitMQClient interface {
 	PushMessage(message any, queue string) error
 }
-
-type SessionProvider interface {
-	Exists(r *http.Request, key string) bool
-	Get(r *http.Request, key string) any
-	GetString(r *http.Request, key string) string
-	PopError(r *http.Request, key string) error
-	Pop(r *http.Request, key string) any
-	Put(r *http.Request, key string, data any)
-}
 type Handler struct {
-	logger          logger.Logger
-	service         CommentService
-	sessionProvider SessionProvider
-	rabbitmqClient  RabbitMQClient
+	logger         logger.Logger
+	service        CommentService
+	session        session.Session
+	rabbitmqClient RabbitMQClient
 }
 
-func NewHandler(logger logger.Logger, service CommentService, sessionProvider SessionProvider, rabbitmqClient RabbitMQClient) *Handler {
+func NewHandler(logger logger.Logger, service CommentService, session session.Session, rabbitmqClient RabbitMQClient) *Handler {
 	if logger == nil {
 		fmt.Println("logger is nil")
 		return nil
 	}
-	if service == nil || sessionProvider == nil || rabbitmqClient == nil {
+	if service == nil || session == nil || rabbitmqClient == nil {
 		logger.Error("invalid arguments to create comment handler")
 		return nil
 	}
-	return &Handler{logger: logger, service: service, sessionProvider: sessionProvider, rabbitmqClient: rabbitmqClient}
+	return &Handler{logger: logger, service: service, session: session, rabbitmqClient: rabbitmqClient}
 }
 func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
@@ -52,7 +44,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 	postID := r.PostFormValue("post_id")
 	content := r.PostFormValue("content")
-	data := h.sessionProvider.Get(r, "user")
+	data := h.session.Get(r, "user")
 	user, err := convertionUtil.AnyToGivenType[User](data)
 	if err != nil {
 		h.logger.Error("error getting user from session")
@@ -83,14 +75,12 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
-func (h *Handler) RegisterHandlers(router *mux.Router) {
-	router.Handle("/comments", mux.MethodHandler{
-		http.MethodPost: h.CreateComment,
-	})
+func (h *Handler) RegisterHandlers(router router.Router) {
+	router.Handle("/comments", http.MethodPost, h.CreateComment)
 }
 func (h *Handler) handleCreateCommentError(w http.ResponseWriter, r *http.Request, err error) {
 	h.logger.Error("error creating comment on service")
-	h.sessionProvider.Put(r, "create-comment-error", err.Error())
-	h.sessionProvider.Put(r, "create-comment-form", r.PostForm)
+	h.session.Put(r, "create-comment-error", err.Error())
+	h.session.Put(r, "create-comment-form", r.PostForm)
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }

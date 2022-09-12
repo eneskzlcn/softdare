@@ -2,6 +2,8 @@ package post
 
 import (
 	"github.com/eneskzlcn/softdare/internal/comment"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/util/convertion"
 	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
@@ -111,9 +113,9 @@ func formatComment(comment *comment.Comment) (formattedComment FormattedComment)
 	formattedComment.UpdatedAt = postUtil.FormatPostTime(comment.UpdatedAt)
 	return
 }
-func sessionDataFromRequest(session SessionProvider, r *http.Request) SessionData {
+func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) SessionData {
 	var out SessionData
-	generalSession := sessionUtil.GeneralSessionDataFromRequest(session, r)
+	generalSession := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
 	if generalSession.IsLoggedIn {
 		out.IsLoggedIn = generalSession.IsLoggedIn
 		out.User.ID = generalSession.User.ID

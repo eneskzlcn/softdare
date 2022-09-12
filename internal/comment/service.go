@@ -31,7 +31,7 @@ func NewService(logger logger.Logger, repo CommentRepository) *Service {
 }
 
 func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Comment, error) {
-	in.prepare()
+	in.Prepare()
 	if err := in.Validate(); err != nil {
 		s.logger.Errorf("validation error. Error: %s", err.Error())
 	}

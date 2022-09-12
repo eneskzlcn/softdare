@@ -2,7 +2,7 @@ package pkg
 
 import (
 	"embed"
-	"github.com/mvdan/xurls"
+	coreTemplate "github.com/eneskzlcn/softdare/internal/core/html/template"
 	"html/template"
 )
 
@@ -11,17 +11,10 @@ import (
 var templateFS embed.FS
 
 var templateFuncs = template.FuncMap{
-	"linkify": linkify,
+	"linkify": coreTemplate.Linkify,
 }
 
 func ParseTemplate(name string) *template.Template {
-	tmpl := template.New(name).Funcs(templateFuncs)
-	tmpl = template.Must(tmpl.ParseFS(templateFS, "template/include/*.gohtml"))
-	return template.Must(tmpl.ParseFS(templateFS, "template/"+name))
-}
-
-func linkify(s string) template.HTML {
-	s = template.HTMLEscapeString(s)
-	return template.HTML(xurls.Relaxed.
-		ReplaceAllString(s, `<a href ="$0" target="_blank" rel="noopener noreferror">$0</a>`))
+	return coreTemplate.Parse(name, templateFuncs, templateFS,
+		"template/include/*.gohtml", "template/")
 }

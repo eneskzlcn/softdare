@@ -2,6 +2,8 @@ package home
 
 import (
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/session"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
 	"net/http"
@@ -35,9 +37,9 @@ type Post struct {
 	Username     string
 }
 
-func sessionDataFromRequest(session SessionProvider, r *http.Request) SessionData {
+func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) SessionData {
 	var out SessionData
-	generalSessionData := sessionUtil.GeneralSessionDataFromRequest(session, r)
+	generalSessionData := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
 	if generalSessionData.IsLoggedIn {
 		out.IsLoggedIn = generalSessionData.IsLoggedIn
 		out.User.ID = generalSessionData.User.ID
