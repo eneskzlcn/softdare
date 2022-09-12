@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"go.uber.org/zap"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"time"
 )
 
@@ -17,10 +17,10 @@ type DB interface {
 
 type Repository struct {
 	db     DB
-	logger *zap.SugaredLogger
+	logger logger.Logger
 }
 
-func NewRepository(db DB, logger *zap.SugaredLogger) *Repository {
+func NewRepository(db DB, logger logger.Logger) *Repository {
 	if logger == nil {
 		fmt.Println("logger is nil")
 		return nil
@@ -32,7 +32,7 @@ func NewRepository(db DB, logger *zap.SugaredLogger) *Repository {
 	return &Repository{db: db, logger: logger}
 }
 func (r *Repository) CreateComment(ctx context.Context, input CreateCommentRequest) (time.Time, error) {
-	r.logger.Debug("Create Comment Request Arrived To Repository", zap.String("commentID", input.ID))
+	r.logger.Debugf("Create Comment Request Arrived To Repository With ID:%s", input.ID)
 
 	query := `
 		INSERT INTO comments (id, user_id, post_id, content)
@@ -45,8 +45,7 @@ func (r *Repository) CreateComment(ctx context.Context, input CreateCommentReque
 	return createdAt, err
 }
 func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error) {
-	r.logger.Debug("Get Comments By Post ID Request Arrived To Repository", zap.String("postID", postID))
-
+	r.logger.Debugf("Get Comments By Post ID Request Arrived To Repository With Post ID:%s", postID)
 	query := `
 		SELECT comments.id, comments.user_id, comments.post_id, comments.content, comments.created_at, comments.updated_at, users.username 
 		FROM comments

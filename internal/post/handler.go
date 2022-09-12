@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/comment"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
 	"github.com/nicolasparada/go-mux"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 	"time"
@@ -35,7 +35,7 @@ type SessionProvider interface {
 	PopError(r *http.Request, key string) error
 }
 type Handler struct {
-	logger          *zap.SugaredLogger
+	logger          logger.Logger
 	service         PostService
 	commentService  CommentService
 	template        *template.Template
@@ -43,7 +43,7 @@ type Handler struct {
 	renderer        Renderer
 }
 
-func NewHandler(logger *zap.SugaredLogger, service PostService, sessionProvider SessionProvider, renderer Renderer, commentService CommentService) *Handler {
+func NewHandler(logger logger.Logger, service PostService, sessionProvider SessionProvider, renderer Renderer, commentService CommentService) *Handler {
 	if logger == nil {
 		fmt.Printf("given logger is nil\n")
 		return nil
@@ -68,13 +68,13 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	data := h.sessionProvider.Get(r, userContextKey)
 	user, err := convertionUtil.AnyToGivenType[User](data)
 	if err != nil {
-		h.logger.Error("can not converted session data to user struct", zap.Error(err))
+		h.logger.Errorf("can not converted session data to user struct with error %s", err.Error())
 		return
 	}
 	ctx := contextUtil.WithContext[User](r.Context(), userContextKey, user)
 	_, err = h.service.CreatePost(ctx, CreatePostInput{Content: r.PostFormValue("content")})
 	if err != nil {
-		h.logger.Error("oops creating post from server", zap.Error(err))
+		h.logger.Error("oops creating post from server")
 		h.sessionProvider.Put(r, "create-post-oops", err.Error())
 		http.Redirect(w, r, "/", http.StatusInternalServerError)
 	}
@@ -85,24 +85,24 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	postID := mux.URLParam(ctx, "postID")
 	_, err := xid.FromString(postID)
 	if err != nil {
-		h.logger.Error("can not parse post id", zap.Any("postID", postID))
+		h.logger.Errorf("can not parse post id: %s", postID)
 		oops.RenderPage(h.renderer, h.logger, h.sessionProvider, r, w, err, http.StatusFound)
 		return
 	}
 	post, err := h.service.GetPostByID(ctx, postID)
 	if err != nil {
-		h.logger.Error("can not take post from service", zap.String("postID", postID))
+		h.logger.Error("can not take post from service. Post ID: %s", postID)
 		oops.RenderPage(h.renderer, h.logger, h.sessionProvider, r, w, err, http.StatusFound)
 		return
 	}
 	comments, err := h.commentService.GetCommentsByPostID(ctx, postID)
 	if err != nil {
-		h.logger.Error("can not take comments from service", zap.String("postID", postID))
+		h.logger.Errorf("can not take comments from service. Post ID: %s", postID)
 		oops.RenderPage(h.renderer, h.logger, h.sessionProvider, r, w, err, http.StatusFound)
 		return
 	}
 	formattedPost := FormatPost(post)
-	h.logger.Debug("FORMATTED POST", zap.Any("POST", formattedPost))
+	h.logger.Debugf("FORMATTED POST: %v", formattedPost)
 	formattedComments := FormatComments(comments)
 	sessionData := sessionDataFromRequest(h.sessionProvider, r)
 	h.Render(w, postData{Post: formattedPost, Session: sessionData, Comments: formattedComments}, http.StatusFound)

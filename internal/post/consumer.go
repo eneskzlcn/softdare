@@ -3,7 +3,7 @@ package post
 import (
 	"context"
 	"encoding/json"
-	"go.uber.org/zap"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 )
 
 type RabbitMQClient interface {
@@ -14,7 +14,7 @@ type IncreasePostCommentCountMessage struct {
 	IncreaseAmount int    `json:"increase_amount"`
 }
 
-func IncreasePostCommentCountConsumer(client RabbitMQClient, postService PostService, logger *zap.SugaredLogger) {
+func IncreasePostCommentCountConsumer(client RabbitMQClient, postService PostService, logger logger.Logger) {
 	onRecievedChan := make(chan []byte, 0)
 	go client.Consume(onRecievedChan, "increase-post-comment-count-consumer", "increase-post-comment-count")
 	var forever chan struct{}
@@ -29,7 +29,7 @@ func IncreasePostCommentCountConsumer(client RabbitMQClient, postService PostSer
 			}
 			_, err = postService.IncreasePostCommentCount(context.Background(), message.PostID, message.IncreaseAmount)
 			if err != nil {
-				logger.Error("error on increasing post comment count", zap.String("error", err.Error()))
+				logger.Error("error on increasing post comment count ", err)
 				//maybe we can add a retry mechanism t
 				continue
 			}

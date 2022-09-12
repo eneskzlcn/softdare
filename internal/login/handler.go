@@ -5,9 +5,9 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	"github.com/nicolasparada/go-mux"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -26,14 +26,14 @@ type LoginService interface {
 	Login(ctx context.Context, inp LoginInput) (*User, error)
 }
 type Handler struct {
-	logger          *zap.SugaredLogger
+	logger          logger.Logger
 	service         LoginService
 	loginTemplate   *template.Template
 	renderer        Renderer
 	sessionProvider SessionProvider
 }
 
-func NewHandler(logger *zap.SugaredLogger, service LoginService, renderer Renderer, provider SessionProvider) *Handler {
+func NewHandler(logger logger.Logger, service LoginService, renderer Renderer, provider SessionProvider) *Handler {
 	if logger == nil {
 		fmt.Printf("logger can not be nil")
 		return nil
@@ -74,7 +74,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := h.service.Login(ctx, inp)
 	if err != nil {
-		h.logger.Debug("could not login", zap.Error(err))
+		h.logger.Debug("could not login")
 		if errors.Is(err, ErrUserNotFound) || errors.Is(err, ErrUsernameAlreadyTaken) || errors.Is(err, ErrValidation) {
 			h.Render(w, loginPageData{
 				Form: r.PostForm,

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 	"time"
 )
 
@@ -17,6 +17,7 @@ type LoginRepository interface {
 }
 type Service struct {
 	repository LoginRepository
+	logger     logger.Logger
 }
 
 var (
@@ -24,7 +25,7 @@ var (
 	ErrUsernameAlreadyTaken = errors.New("username already taken")
 )
 
-func NewService(logger *zap.SugaredLogger, repository LoginRepository) *Service {
+func NewService(logger logger.Logger, repository LoginRepository) *Service {
 	if logger == nil {
 		fmt.Println("Given logger to service is nil.")
 		return nil
@@ -33,22 +34,26 @@ func NewService(logger *zap.SugaredLogger, repository LoginRepository) *Service 
 		logger.Error(ErrRepositoryNil)
 		return nil
 	}
-	return &Service{repository: repository}
+	return &Service{repository: repository, logger: logger}
 }
 
 func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
 	exists, err := s.repository.IsUserExistsByEmail(ctx, inp.Email)
 	if err != nil {
+		s.logger.Error("error is user exists by email from repository")
 		return nil, err
 	}
 	if exists {
+		s.logger.Debug("user getting from repository")
 		return s.repository.GetUserByEmail(ctx, inp.Email)
 	}
 	if inp.Username == nil {
+		s.logger.Error("username not found")
 		return nil, ErrUserNotFound
 	}
 	exists, err = s.repository.IsUserExistsByUsername(ctx, *inp.Username)
 	if err != nil {
+		s.logger.Error("getting user exist by username from repository error")
 		return nil, err
 	}
 	if exists {
@@ -62,11 +67,13 @@ func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
 		Username: *inp.Username,
 	}
 	if err = createUserRequest.Validate(); err != nil {
+		s.logger.Error(ErrValidation)
 		return nil, ErrValidation
 	}
 	//if validated then create the user
 	createdAt, err := s.repository.CreateUser(ctx, createUserRequest)
 	if err != nil {
+		s.logger.Error(err)
 		return nil, err
 	}
 	return &User{

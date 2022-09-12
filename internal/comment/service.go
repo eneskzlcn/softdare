@@ -3,9 +3,9 @@ package comment
 import (
 	"context"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 	"time"
 )
 
@@ -14,11 +14,11 @@ type CommentRepository interface {
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error)
 }
 type Service struct {
-	logger *zap.SugaredLogger
+	logger logger.Logger
 	repo   CommentRepository
 }
 
-func NewService(logger *zap.SugaredLogger, repo CommentRepository) *Service {
+func NewService(logger logger.Logger, repo CommentRepository) *Service {
 	if logger == nil {
 		fmt.Println("given logger is nil")
 		return nil
@@ -33,11 +33,11 @@ func NewService(logger *zap.SugaredLogger, repo CommentRepository) *Service {
 func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Comment, error) {
 	in.prepare()
 	if err := in.Validate(); err != nil {
-		s.logger.Error("validation error", zap.Error(err))
+		s.logger.Errorf("validation error. Error: %s", err.Error())
 	}
 	user, exists := contextUtil.FromContext[User]("user", ctx)
 	if !exists {
-		s.logger.Error(zap.Error(ErrCouldNotTakeUserFromContext), zap.Any("Exists", exists))
+		s.logger.Error("%s , Exists: %t", ErrCouldNotTakeUserFromContext, exists)
 		return nil, ErrCouldNotTakeUserFromContext
 	}
 	id := xid.New().String()
@@ -68,7 +68,7 @@ func (s *Service) GetCommentsByPostID(ctx context.Context, postID string) ([]*Co
 	}
 	comments, err := s.repo.GetCommentsByPostID(ctx, postID)
 	if err != nil {
-		s.logger.Error("error getting comments from repository", zap.Error(err))
+		s.logger.Error("error getting comments from repository")
 		return nil, err
 	}
 	return comments, nil

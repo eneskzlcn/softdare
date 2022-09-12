@@ -2,8 +2,8 @@ package server
 
 import (
 	"encoding/gob"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/nicolasparada/go-mux"
-	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 	"sync"
@@ -16,13 +16,13 @@ type Session interface {
 	Enable(handler http.Handler) http.Handler
 }
 type Handler struct {
-	logger          *zap.SugaredLogger
+	logger          logger.Logger
 	sessionProvider Session
 	handler         http.Handler
 	once            sync.Once
 }
 
-func NewHandler(logger *zap.SugaredLogger, routeHandlers []RouteHandler, sessionProvider Session) (*Handler, error) {
+func NewHandler(logger logger.Logger, routeHandlers []RouteHandler, sessionProvider Session) (*Handler, error) {
 	if logger == nil {
 		return nil, ErrLoggerNil
 	}

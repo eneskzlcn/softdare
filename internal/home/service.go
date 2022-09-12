@@ -3,20 +3,20 @@ package home
 import (
 	"context"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/post"
 	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
-	"go.uber.org/zap"
 )
 
 type PostService interface {
 	GetPosts(ctx context.Context) ([]*post.Post, error)
 }
 type Service struct {
-	logger      *zap.SugaredLogger
+	logger      logger.Logger
 	postService PostService
 }
 
-func NewService(postService PostService, logger *zap.SugaredLogger) *Service {
+func NewService(postService PostService, logger logger.Logger) *Service {
 	if logger == nil {
 		fmt.Println("logger is nil")
 		return nil
@@ -31,7 +31,7 @@ func NewService(postService PostService, logger *zap.SugaredLogger) *Service {
 func (s *Service) GetPosts(ctx context.Context) ([]Post, error) {
 	postPtrs, err := s.postService.GetPosts(ctx)
 	if err != nil {
-		s.logger.Error("oops getting posts from post service", zap.Error(err))
+		s.logger.Error("oops getting posts from post service")
 		return nil, err
 	}
 	posts := make([]Post, 0)

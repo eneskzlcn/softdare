@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/config"
-	"go.uber.org/zap"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"net/http"
 )
 
@@ -14,10 +14,10 @@ type RootHandler interface {
 type Server struct {
 	server  *http.Server
 	handler Handler
-	logger  *zap.SugaredLogger
+	logger  logger.Logger
 }
 
-func New(config config.Server, handler RootHandler, logger *zap.SugaredLogger) *Server {
+func New(config config.Server, handler RootHandler, logger logger.Logger) *Server {
 	server := Server{}
 	if logger == nil {
 		fmt.Printf("Given logger to server is nil\n")
@@ -29,7 +29,7 @@ func New(config config.Server, handler RootHandler, logger *zap.SugaredLogger) *
 	}
 	err := validateServerAddress(config.Address)
 	if err != nil {
-		logger.Error("Error when validating server address", zap.Error(err))
+		logger.Error("Error when validating server address")
 		return nil
 	}
 	server.server = &http.Server{Addr: config.Address, Handler: handler}

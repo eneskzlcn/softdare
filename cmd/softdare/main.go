@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/comment"
 	"github.com/eneskzlcn/softdare/internal/config"
+	logger "github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/home"
 	"github.com/eneskzlcn/softdare/internal/login"
 	"github.com/eneskzlcn/softdare/internal/post"
 	"github.com/eneskzlcn/softdare/internal/server"
-	loggerUtil "github.com/eneskzlcn/softdare/internal/util/logger"
 	osUtil "github.com/eneskzlcn/softdare/internal/util/os"
 	"github.com/eneskzlcn/softdare/postgres"
 	"github.com/eneskzlcn/softdare/rabbitmq"
@@ -27,10 +27,8 @@ func main() {
 
 func run() error {
 	env := osUtil.GetEnv("DEPLOYMENT_ENVIRONMENT", "local")
-	logger, err := loggerUtil.NewLoggerForEnv(env)
-	if err != nil {
-		return err
-	}
+	logger := logger.NewZapLoggerAdapter(env)
+
 	defer logger.Sync()
 
 	configs, err := config.LoadConfig(".dev/", env, "yaml")

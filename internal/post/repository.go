@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"go.uber.org/zap"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"time"
 )
 
@@ -16,11 +16,11 @@ type DB interface {
 }
 
 type Repository struct {
-	logger *zap.SugaredLogger
+	logger logger.Logger
 	db     DB
 }
 
-func NewRepository(db DB, logger *zap.SugaredLogger) *Repository {
+func NewRepository(db DB, logger logger.Logger) *Repository {
 	if logger == nil {
 		fmt.Sprintf("given logger is nil")
 		return nil
@@ -32,7 +32,7 @@ func NewRepository(db DB, logger *zap.SugaredLogger) *Repository {
 	return &Repository{db: db, logger: logger}
 }
 func (r *Repository) CreatePost(ctx context.Context, request CreatePostRequest) (time.Time, error) {
-	r.logger.Debug("A request for creating new post arrived to post repository", zap.String("id", request.ID))
+	r.logger.Debugf("A request for creating new post arrived to post repository with id:%s", request.ID)
 	query := `
 		INSERT INTO posts (id, user_id, content) 
 		VALUES ($1, $2, $3) 
@@ -80,7 +80,7 @@ func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
 	return items, nil
 }
 func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, error) {
-	r.logger.Debug("Query arrived for post", zap.String("post_id", postID))
+	r.logger.Debug("Query arrived for get post by id :%", postID)
 
 	query := `
 		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username

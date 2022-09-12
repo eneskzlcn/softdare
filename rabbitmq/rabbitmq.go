@@ -11,12 +11,16 @@ import (
 	"time"
 )
 
+type Logger interface {
+	Error(args ...interface{})
+	Debug(args ...interface{})
+}
 type Client struct {
 	connection *amqp.Connection
-	logger     *zap.SugaredLogger
+	logger     Logger
 }
 
-func New(config config.RabbitMQ, logger *zap.SugaredLogger) *Client {
+func New(config config.RabbitMQ, logger Logger) *Client {
 	if logger == nil {
 		fmt.Println("given logger is nil")
 		return nil

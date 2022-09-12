@@ -3,10 +3,10 @@ package home
 import (
 	"context"
 	"encoding/gob"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	"github.com/nicolasparada/go-mux"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 )
@@ -27,14 +27,14 @@ type HomeService interface {
 }
 
 type Handler struct {
-	logger          *zap.SugaredLogger
+	logger          logger.Logger
 	homeTemplate    *template.Template
 	renderer        Renderer
 	service         HomeService
 	sessionProvider SessionProvider
 }
 
-func NewHandler(logger *zap.SugaredLogger, renderer Renderer, provider SessionProvider, service HomeService) *Handler {
+func NewHandler(logger logger.Logger, renderer Renderer, provider SessionProvider, service HomeService) *Handler {
 	if logger == nil {
 		return nil
 	}

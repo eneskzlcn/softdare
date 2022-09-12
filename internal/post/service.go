@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 	"time"
 )
 
@@ -17,17 +17,17 @@ type PostRepository interface {
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 type Service struct {
-	logger *zap.SugaredLogger
+	logger logger.Logger
 	repo   PostRepository
 }
 
-func NewService(repo PostRepository, logger *zap.SugaredLogger) *Service {
+func NewService(repo PostRepository, logger logger.Logger) *Service {
 	if logger == nil {
 		fmt.Sprintf("given logger to service is nil")
 		return nil
 	}
 	if repo == nil {
-		logger.Error(ErrPostRepositoryNil)
+		logger.Error(ErrPostRepositoryNil.Error())
 		return nil
 	}
 	return &Service{repo: repo, logger: logger}
@@ -79,7 +79,7 @@ func (s *Service) GetPostByID(ctx context.Context, postID string) (*Post, error)
 func (s *Service) IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error) {
 	_, err := xid.FromString(postID)
 	if err != nil {
-		s.logger.Error("not valid postID", zap.String("postID", postID))
+		s.logger.Error("not valid postID : %", postID)
 		return time.Time{}, err
 	}
 	if increaseAmount <= 0 || increaseAmount >= 10 {

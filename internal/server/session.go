@@ -3,8 +3,8 @@ package server
 import (
 	"errors"
 	"github.com/eneskzlcn/softdare/internal/config"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/golangcollege/sessions"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
@@ -20,17 +20,17 @@ type SessionData struct {
 }
 
 type SessionProvider struct {
-	logger     *zap.SugaredLogger
+	logger     logger.Logger
 	session    *sessions.Session
 	sessionKey []byte
 }
 
-func NewSessionProvider(logger *zap.SugaredLogger, config config.Session) *SessionProvider {
+func NewSessionProvider(logger logger.Logger, config config.Session) *SessionProvider {
 	if logger == nil {
 		return nil
 	}
 	if err := validateSessionKey(config.Key); err != nil {
-		logger.Error("Err validating session key ", zap.Error(err))
+		logger.Errorf("Err validating session key. Error:%s ", err.Error())
 		return nil
 	}
 	sessionKeyByte := []byte(config.Key)
@@ -82,6 +82,6 @@ func (s *SessionProvider) PopError(r *http.Request, key string) error {
 	return nil
 }
 func (s *SessionProvider) Enable(handler http.Handler) http.Handler {
-	s.logger.Debug("REQUEST ARRIVE FOR ENABLE THE SESSION FOR HANDLER", zap.Any("handler", handler))
+	s.logger.Debug("REQUEST ARRIVE FOR ENABLE THE SESSION FOR HANDLER")
 	return s.session.Enable(handler)
 }

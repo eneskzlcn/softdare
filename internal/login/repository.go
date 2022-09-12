@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"go.uber.org/zap"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"time"
 )
 
@@ -17,10 +17,10 @@ type DB interface {
 
 type Repository struct {
 	db     DB
-	logger *zap.SugaredLogger
+	logger logger.Logger
 }
 
-func NewRepository(logger *zap.SugaredLogger, db DB) *Repository {
+func NewRepository(logger logger.Logger, db DB) *Repository {
 	if logger == nil {
 		fmt.Println("given logger is nil")
 		return nil
@@ -33,7 +33,7 @@ func NewRepository(logger *zap.SugaredLogger, db DB) *Repository {
 }
 
 func (r *Repository) CreateUser(ctx context.Context, request CreateUserRequest) (time.Time, error) {
-	r.logger.Debug("CREATING NEW USER WITH ", zap.String("User ID", request.ID))
+	r.logger.Debugf("CREATING NEW USER WITH request: %v", request)
 
 	query := `
 		INSERT INTO users (id, email, username) 

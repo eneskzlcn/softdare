@@ -3,16 +3,16 @@ package server
 import (
 	"bytes"
 	"fmt"
-	"go.uber.org/zap"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"html/template"
 	"net/http"
 )
 
 type Renderer struct {
-	logger *zap.SugaredLogger
+	logger logger.Logger
 }
 
-func NewRenderer(logger *zap.SugaredLogger) *Renderer {
+func NewRenderer(logger logger.Logger) *Renderer {
 	if logger == nil {
 		return nil
 	}
@@ -24,7 +24,7 @@ func (r *Renderer) RenderTemplate(w http.ResponseWriter, tmpl *template.Template
 	var buf bytes.Buffer
 	err := tmpl.Execute(&buf, data)
 	if err != nil {
-		r.logger.Error("could not render", zap.String("template", tmpl.Name()), zap.Error(err))
+		r.logger.Errorf("could not render template with error: %s", err.Error())
 		http.Error(w, fmt.Sprintf("could not render %q", tmpl.Name()), http.StatusInternalServerError)
 		return
 	}
@@ -32,7 +32,8 @@ func (r *Renderer) RenderTemplate(w http.ResponseWriter, tmpl *template.Template
 	w.WriteHeader(statusCode)
 	_, err = buf.WriteTo(w)
 	if err != nil {
-		r.logger.Error("could not send", zap.String("template", tmpl.Name()), zap.Error(err))
+		r.logger.Errorf("could not send the template with error:%s", err.Error())
+		return
 	}
 	r.logger.Infof("TEMPLATE %s RENDERED SUCCESSFULLY", tmpl.Name())
 }

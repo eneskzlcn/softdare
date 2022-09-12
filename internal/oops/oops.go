@@ -1,9 +1,9 @@
 package oops
 
 import (
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 )
@@ -26,7 +26,7 @@ type SessionProvider interface {
 	Get(r *http.Request, key string) any
 }
 
-func RenderPage(renderer Renderer, logger *zap.SugaredLogger, sessionProvider SessionProvider, r *http.Request, w http.ResponseWriter, data error, statusCode int) {
+func RenderPage(renderer Renderer, logger logger.Logger, sessionProvider SessionProvider, r *http.Request, w http.ResponseWriter, data error, statusCode int) {
 	logger.Debugf("Rendering the ooops page.")
 	tmpl := pkg.ParseTemplate("oops.gohtml")
 	generalSessionData := sessionUtil.GeneralSessionDataFromRequest(sessionProvider, r)

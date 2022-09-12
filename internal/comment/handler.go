@@ -3,13 +3,12 @@ package comment
 import (
 	"context"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
 	"github.com/nicolasparada/go-mux"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 	"net/http"
-	"time"
 )
 
 type CommentService interface {
@@ -19,9 +18,7 @@ type CommentService interface {
 type RabbitMQClient interface {
 	PushMessage(message any, queue string) error
 }
-type PostService interface {
-	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
-}
+
 type SessionProvider interface {
 	Exists(r *http.Request, key string) bool
 	Get(r *http.Request, key string) any
@@ -31,13 +28,13 @@ type SessionProvider interface {
 	Put(r *http.Request, key string, data any)
 }
 type Handler struct {
-	logger          *zap.SugaredLogger
+	logger          logger.Logger
 	service         CommentService
 	sessionProvider SessionProvider
 	rabbitmqClient  RabbitMQClient
 }
 
-func NewHandler(logger *zap.SugaredLogger, service CommentService, sessionProvider SessionProvider, rabbitmqClient RabbitMQClient) *Handler {
+func NewHandler(logger logger.Logger, service CommentService, sessionProvider SessionProvider, rabbitmqClient RabbitMQClient) *Handler {
 	if logger == nil {
 		fmt.Println("logger is nil")
 		return nil
@@ -92,7 +89,7 @@ func (h *Handler) RegisterHandlers(router *mux.Router) {
 	})
 }
 func (h *Handler) handleCreateCommentError(w http.ResponseWriter, r *http.Request, err error) {
-	h.logger.Error("error creating comment on service", zap.Error(err))
+	h.logger.Error("error creating comment on service")
 	h.sessionProvider.Put(r, "create-comment-error", err.Error())
 	h.sessionProvider.Put(r, "create-comment-form", r.PostForm)
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
