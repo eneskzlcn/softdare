@@ -25,7 +25,7 @@ type SessionData struct {
 	CreatePostForm  url.Values      `json:"create_post_form"`
 }
 
-type homeData struct {
+type pageData struct {
 	Session SessionData
 	Posts   []Post
 }

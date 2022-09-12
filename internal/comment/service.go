@@ -13,12 +13,16 @@ type CommentRepository interface {
 	CreateComment(ctx context.Context, input CreateCommentRequest) (time.Time, error)
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error)
 }
+type RabbitMQClient interface {
+	PushMessage(message any, queue string) error
+}
 type Service struct {
-	logger logger.Logger
-	repo   CommentRepository
+	logger         logger.Logger
+	repo           CommentRepository
+	rabbitmqClient RabbitMQClient
 }
 
-func NewService(logger logger.Logger, repo CommentRepository) *Service {
+func NewService(logger logger.Logger, repo CommentRepository, rabbitmqClient RabbitMQClient) *Service {
 	if logger == nil {
 		fmt.Println("given logger is nil")
 		return nil
@@ -27,7 +31,7 @@ func NewService(logger logger.Logger, repo CommentRepository) *Service {
 		logger.Error("given comment repository is nil")
 		return nil
 	}
-	return &Service{logger: logger, repo: repo}
+	return &Service{logger: logger, repo: repo, rabbitmqClient: rabbitmqClient}
 }
 
 func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Comment, error) {
@@ -50,6 +54,13 @@ func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Co
 	if err != nil {
 		s.logger.Error(err)
 		return nil, err
+	}
+	err = s.rabbitmqClient.PushMessage(IncreasePostCommentCountMessage{
+		PostID:         in.PostID,
+		IncreaseAmount: 1,
+	}, "increase-post-comment-count")
+	if err != nil {
+		s.logger.Error("error publishing increase-post-comment-count message")
 	}
 	return &Comment{
 		ID:        id,

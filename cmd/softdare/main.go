@@ -53,8 +53,8 @@ func run() error {
 	loginHandler := login.NewHandler(logger, loginService, session)
 
 	commentRepository := comment.NewRepository(db, logger)
-	commentService := comment.NewService(logger, commentRepository)
-	commentHandler := comment.NewHandler(logger, commentService, session, rabbitmqClient)
+	commentService := comment.NewService(logger, commentRepository, rabbitmqClient)
+	commentHandler := comment.NewHandler(logger, commentService, session)
 
 	postRepository := post.NewRepository(db, logger)
 	postService := post.NewService(postRepository, logger)

@@ -46,7 +46,7 @@ func (h *Handler) init() {
 	h.homeTemplate = pkg.ParseTemplate("home.gohtml")
 }
 
-func (h *Handler) Render(w http.ResponseWriter, data homeData, statusCode int, renderFn coreTemplate.RenderFn) {
+func (h *Handler) Render(w http.ResponseWriter, data pageData, statusCode int, renderFn coreTemplate.RenderFn) {
 	h.logger.Debugf("RENDERING TEMPLATE %s", h.homeTemplate.Name())
 	renderFn(h.logger, w, h.homeTemplate, data, statusCode)
 }
@@ -59,7 +59,7 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 		oops.RenderPage(h.logger, h.session, r, w, err, http.StatusFound, coreTemplate.Render)
 		return
 	}
-	h.Render(w, homeData{Session: session, Posts: posts}, http.StatusOK, coreTemplate.Render)
+	h.Render(w, pageData{Session: session, Posts: posts}, http.StatusOK, coreTemplate.Render)
 }
 
 func (h *Handler) RegisterHandlers(router router.Router) {
