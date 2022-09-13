@@ -30,7 +30,7 @@ func NewCollegeSessionAdapter(logger logger.Logger, config config.Session) *Coll
 
 func (s *CollegeSessionAdapter) Exists(r *http.Request, key string) bool {
 	exists := s.session.Exists(r, key)
-	s.logger.Debugf("SESSION EXISTS REQUEST ARRIVED FOR KEY %s AND IS EXISTS = %s", key, strconv.FormatBool(exists))
+	s.logger.Debugf("SESSION EXISTS REQUEST ARRIVED FOR KEY %s AND IS EXISTS = %t", key, strconv.FormatBool(exists))
 	return exists
 }
 

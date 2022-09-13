@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/eneskzlcn/softdare/internal/comment"
 	coreTemplate "github.com/eneskzlcn/softdare/internal/core/html/template"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	"github.com/eneskzlcn/softdare/internal/util/convertion"
@@ -21,11 +21,11 @@ import (
 
 type PostService interface {
 	CreatePost(ctx context.Context, in CreatePostInput) (*CreatePostResponse, error)
-	GetPostByID(ctx context.Context, postID string) (*Post, error)
+	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 type CommentService interface {
-	GetCommentsByPostID(ctx context.Context, postID string) ([]*comment.Comment, error)
+	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
 
 type Handler struct {
@@ -59,7 +59,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := h.session.Get(r, userContextKey)
-	user, err := convertion.AnyToGivenType[User](data)
+	user, err := convertion.AnyToGivenType[entity.UserSessionData](data)
 	if err != nil {
 		h.logger.Errorf("can not converted session data to user struct with error %s", err.Error())
 		return
@@ -94,9 +94,9 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 		oops.RenderPage(h.logger, h.session, r, w, err, http.StatusFound, coreTemplate.Render)
 		return
 	}
-	formattedPost := FormatPost(post)
+	formattedPost := entity.FormatPost(post)
 	h.logger.Debugf("FORMATTED POST: %v", formattedPost)
-	formattedComments := FormatComments(comments)
+	formattedComments := entity.FormatComments(comments)
 	sessionData := sessionDataFromRequest(h.session, r, h.logger)
 	h.Render(w, postData{Post: formattedPost, Session: sessionData, Comments: formattedComments}, http.StatusFound, coreTemplate.Render)
 }
@@ -104,7 +104,11 @@ func (h *Handler) Render(w http.ResponseWriter, data postData, statusCode int, r
 	h.logger.Debug("RENDERING THE POST TEMPLATE")
 	renderFn(h.logger, w, h.template, data, statusCode)
 }
-func (h *Handler) RegisterHandlers(router router.Router) {
-	router.Handle("/posts", http.MethodPost, h.CreatePost)
-	router.Handle("/posts/{postID}", http.MethodGet, h.Show)
+func (h *Handler) RegisterHandlers(_router router.Router) {
+	_router.Handle("/posts", router.MethodHandlers{
+		http.MethodPost: h.CreatePost,
+	})
+	_router.Handle("/posts/{postID}", router.MethodHandlers{
+		http.MethodGet: h.Show,
+	})
 }

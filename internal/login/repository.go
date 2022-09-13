@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"time"
 )
 
@@ -45,13 +46,13 @@ func (r *Repository) CreateUser(ctx context.Context, request CreateUserRequest) 
 	return createdAt, err
 }
 
-func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	query := `
 		SELECT id, email, username, created_at, updated_at 
 		FROM users 
 		WHERE email = $1`
 	row := r.db.QueryRowContext(ctx, query, email)
-	var i User
+	var i entity.User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,

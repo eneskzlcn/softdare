@@ -6,14 +6,15 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
 	"github.com/rs/xid"
 	"net/http"
 )
 
 type CommentService interface {
-	CreateComment(ctx context.Context, input CreateCommentInput) (*Comment, error)
-	GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error)
+	CreateComment(ctx context.Context, input CreateCommentInput) (*entity.Comment, error)
+	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
 
 type Handler struct {
@@ -41,7 +42,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	postID := r.PostFormValue("post_id")
 	content := r.PostFormValue("content")
 	data := h.session.Get(r, "user")
-	user, err := convertionUtil.AnyToGivenType[User](data)
+	user, err := convertionUtil.AnyToGivenType[entity.User](data)
 	if err != nil {
 		h.logger.Error("error getting user from session")
 		h.handleCreateCommentError(w, r, err)
@@ -65,8 +66,10 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
-func (h *Handler) RegisterHandlers(router router.Router) {
-	router.Handle("/comments", http.MethodPost, h.CreateComment)
+func (h *Handler) RegisterHandlers(_router router.Router) {
+	_router.Handle("/comments", router.MethodHandlers{
+		http.MethodPost: h.CreateComment,
+	})
 }
 func (h *Handler) handleCreateCommentError(w http.ResponseWriter, r *http.Request, err error) {
 	h.logger.Error("error creating comment on service")

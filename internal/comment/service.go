@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	"github.com/rs/xid"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 type CommentRepository interface {
 	CreateComment(ctx context.Context, input CreateCommentRequest) (time.Time, error)
-	GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error)
+	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
 type RabbitMQClient interface {
 	PushMessage(message any, queue string) error
@@ -34,15 +35,15 @@ func NewService(logger logger.Logger, repo CommentRepository, rabbitmqClient Rab
 	return &Service{logger: logger, repo: repo, rabbitmqClient: rabbitmqClient}
 }
 
-func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Comment, error) {
+func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*entity.Comment, error) {
 	in.Prepare()
 	if err := in.Validate(); err != nil {
 		s.logger.Errorf("validation error. Error: %s", err.Error())
 	}
-	user, exists := contextUtil.FromContext[User]("user", ctx)
+	user, exists := contextUtil.FromContext[entity.User]("user", ctx)
 	if !exists {
-		s.logger.Error("%s , Exists: %t", ErrCouldNotTakeUserFromContext, exists)
-		return nil, ErrCouldNotTakeUserFromContext
+		s.logger.Error("%s , Exists: %t", entity.CouldNotTakeUserFromContext, exists)
+		return nil, entity.CouldNotTakeUserFromContext.Err()
 	}
 	id := xid.New().String()
 	createdAt, err := s.repo.CreateComment(ctx, CreateCommentRequest{
@@ -62,7 +63,7 @@ func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Co
 	if err != nil {
 		s.logger.Error("error publishing increase-post-comment-count message")
 	}
-	return &Comment{
+	return &entity.Comment{
 		ID:        id,
 		PostID:    in.PostID,
 		UserID:    user.ID,
@@ -72,10 +73,10 @@ func (s *Service) CreateComment(ctx context.Context, in CreateCommentInput) (*Co
 		Username:  user.Username,
 	}, nil
 }
-func (s *Service) GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error) {
+func (s *Service) GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error) {
 	if _, err := xid.FromString(postID); err != nil {
-		s.logger.Error(ErrInvalidPostID)
-		return nil, ErrInvalidPostID
+		s.logger.Error(entity.InvalidPostID)
+		return nil, entity.InvalidPostID.Err()
 	}
 	comments, err := s.repo.GetCommentsByPostID(ctx, postID)
 	if err != nil {

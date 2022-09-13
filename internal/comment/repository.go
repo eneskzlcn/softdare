@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"time"
 )
 
@@ -43,8 +44,9 @@ func (r *Repository) CreateComment(ctx context.Context, input CreateCommentReque
 	var createdAt time.Time
 	err := row.Scan(&createdAt)
 	return createdAt, err
+
 }
-func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]*Comment, error) {
+func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error) {
 	r.logger.Debugf("Get Comments By Post ID Request Arrived To Repository With Post ID:%s", postID)
 	query := `
 		SELECT comments.id, comments.user_id, comments.post_id, comments.content, comments.created_at, comments.updated_at, users.username 
@@ -58,9 +60,9 @@ func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]
 		return nil, err
 	}
 	defer rows.Close()
-	comments := make([]*Comment, 0)
+	comments := make([]*entity.Comment, 0)
 	for rows.Next() {
-		var c Comment
+		var c entity.Comment
 		err = rows.Scan(
 			&c.ID,
 			&c.UserID,

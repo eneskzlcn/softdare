@@ -7,6 +7,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"github.com/eneskzlcn/softdare/internal/oops"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	"html/template"
@@ -14,7 +15,7 @@ import (
 )
 
 type HomeService interface {
-	GetPosts(context.Context) ([]Post, error)
+	GetPosts(context.Context) ([]entity.FormattedPost, error)
 }
 
 type Handler struct {
@@ -24,11 +25,11 @@ type Handler struct {
 	session      session.Session
 }
 
-func NewHandler(logger logger.Logger, provider session.Session, service HomeService) *Handler {
+func NewHandler(logger logger.Logger, session session.Session, service HomeService) *Handler {
 	if logger == nil {
 		return nil
 	}
-	if provider == nil {
+	if session == nil {
 		logger.Error(ErrSessionProviderNil)
 		return nil
 	}
@@ -36,13 +37,13 @@ func NewHandler(logger logger.Logger, provider session.Session, service HomeServ
 		logger.Error("given service is nil")
 		return nil
 	}
-	handler := Handler{logger: logger, session: provider, service: service}
+	handler := Handler{logger: logger, session: session, service: service}
 	handler.init()
 	return &handler
 }
 
 func (h *Handler) init() {
-	gob.Register(UserSessionData{})
+	gob.Register(entity.UserSessionData{})
 	h.homeTemplate = pkg.ParseTemplate("home.gohtml")
 }
 
@@ -62,6 +63,8 @@ func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
 	h.Render(w, pageData{Session: session, Posts: posts}, http.StatusOK, coreTemplate.Render)
 }
 
-func (h *Handler) RegisterHandlers(router router.Router) {
-	router.Handle("/", http.MethodGet, h.Show)
+func (h *Handler) RegisterHandlers(_router router.Router) {
+	_router.Handle("/", router.MethodHandlers{
+		http.MethodGet: h.Show,
+	})
 }

@@ -37,7 +37,6 @@ func run() error {
 		return err
 	}
 
-	logger.Debugf("CONFIG LOADED %v", configs)
 	db, err := postgres.New(configs.Db)
 	if err != nil {
 		return err

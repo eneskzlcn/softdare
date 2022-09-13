@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
-	"github.com/eneskzlcn/softdare/internal/post"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 )
 
 type PostService interface {
-	GetPosts(ctx context.Context) ([]*post.Post, error)
+	GetPosts(ctx context.Context) ([]*entity.Post, error)
 }
 type Service struct {
 	logger      logger.Logger
@@ -28,15 +28,15 @@ func NewService(postService PostService, logger logger.Logger) *Service {
 	return &Service{postService: postService}
 }
 
-func (s *Service) GetPosts(ctx context.Context) ([]Post, error) {
+func (s *Service) GetPosts(ctx context.Context) ([]entity.FormattedPost, error) {
 	postPtrs, err := s.postService.GetPosts(ctx)
 	if err != nil {
 		s.logger.Error("oops getting posts from post service")
 		return nil, err
 	}
-	posts := make([]Post, 0)
+	posts := make([]entity.FormattedPost, 0)
 	for _, postPtr := range postPtrs {
-		post := Post{
+		post := entity.FormattedPost{
 			ID:           postPtr.ID,
 			Username:     postPtr.Username,
 			Content:      postPtr.Content,

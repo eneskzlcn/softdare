@@ -13,10 +13,9 @@ func NewMuxRouterAdapter() *MuxRouterAdapter {
 	router := mux.NewRouter()
 	return &MuxRouterAdapter{router: router}
 }
-func (m *MuxRouterAdapter) Handle(pattern string, method string, handler http.HandlerFunc) {
-	m.router.Handle(pattern, mux.MethodHandler{
-		method: handler,
-	})
+func (m *MuxRouterAdapter) Handle(pattern string, handlers MethodHandlers) {
+	muxMethodHandlers := (mux.MethodHandler)(handlers)
+	m.router.Handle(pattern, muxMethodHandlers)
 }
 
 func (m *MuxRouterAdapter) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -9,6 +9,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"github.com/eneskzlcn/softdare/internal/pkg"
 	"html/template"
 	"net/http"
@@ -16,7 +17,7 @@ import (
 )
 
 type LoginService interface {
-	Login(ctx context.Context, inp LoginInput) (*User, error)
+	Login(ctx context.Context, inp Input) (*entity.User, error)
 }
 type Handler struct {
 	logger        logger.Logger
@@ -25,22 +26,22 @@ type Handler struct {
 	session       session.Session
 }
 
-func NewHandler(logger logger.Logger, service LoginService, provider session.Session) *Handler {
+func NewHandler(logger logger.Logger, service LoginService, session session.Session) *Handler {
 	if logger == nil {
 		fmt.Printf("logger can not be nil")
 		return nil
 	}
-	if service == nil || provider == nil {
+	if service == nil || session == nil {
 		logger.Error(ErrInvalidHandlerArgs)
 		return nil
 	}
-	handler := Handler{logger: logger, service: service, session: provider}
+	handler := Handler{logger: logger, service: service, session: session}
 	handler.init()
 	return &handler
 }
 
 func (h *Handler) init() {
-	gob.Register(UserSessionData{})
+	gob.Register(entity.UserSessionData{})
 	h.loginTemplate = pkg.ParseTemplate("login.gohtml")
 }
 func (h *Handler) Show(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +60,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ctx := r.Context()
-	inp := LoginInput{
+	inp := Input{
 		Email:    r.PostFormValue("email"),
 		Username: ExtractFormValue(r.Form, "username"),
 	}
@@ -77,7 +78,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.logger.Debugf("Successfully logged in user %v", user)
-	h.session.Put(r, "user", UserSessionData{ID: user.ID, Email: user.Email, Username: user.Username})
+	h.session.Put(r, "user", entity.UserSessionData{ID: user.ID, Email: user.Email, Username: user.Username})
 	h.logger.Debugf("Session defined for the user %v", user)
 
 	http.Redirect(w, r, "/", http.StatusFound)
@@ -87,10 +88,14 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (h *Handler) RegisterHandlers(router router.Router) {
-	router.Handle("/login", http.MethodGet, h.Show)
-	router.Handle("/login", http.MethodPost, h.Login)
-	router.Handle("/logout", http.MethodPost, h.Logout)
+func (h *Handler) RegisterHandlers(_router router.Router) {
+	_router.Handle("/login", router.MethodHandlers{
+		http.MethodGet:  h.Show,
+		http.MethodPost: h.Login,
+	})
+	_router.Handle("/logout", router.MethodHandlers{
+		http.MethodPost: h.Logout,
+	})
 }
 
 func ExtractFormValue(form url.Values, key string) *string {

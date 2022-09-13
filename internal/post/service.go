@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
 	"github.com/rs/xid"
 	"time"
@@ -12,8 +13,8 @@ import (
 
 type PostRepository interface {
 	CreatePost(ctx context.Context, request CreatePostRequest) (time.Time, error)
-	GetPostByID(ctx context.Context, postID string) (*Post, error)
-	GetPosts(ctx context.Context) ([]*Post, error)
+	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
+	GetPosts(ctx context.Context) ([]*entity.Post, error)
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 type Service struct {
@@ -39,7 +40,7 @@ func (s *Service) CreatePost(ctx context.Context, in CreatePostInput) (*CreatePo
 		s.logger.Error("validation oops on creating post")
 		return nil, err
 	}
-	user, exists := contextUtil.FromContext[User](userContextKey, ctx)
+	user, exists := contextUtil.FromContext[entity.UserSessionData](userContextKey, ctx)
 	if !exists {
 		s.logger.Error("unauthorized request user not exist on context")
 		return nil, ErrUnauthorized
@@ -61,10 +62,10 @@ func (s *Service) CreatePost(ctx context.Context, in CreatePostInput) (*CreatePo
 		CreatedAt: createdAt,
 	}, nil
 }
-func (s *Service) GetPosts(ctx context.Context) ([]*Post, error) {
+func (s *Service) GetPosts(ctx context.Context) ([]*entity.Post, error) {
 	return s.repo.GetPosts(ctx)
 }
-func (s *Service) GetPostByID(ctx context.Context, postID string) (*Post, error) {
+func (s *Service) GetPostByID(ctx context.Context, postID string) (*entity.Post, error) {
 	_, err := xid.FromString(postID)
 	if err != nil {
 		s.logger.Error("post id validation oops")

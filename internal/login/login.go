@@ -3,17 +3,17 @@ package login
 import (
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 const DomainName = "login"
 
-type LoginInput struct {
+type Input struct {
 	Email    string
 	Username *string
 }
@@ -21,10 +21,10 @@ type LoginInput struct {
 type loginPageData struct {
 	Form    url.Values
 	Err     error
-	Session SessionData
+	Session sessionData
 }
-type SessionData struct {
-	User       UserSessionData
+type sessionData struct {
+	User       entity.UserSessionData
 	IsLoggedIn bool
 }
 type CreateUserRequest struct {
@@ -40,28 +40,11 @@ func (c *CreateUserRequest) Validate() error {
 	)
 }
 
-type User struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type UserSessionData struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-}
-
-func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) SessionData {
-	var out SessionData
-	generalSession := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
-	if generalSession.IsLoggedIn {
-		out.IsLoggedIn = generalSession.IsLoggedIn
-		out.User.ID = generalSession.User.ID
-		out.User.Email = generalSession.User.Email
-		out.User.Username = generalSession.User.Username
+func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) (out sessionData) {
+	isLoggedIn, user := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
+	if isLoggedIn {
+		out.IsLoggedIn = isLoggedIn
+		out.User = user
 	}
-	return out
+	return
 }

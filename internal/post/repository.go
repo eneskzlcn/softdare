@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"time"
 )
 
@@ -43,7 +44,7 @@ func (r *Repository) CreatePost(ctx context.Context, request CreatePostRequest) 
 	return createdAt, err
 }
 
-func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
+func (r *Repository) GetPosts(ctx context.Context) ([]*entity.Post, error) {
 	r.logger.Debug("query arrived for all posts")
 	query := `
 		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at,posts.comment_count, users.username
@@ -55,9 +56,9 @@ func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Post
+	var items []*entity.Post
 	for rows.Next() {
-		var i Post
+		var i entity.Post
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
@@ -79,7 +80,7 @@ func (r *Repository) GetPosts(ctx context.Context) ([]*Post, error) {
 	}
 	return items, nil
 }
-func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, error) {
+func (r *Repository) GetPostByID(ctx context.Context, postID string) (*entity.Post, error) {
 	r.logger.Debug("Query arrived for get post by id :%", postID)
 
 	query := `
@@ -89,7 +90,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*Post, err
 		WHERE posts.id = $1`
 
 	row := r.db.QueryRowContext(ctx, query, postID)
-	var i Post
+	var i entity.Post
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,

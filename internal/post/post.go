@@ -1,11 +1,10 @@
 package post
 
 import (
-	"github.com/eneskzlcn/softdare/internal/comment"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"github.com/eneskzlcn/softdare/internal/util/convertion"
-	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 	sessionUtil "github.com/eneskzlcn/softdare/internal/util/session"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"net/http"
@@ -40,87 +39,23 @@ type CreatePostResponse struct {
 
 const userContextKey = "user"
 
-type User struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-}
-
-type Post struct {
-	ID           string
-	UserID       string
-	Content      string
-	CommentCount int
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Username     string
-}
-type FormattedPost struct {
-	ID           string
-	UserID       string
-	Content      string
-	CommentCount int
-	CreatedAt    string
-	UpdatedAt    string
-	Username     string
-}
-
-func FormatPost(post *Post) (formattedPost FormattedPost) {
-	formattedPost.CreatedAt = postUtil.FormatPostTime(post.CreatedAt)
-	formattedPost.UpdatedAt = postUtil.FormatPostTime(post.UpdatedAt)
-	formattedPost.ID = post.ID
-	formattedPost.Content = post.Content
-	formattedPost.CommentCount = post.CommentCount
-	formattedPost.UserID = post.UserID
-	formattedPost.Username = post.Username
-	return
-}
-
 type postData struct {
-	Session  SessionData        `json:"session"`
-	Post     FormattedPost      `json:"post"`
-	Comments []FormattedComment `json:"comments"`
+	Session  sessionData               `json:"session"`
+	Post     entity.FormattedPost      `json:"post"`
+	Comments []entity.FormattedComment `json:"comments"`
 }
-type SessionData struct {
+type sessionData struct {
 	IsLoggedIn         bool
-	User               sessionUtil.UserSessionData
+	User               entity.UserSessionData
 	CreateCommentForm  url.Values
 	CreateCommentError error
 }
-type FormattedComment struct {
-	ID        string
-	PostID    string
-	Content   string
-	UserID    string
-	Username  string
-	CreatedAt string
-	UpdatedAt string
-}
 
-func FormatComments(comments []*comment.Comment) []FormattedComment {
-	formattedComments := make([]FormattedComment, 0)
-	for _, comment := range comments {
-		formattedComments = append(formattedComments, formatComment(comment))
-	}
-	return formattedComments
-}
-func formatComment(comment *comment.Comment) (formattedComment FormattedComment) {
-	formattedComment.ID = comment.ID
-	formattedComment.PostID = comment.PostID
-	formattedComment.Username = comment.Username
-	formattedComment.Content = comment.Content
-	formattedComment.CreatedAt = postUtil.FormatPostTime(comment.CreatedAt)
-	formattedComment.UpdatedAt = postUtil.FormatPostTime(comment.UpdatedAt)
-	return
-}
-func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) SessionData {
-	var out SessionData
-	generalSession := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
-	if generalSession.IsLoggedIn {
-		out.IsLoggedIn = generalSession.IsLoggedIn
-		out.User.ID = generalSession.User.ID
-		out.User.Email = generalSession.User.Email
-		out.User.Username = generalSession.User.Username
+func sessionDataFromRequest(session session.Session, r *http.Request, logger logger.Logger) (out sessionData) {
+	isLoggedIn, user := sessionUtil.GeneralSessionDataFromRequest(logger, session, r)
+	if isLoggedIn {
+		out.IsLoggedIn = isLoggedIn
+		out.User = user
 	}
 	if session.Exists(r, "create-comment-error") {
 		out.CreateCommentError = session.PopError(r, "create-comment-error")
@@ -132,5 +67,5 @@ func sessionDataFromRequest(session session.Session, r *http.Request, logger log
 			out.CreateCommentForm = urlForm
 		}
 	}
-	return out
+	return
 }

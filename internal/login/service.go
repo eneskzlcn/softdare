@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/entity"
 	"github.com/rs/xid"
 	"time"
 )
@@ -12,7 +13,7 @@ import (
 type LoginRepository interface {
 	IsUserExistsByEmail(ctx context.Context, email string) (bool, error)
 	IsUserExistsByUsername(ctx context.Context, username string) (bool, error)
-	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	CreateUser(ctx context.Context, request CreateUserRequest) (time.Time, error)
 }
 type Service struct {
@@ -37,7 +38,7 @@ func NewService(logger logger.Logger, repository LoginRepository) *Service {
 	return &Service{repository: repository, logger: logger}
 }
 
-func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
+func (s *Service) Login(ctx context.Context, inp Input) (*entity.User, error) {
 	exists, err := s.repository.IsUserExistsByEmail(ctx, inp.Email)
 	if err != nil {
 		s.logger.Error("error is user exists by email from repository")
@@ -61,22 +62,22 @@ func (s *Service) Login(ctx context.Context, inp LoginInput) (*User, error) {
 	}
 	// if both username and email is given bot not found in db then validate the username and email
 	id := xid.New().String()
-	createUserRequest := CreateUserRequest{
+	request := CreateUserRequest{
 		ID:       id,
 		Email:    inp.Email,
 		Username: *inp.Username,
 	}
-	if err = createUserRequest.Validate(); err != nil {
+	if err = request.Validate(); err != nil {
 		s.logger.Error(ErrValidation)
 		return nil, ErrValidation
 	}
 	//if validated then create the user
-	createdAt, err := s.repository.CreateUser(ctx, createUserRequest)
+	createdAt, err := s.repository.CreateUser(ctx, request)
 	if err != nil {
 		s.logger.Error(err)
 		return nil, err
 	}
-	return &User{
+	return &entity.User{
 		ID:        id,
 		Email:     inp.Email,
 		Username:  *inp.Username,
