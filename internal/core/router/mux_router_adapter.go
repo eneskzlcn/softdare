@@ -1,12 +1,17 @@
 package router
 
 import (
+	"context"
 	"github.com/nicolasparada/go-mux"
 	"net/http"
 )
 
 type MuxRouterAdapter struct {
 	router *mux.Router
+}
+
+func (m *MuxRouterAdapter) ExtractURLParam(ctx context.Context, key string) string {
+	return mux.URLParam(ctx, key)
 }
 
 func NewMuxRouterAdapter() *MuxRouterAdapter {

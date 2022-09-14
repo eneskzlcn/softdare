@@ -1,0 +1,16 @@
+{{template "layout.gohtml" .}}
+
+{{define "content"}}
+    <main>
+        <h1>{{.User.Username}}</h1>
+        {{if eq (len .Posts) 0}}
+            <p> No posts yet.</p>
+        {{else}}
+            <section style="display: flex; flex-direction: column; gap: 1rem;">
+                {{range .Posts}}
+                    {{template "post-article.gohtml" .}}
+                {{end}}
+            </section>
+        {{end}}
+    </main>
+{{end}}

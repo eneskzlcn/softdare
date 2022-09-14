@@ -8,6 +8,10 @@ RETURNING created_at;
 
 SELECT * FROM users WHERE email = @email;
 
+-- name: UserByID :one
+
+SELECT * FROM users WHERE id = @id;
+
 -- name: UserExistsByEmail :one
 
 SELECT EXISTS (

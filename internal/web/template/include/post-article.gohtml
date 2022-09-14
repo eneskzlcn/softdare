@@ -1,0 +1,12 @@
+<article style="background-color: rgba(18,0,47,0.72);">
+    <div>
+        <a href="/{{.Username}}">
+            <h2 style="display: inline">{{.Username}}</h2>
+        </a>
+        <a href="/posts/{{.ID}}">
+            {{.CreatedAt}}
+        </a>
+    </div>
+        <p> {{linkify .Content}}</p>
+        <p>Comment Count: {{.CommentCount}}</p>
+</article>

@@ -13,7 +13,7 @@ type RootHandler interface {
 
 type Server struct {
 	server  *http.Server
-	handler Handler
+	handler RootHandler
 	logger  logger.Logger
 }
 

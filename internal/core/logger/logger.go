@@ -9,5 +9,8 @@ type Logger interface {
 	Infof(template string, args ...interface{})
 	Debugf(template string, args ...interface{})
 	Fatalf(template string, args ...interface{})
+	StringModifier(key, value string) interface{}
+	ErrorModifier(err error) interface{}
+	AnyModifier(key string, value any) interface{}
 	Sync() error
 }

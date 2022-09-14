@@ -8,7 +8,12 @@ RETURNING  created_at;
 SELECT posts.*, users.username
 FROM posts
 INNER JOIN users ON posts.user_id = users.id
-ORDER BY posts.id;
+WHERE
+    CASE
+        WHEN @user_id <> '' THEN users.id = @user_id
+        ELSE true
+    END
+ORDER BY posts.id DESC;
 
 -- name: PostById :one
 SELECT posts.*, users.username

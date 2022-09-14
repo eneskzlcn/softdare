@@ -9,6 +9,18 @@ type ZapLoggerAdapter struct {
 	logger *zap.SugaredLogger
 }
 
+func (z *ZapLoggerAdapter) StringModifier(key, value string) interface{} {
+	return zap.String(key, value)
+}
+
+func (z *ZapLoggerAdapter) ErrorModifier(err error) interface{} {
+	return zap.Error(err)
+}
+
+func (z *ZapLoggerAdapter) AnyModifier(key string, value any) interface{} {
+	return zap.Any(key, value)
+}
+
 func newLoggerForEnv(env string) (*zap.SugaredLogger, error) {
 	if env == "" || env == "local" || env == "test" || env == "qa" || env == "dev" {
 		logger, err := zap.NewDevelopment(zap.AddCallerSkip(1))
@@ -21,6 +33,7 @@ func newLoggerForEnv(env string) (*zap.SugaredLogger, error) {
 
 func NewZapLoggerAdapter(env string) *ZapLoggerAdapter {
 	logger, err := newLoggerForEnv(env)
+
 	if err != nil {
 		fmt.Println("error logger is nil")
 		return nil

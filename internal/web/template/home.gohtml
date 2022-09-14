@@ -1,0 +1,26 @@
+{{template "layout.gohtml" .}}
+
+{{define "content"}}
+    <h1> Home</h1>
+    {{if .Session.IsLoggedIn}}
+        <form action="/posts" method="POST">
+            <textarea name="content" aria-label="content" placeholder="Write something..." required></textarea>
+            {{with .Session.CreatePostError}}
+                <p> Could not create post: <code>{{.Error}}</code></p>
+            {{end}}
+            <button>Post</button>
+        </form>
+        {{if eq (len .Posts) 0}}
+            <p> No posts yet.</p>
+        {{else}}
+            <section style="display: flex; flex-direction: column; gap: 1rem;">
+                {{range .Posts}}
+                    {{template "post-article.gohtml" .}}
+                {{end}}
+            </section>
+        {{end}}
+
+    {{end}}
+
+</main>
+{{end}}

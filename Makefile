@@ -7,6 +7,8 @@ run:
 start:
 	clear && go build -o bin/softdare  ./cmd/softdare && ./bin/softdare
 
+clean:
+	rm -rf bin/ && rm -rf internal/mocks/ && rm -rf internal/server/mocks/
 generate-mocks:
 	mockgen -destination=internal/mocks/server/mock_root_handler.go -package mocks github.com/eneskzlcn/softdare/internal/server RootHandler
 	mockgen -destination=internal/mocks/server/mock_session_provider.go -package mocks github.com/eneskzlcn/softdare/internal/server Session

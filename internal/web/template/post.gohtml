@@ -1,0 +1,29 @@
+{{template "layout.gohtml" .}}
+{{define "content"}}
+    <main>
+        {{if .Session.IsLoggedIn}}
+        {{template "post-article.gohtml" .Post}}
+        <h2> Comments</h2>
+        {{if eq (len .Comments)  0}}
+            <p>No comments yet...</p>
+        {{else}}
+            <section>
+                {{range .Comments}}
+                    {{template "comment.gohtml" .}}
+                {{end}}
+            </section>
+        {{end}}
+        <form action="/comments" method="POST">
+            <input type="hidden" name="post_id" value="{{.Post.ID}}">
+            <textarea name="content" aria-label="content" placeholder="Write something..." rows="3" required>
+                {{- .Session.CreateCommentForm.Get "content" -}}
+            </textarea>
+            {{with .Session.CreateCommentError}}
+                <p> Could not create comment: <code>{{.Error}}</code></p>
+            {{end}}
+            <button>Post</button>
+        </form>
+
+        {{end}}
+    </main>
+{{end}}
