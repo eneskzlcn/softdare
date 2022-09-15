@@ -12,10 +12,12 @@ type RabbitMQClient interface {
 }
 type UserService interface {
 	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	IncreaseUserFollowerOrFollowedCount(ctx context.Context, userID string, increaseAmount int, isFollower bool) (time.Time, error)
 }
 type PostService interface {
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
+
 type Service interface {
 	UserService
 	PostService
