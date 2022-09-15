@@ -3,6 +3,17 @@
 {{define "content"}}
     <main>
         <h1>{{.User.Username}}</h1>
+        {{if and .Session.IsLoggedIn (ne .User.ID .Session.User.ID) (not .IsFollowedUser)}}
+        <form action="/follow" method="POST">
+            <input type="hidden" name="userID" value="{{.User.ID}}">
+            <button style="color: aqua">Follow</button>
+        </form>
+        {{end}}
+        {{if and .Session.IsLoggedIn  .IsFollowedUser}}
+        <button style="color: aqua" disabled>Following </button>
+        {{end}}
+        <p> Followers: {{.User.FollowerCount}}</p>
+        <p> Following: {{.User.FollowedCount}}</p>
         {{if eq (.User.PostCount) 0}}
             <p> No posts yet.</p>
         {{else}}

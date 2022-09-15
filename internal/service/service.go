@@ -12,21 +12,34 @@ import (
 type RabbitMQClient interface {
 	PushMessage(message any, queue string) error
 }
-
-type Repository interface {
+type UserRepository interface {
 	IsUserExistsByEmail(ctx context.Context, email string) (bool, error)
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*entity.User, error)
 	IsUserExistsByUsername(ctx context.Context, username string) (bool, error)
+	IsUserExistsByID(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, userID, email, username string) (time.Time, error)
+	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+}
+type PostRepository interface {
 	GetPosts(ctx context.Context, userID string) ([]*entity.Post, error)
-	CreateComment(ctx context.Context, commentID, userID, postID, content string) (time.Time, error)
-	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 	CreatePost(ctx context.Context, postID, userID, content string) (time.Time, error)
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
-	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
-	FollowUser(ctx context.Context, followerID, followedID string) (time.Time, error)
+}
+type CommentRepository interface {
+	CreateComment(ctx context.Context, commentID, userID, postID, content string) (time.Time, error)
+	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
+}
+type FollowRepository interface {
+	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
+	CreateUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
+}
+type Repository interface {
+	UserRepository
+	PostRepository
+	CommentRepository
+	FollowRepository
 }
 type Service struct {
 	logger         logger.Logger

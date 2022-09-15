@@ -24,6 +24,9 @@ var (
 	NilLogger                   = errors.New("given logger is nil")
 	NilRouteHandler             = errors.New("given route handler is nil")
 	IncreaseAmountNotValid      = errors.New("increase amount not valid")
+	UserNotInContext            = errors.New("username not found in context")
+	UserCanNotFollowItself      = errors.New("a person can not follow itself")
+	AlreadyFollowsTheUser       = errors.New("already following user")
 )
 
 func IsLoginError(err error) bool {

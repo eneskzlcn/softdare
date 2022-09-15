@@ -29,7 +29,8 @@ type CommentService interface {
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
 type FollowService interface {
-	FollowUser(ctx context.Context, followerID, followedID string) (*entity.UserFollow, error)
+	CreateUserFollow(ctx context.Context, followedID string) (*entity.UserFollow, error)
+	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
 }
 type Service interface {
 	PostService
@@ -112,5 +113,8 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 	})
 	muxRouter.Handle("/{username}", router.MethodHandlers{
 		http.MethodGet: h.ShowProfile,
+	})
+	muxRouter.Handle("/follow", router.MethodHandlers{
+		http.MethodPost: h.CreateUserFollow,
 	})
 }
