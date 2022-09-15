@@ -56,8 +56,9 @@ func run() error {
 	webHandler := web.NewHandler(logger, session, service, renderer)
 	client := queue.New(rabbitmqClient, logger, service)
 
-	go client.ConsumeIncreasePostCommentCount()
-	go client.ConsumeIncreaseUserPostCount()
+	go client.ConsumeCommentCreated()
+	go client.ConsumePostCreated()
+	go client.ConsumeUserFollowCreated()
 
 	if err != nil {
 		return err

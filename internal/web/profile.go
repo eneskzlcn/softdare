@@ -62,7 +62,7 @@ func (h *Handler) CreateUserFollow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ctx := context.WithValue(r.Context(), "user", userIdentity)
-	_, err := h.service.FollowUser(ctx, followedUserID)
+	_, err := h.service.CreateUserFollow(ctx, followedUserID)
 	if err != nil {
 		h.logger.Error("error creating user follow from service layer", h.logger.ErrorModifier(err))
 		http.Redirect(w, r, "/", http.StatusFound)

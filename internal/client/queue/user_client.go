@@ -9,7 +9,7 @@ import (
 
 func (c *Client) ConsumePostCreated() {
 	onReceivedChan := make(chan []byte, 0)
-	go c.Consume(onReceivedChan, "post-created-consumer", "post-created")
+	go c.consume(onReceivedChan, "post-created-consumer", "post-created")
 	var forever chan struct{}
 	for d := range onReceivedChan {
 		c.logger.Debug("IncreaseUserPostCount Consumer received a message")
@@ -32,7 +32,7 @@ func (c *Client) ConsumePostCreated() {
 }
 func (c *Client) ConsumeUserFollowCreated() {
 	onReceivedChan := make(chan []byte, 0)
-	go c.Consume(onReceivedChan, "user-follow-created-consumer", "user-follow-created")
+	go c.consume(onReceivedChan, "user-follow-created-consumer", "user-follow-created")
 	var forever chan struct{}
 	for d := range onReceivedChan {
 		var msg entity.UserFollowCreatedMessage

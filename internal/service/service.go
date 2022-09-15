@@ -20,6 +20,8 @@ type UserRepository interface {
 	IsUserExistsByID(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, userID, email, username string) (time.Time, error)
 	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	IncreaseUserFollowerCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	IncreaseUserFollowedCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
 }
 type PostRepository interface {
 	GetPosts(ctx context.Context, userID string) ([]*entity.Post, error)

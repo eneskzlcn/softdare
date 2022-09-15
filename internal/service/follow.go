@@ -50,12 +50,21 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 	if exists {
 		return nil, entity.AlreadyFollowsTheUser
 	}
-	createdAt, err := s.repository.FollowUser(ctx, user.ID, followedID)
+	createdAt, err := s.repository.CreateUserFollow(ctx, user.ID, followedID)
 	if err != nil {
 		s.logger.Error("Error creating user follow from repository", s.logger.ErrorModifier(err))
 		return nil, err
 	}
-	//TODO: increase user follower count, followed count
+	message := entity.UserFollowCreatedMessage{
+		FollowerID: user.ID,
+		FollowedID: followedID,
+	}
+
+	err = s.rabbitmqClient.PushMessage(message, "user-follow-created")
+	if err != nil {
+		s.logger.Error("error pushing user-follow-created message", s.logger.ErrorModifier(err))
+		//retry it or sth. because user-follow already created but the counts are not updated....
+	}
 	return &entity.UserFollow{
 		FollowerID: user.ID,
 		FollowedID: followedID,

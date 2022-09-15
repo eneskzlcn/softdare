@@ -32,10 +32,10 @@ func New(client RabbitMQClient, logger logger.Logger, service Service) *Client {
 	return &Client{client: client, logger: logger, service: service}
 }
 
-func (c *Client) Consume(onReceived chan []byte, consumer string, queue string) {
+func (c *Client) consume(onReceived chan []byte, consumer string, queue string) {
 	c.client.Consume(onReceived, consumer, queue)
 }
 
 func (c *Client) PushMessage(message any, queue string) error {
-	return c.PushMessage(message, queue)
+	return c.client.PushMessage(message, queue)
 }

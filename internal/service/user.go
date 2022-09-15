@@ -72,3 +72,18 @@ func (s *Service) IncreaseUserPostCount(ctx context.Context, userID string, incr
 	}
 	return s.repository.IncreaseUserPostCount(ctx, userID, increaseAmount)
 }
+func (s *Service) IncreaseUserFollowerOrFollowedCount(ctx context.Context, userID string, increaseAmount int, isFollower bool) (time.Time, error) {
+	if err := validation.IsValidXID(userID); err != nil {
+		s.logger.Error(entity.InvalidUserID, s.logger.StringModifier("userID", userID))
+		return time.Time{}, err
+	}
+	if increaseAmount <= 0 || increaseAmount >= 10 {
+		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
+		return time.Time{}, entity.IncreaseAmountNotValid
+	}
+	if isFollower {
+		return s.repository.IncreaseUserFollowedCount(ctx, userID, increaseAmount)
+
+	}
+	return s.repository.IncreaseUserFollowerCount(ctx, userID, increaseAmount)
+}

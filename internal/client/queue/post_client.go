@@ -6,13 +6,13 @@ import (
 	"github.com/eneskzlcn/softdare/internal/entity"
 )
 
-func (c *Client) CommentCreatedConsumer() {
+func (c *Client) ConsumeCommentCreated() {
 	onReceivedChan := make(chan []byte, 0)
-	go c.client.Consume(onReceivedChan, "comment-created-consumer", "comment-created")
+	go c.consume(onReceivedChan, "comment-created-consumer", "comment-created")
 	var forever chan struct{}
 	go func() {
 		for d := range onReceivedChan {
-			c.logger.Debug("IncreasePostCommentCountConsumer received a message")
+			c.logger.Debug("Comment created consumer received a message")
 			var message entity.CommentCreatedMessage
 			err := json.Unmarshal(d, &message)
 			if err != nil {

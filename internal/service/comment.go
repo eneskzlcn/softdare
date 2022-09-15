@@ -28,10 +28,10 @@ func (s *Service) CreateComment(ctx context.Context, postID, content string) (*e
 		s.logger.Error(err)
 		return nil, err
 	}
-	err = s.rabbitmqClient.PushMessage(entity.IncreasePostCommentCountMessage{
-		PostID:         postID,
-		IncreaseAmount: 1,
-	}, "increase-post-comment-count")
+	err = s.rabbitmqClient.PushMessage(entity.CommentCreatedMessage{
+		CommentID: id,
+		PostID:    postID,
+	}, "comment-created")
 	if err != nil {
 		s.logger.Error("error publishing increase-post-comment-count message")
 	}
