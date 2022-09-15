@@ -1,10 +1,14 @@
 package entity
 
-type IncreasePostCommentCountMessage struct {
-	PostID         string `json:"post_id"`
-	IncreaseAmount int    `json:"increase_amount"`
+type CommentCreatedMessage struct {
+	CommentID string `json:"comment_id"`
+	PostID    string `json:"post_id"`
 }
-type IncreaseUserPostCountMessage struct {
-	UserID         string `json:"user_id"`
-	IncreaseAmount int    `json:"increase_amount"`
+type PostCreatedMessage struct {
+	PostID string `json:"post_id"`
+	UserID string `json:"user_id"`
+}
+type UserFollowCreatedMessage struct {
+	FollowerID string `json:"follower_id"`
+	FollowedID string `json:"followed_id"`
 }
