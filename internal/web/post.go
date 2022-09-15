@@ -40,7 +40,9 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("oops creating post from server")
 		h.session.Put(r, "create-post-oops", err.Error())
 		http.Redirect(w, r, "/", http.StatusInternalServerError)
+		return
 	}
+
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 func (h *Handler) ShowPost(w http.ResponseWriter, r *http.Request) {

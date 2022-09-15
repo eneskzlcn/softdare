@@ -3,11 +3,14 @@ package entity
 import "time"
 
 type User struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID            string    `json:"id"`
+	Email         string    `json:"email"`
+	Username      string    `json:"username"`
+	PostCount     int       `json:"post_count"`
+	FollowerCount int       `json:"follower_count"`
+	FollowedCount int       `json:"followed_count"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 /*UserIdentities keeps the values that provide user identify.

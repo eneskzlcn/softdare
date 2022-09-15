@@ -1,15 +1,33 @@
 package queue
 
+import (
+	"context"
+	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"time"
+)
+
 type RabbitMQClient interface {
 	Consume(onReceived chan []byte, consumer string, queue string)
 	PushMessage(message any, queue string) error
 }
+type UserService interface {
+	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+}
+type PostService interface {
+	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+}
+type Service interface {
+	UserService
+	PostService
+}
 type Client struct {
-	client RabbitMQClient
+	client  RabbitMQClient
+	logger  logger.Logger
+	service Service
 }
 
-func New(client RabbitMQClient) *Client {
-	return &Client{client: client}
+func New(client RabbitMQClient, logger logger.Logger, service Service) *Client {
+	return &Client{client: client, logger: logger, service: service}
 }
 
 func (c *Client) Consume(onReceived chan []byte, consumer string, queue string) {

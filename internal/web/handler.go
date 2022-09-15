@@ -20,21 +20,22 @@ type PostService interface {
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
+type UserService interface {
+	Login(ctx context.Context, email string, username *string) (*entity.User, error)
+	GetUserByUsername(ctx context.Context, username string) (*entity.User, error)
+}
 type CommentService interface {
 	CreateComment(ctx context.Context, postID, content string) (*entity.Comment, error)
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
-type LoginService interface {
-	Login(ctx context.Context, email string, username *string) (*entity.User, error)
-}
-type ProfileService interface {
-	GetUserByUsername(ctx context.Context, username string) (*entity.User, error)
+type FollowService interface {
+	FollowUser(ctx context.Context, followerID, followedID string) (*entity.UserFollow, error)
 }
 type Service interface {
 	PostService
 	CommentService
-	LoginService
-	ProfileService
+	UserService
+	FollowService
 }
 type Renderer interface {
 	Render(w http.ResponseWriter, tmpl *template.Template, data any, statusCode int)

@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	"net/http"
 	"net/url"
@@ -33,12 +32,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.PostFormValue("username")
 	user, err := h.service.Login(ctx, email, &username)
 	if err != nil {
-		h.logger.Debug("could not login")
-		if errors.Is(err, entity.UserNotFound.Err()) || errors.Is(err, entity.UsernameAlreadyTaken.Err()) {
+		h.logger.Debug("could not login", h.logger.ErrorModifier(err))
+		if entity.IsLoginError(err) {
 			h.RenderLogin(w, loginPageData{Form: r.PostForm, Err: err}, http.StatusBadRequest)
 			return
 		}
-		http.Error(w, "could not login", http.StatusInternalServerError)
+		http.Error(w, "could not login, err", http.StatusInternalServerError)
 		return
 	}
 	h.logger.Debugf("Successfully logged in user %v", user)

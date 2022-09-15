@@ -3,10 +3,11 @@
 {{define "content"}}
     <main>
         <h1>{{.User.Username}}</h1>
-        {{if eq (len .Posts) 0}}
+        {{if eq (.User.PostCount) 0}}
             <p> No posts yet.</p>
         {{else}}
-            <section style="display: flex; flex-direction: column; gap: 1rem;">
+            <p> Post Count: {{.User.PostCount}}</p>
+            <section>
                 {{range .Posts}}
                     {{template "post-article.gohtml" .}}
                 {{end}}

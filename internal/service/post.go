@@ -5,6 +5,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
+	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 	"github.com/rs/xid"
 	"time"
 )
@@ -22,7 +23,7 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 	user, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error("unauthorized request user not exist on context")
-		return nil, entity.Unauthorized.Err()
+		return nil, entity.Unauthorized
 	}
 
 	id := xid.New().String()
@@ -31,6 +32,15 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 	if err != nil {
 		s.logger.Error("oops creating post on repository")
 		return nil, err
+	}
+	increaseUserPostCountMesssage := entity.IncreaseUserPostCountMessage{
+		UserID:         user.ID,
+		IncreaseAmount: 1,
+	}
+	err = s.rabbitmqClient.PushMessage(increaseUserPostCountMesssage, "increase-user-post-count")
+	if err != nil {
+		s.logger.Error("error pushing the increase user post count message to the rabbitmq")
+		//retry it..
 	}
 	return &entity.Post{
 		ID:           id,
@@ -58,7 +68,26 @@ func (s *Service) IncreasePostCommentCount(ctx context.Context, postID string, i
 	}
 	if increaseAmount <= 0 || increaseAmount >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
-		return time.Time{}, entity.IncreaseAmountNotValid.Err()
+		return time.Time{}, entity.IncreaseAmountNotValid
 	}
 	return s.repository.IncreasePostCommentCount(ctx, postID, increaseAmount)
+}
+func (s *Service) GetFormattedPosts(ctx context.Context, userID string) ([]entity.FormattedPost, error) {
+	posts, err := s.GetPosts(ctx, userID)
+	if err != nil {
+		s.logger.Error("oops getting posts from post service")
+		return nil, err
+	}
+	formattedPosts := make([]entity.FormattedPost, 0)
+	for _, postPtr := range posts {
+		formattedPost := entity.FormattedPost{
+			ID:           postPtr.ID,
+			Username:     postPtr.Username,
+			Content:      postPtr.Content,
+			CommentCount: postPtr.CommentCount,
+		}
+		formattedPost.CreatedAt = postUtil.FormatPostTime(postPtr.CreatedAt)
+		formattedPosts = append(formattedPosts, formattedPost)
+	}
+	return formattedPosts, nil
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/eneskzlcn/softdare/internal/config"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"go.uber.org/zap"
 	"time"
 )
 
@@ -23,7 +22,7 @@ func New(config config.RabbitMQ, logger logger.Logger) *Client {
 	}
 	con, err := amqp.Dial(createConnectionUrl(config))
 	if err != nil {
-		logger.Error("error occurred when connecting to rabbitmq server", zap.Error(err))
+		logger.Error("error occurred when connecting to rabbitmq server", logger.ErrorModifier(err))
 		return nil
 	}
 	ch, err := con.Channel()
@@ -39,10 +38,10 @@ func New(config config.RabbitMQ, logger logger.Logger) *Client {
 	return &Client{connection: con, logger: logger}
 }
 func (c *Client) PushMessage(message any, queue string) error {
-	c.logger.Debug("PUSHING MESSAGE TO RABBITMQ", zap.String("queue", queue))
+	c.logger.Debug("PUSHING MESSAGE TO RABBITMQ", c.logger.StringModifier("queue", queue))
 	messageBytes, err := json.Marshal(message)
 	if err != nil {
-		c.logger.Error("error marshalling the message", zap.Any("message", message))
+		c.logger.Error("error marshalling the message", c.logger.AnyModifier("message", message))
 		return err
 	}
 	ch, err := c.connection.Channel()

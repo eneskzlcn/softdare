@@ -25,6 +25,8 @@ type Repository interface {
 	CreatePost(ctx context.Context, postID, userID, content string) (time.Time, error)
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	FollowUser(ctx context.Context, followerID, followedID string) (time.Time, error)
 }
 type Service struct {
 	logger         logger.Logger

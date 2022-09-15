@@ -4,29 +4,35 @@ import (
 	"errors"
 )
 
-type Error string
-
-func (e *Error) Err() error {
-	return errors.New(e.String())
-}
-func (e *Error) String() string {
-	return *(*string)(e)
-}
-
 var (
-	InvalidPostID               Error = "invalid post ID"
-	InvalidContent              Error = "invalid content"
-	InvalidCommentContent       Error = "invalid comment content"
-	NilRepository               Error = "given repository is nil"
-	CouldNotTakeUserFromContext Error = "could not take the user from ctx"
-	NilDatabase                 Error = "given database is nil"
-	Unauthorized                Error = "given unauthorized user"
-	NilSession                  Error = "given session is nil"
-	NilService                  Error = "given service is nil"
-	UserNotFound                Error = "user not found"
-	UsernameAlreadyTaken        Error = "username already taken"
-	InvalidConstructorArguments Error = "invalid constructor arguments(some of them is probably nil)"
-	NilLogger                   Error = "given logger is nil"
-	NilRouteHandler             Error = "given route handler is nil"
-	IncreaseAmountNotValid      Error = "increase amount not valid"
+	InvalidPostID               = errors.New("invalid post ID")
+	InvalidUsername             = errors.New("invalid username")
+	UsernameNotGiven            = errors.New("username not given")
+	InvalidEmail                = errors.New("invalid email")
+	InvalidUserID               = errors.New("invalid user ID")
+	InvalidContent              = errors.New("invalid content")
+	InvalidCommentContent       = errors.New("invalid comment content")
+	NilRepository               = errors.New("given repository is nil")
+	CouldNotTakeUserFromContext = errors.New("could not take the user from ctx")
+	NilDatabase                 = errors.New("given database is nil")
+	Unauthorized                = errors.New("given unauthorized user")
+	NilSession                  = errors.New("given session is nil")
+	NilService                  = errors.New("given service is nil")
+	UserNotFound                = errors.New("user not found")
+	UsernameAlreadyTaken        = errors.New("username already taken")
+	InvalidConstructorArguments = errors.New("invalid constructor arguments(some of them is probably nil)")
+	NilLogger                   = errors.New("given logger is nil")
+	NilRouteHandler             = errors.New("given route handler is nil")
+	IncreaseAmountNotValid      = errors.New("increase amount not valid")
 )
+
+func IsLoginError(err error) bool {
+	return errors.Is(err, UserNotFound) ||
+		errors.Is(err, UsernameAlreadyTaken) || errors.Is(err, InvalidUsername) ||
+		errors.Is(err, InvalidEmail) || errors.Is(err, UsernameNotGiven)
+}
+func IsLoginErrorStr(err string) bool {
+	return err == UserNotFound.Error() ||
+		err == UsernameAlreadyTaken.Error() || err == InvalidUsername.Error() ||
+		err == InvalidEmail.Error() || err == UsernameNotGiven.Error()
+}

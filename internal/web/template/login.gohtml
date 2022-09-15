@@ -10,7 +10,8 @@
             <input type="email" name="email" placeholder="example@mail.com" value='{{$.Form.Get "email"}}' required>
         </div>
         {{with .Err}}
-        {{if or (eq .Error "user not found") (eq .Error "username already taken") (eq .Error "invalid username or email")}}
+{{/*        {{if or (eq .Error "user not found") (eq .Error "username already taken") (eq .Error "invalid username") (ne .Error "invalid email") (eq .Error "username not given")}}*/}}
+        {{if (isLoginError .Error)}}
         <div>
             <label for="username">Username</label>
             <input type="username" name="username" placeholder="example123" value='{{$.Form.Get "username"}}' required>

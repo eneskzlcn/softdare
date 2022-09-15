@@ -7,8 +7,7 @@ import (
 )
 
 func (r *Repository) CreateUser(ctx context.Context, userID, email, username string) (time.Time, error) {
-	r.logger.Debugf("CREATING NEW USER WITH RepositoryID: %s", userID)
-
+	r.logger.Debugf("Creating new user with name %s, id = %s, email = %s", username, userID, email)
 	query := `
 		INSERT INTO users (id, email, username) 
 		VALUES ($1, $2, $3) 
@@ -21,7 +20,7 @@ func (r *Repository) CreateUser(ctx context.Context, userID, email, username str
 
 func (r *Repository) GetUserByID(ctx context.Context, userID string) (*entity.User, error) {
 	query := `
-		SELECT id, email, username, created_at, updated_at 
+		SELECT id, email, username, post,count, follower_count, followed_count, created_at, updated_at 
 		FROM users 
 		WHERE id = $1`
 	row := r.db.QueryRowContext(ctx, query, userID)
@@ -30,6 +29,9 @@ func (r *Repository) GetUserByID(ctx context.Context, userID string) (*entity.Us
 		&i.ID,
 		&i.Email,
 		&i.Username,
+		&i.PostCount,
+		&i.FollowerCount,
+		&i.FollowedCount,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -37,7 +39,7 @@ func (r *Repository) GetUserByID(ctx context.Context, userID string) (*entity.Us
 }
 func (r *Repository) GetUserByUsername(ctx context.Context, username string) (*entity.User, error) {
 	query := `
-		SELECT id, email, username, created_at, updated_at 
+		SELECT id, email, username, post_count, follower_count, followed_count, created_at, updated_at 
 		FROM users 
 		WHERE username = $1`
 	row := r.db.QueryRowContext(ctx, query, username)
@@ -46,6 +48,9 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (*e
 		&i.ID,
 		&i.Email,
 		&i.Username,
+		&i.PostCount,
+		&i.FollowerCount,
+		&i.FollowedCount,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -53,7 +58,7 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (*e
 }
 func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	query := `
-		SELECT id, email, username, created_at, updated_at 
+		SELECT id, email, username, post_count, follower_count, followed_count ,created_at, updated_at 
 		FROM users 
 		WHERE email = $1`
 	row := r.db.QueryRowContext(ctx, query, email)
@@ -62,6 +67,9 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*entity.
 		&i.ID,
 		&i.Email,
 		&i.Username,
+		&i.PostCount,
+		&i.FollowerCount,
+		&i.FollowedCount,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -90,4 +98,15 @@ func (r *Repository) IsUserExistsByUsername(ctx context.Context, username string
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+func (r *Repository) IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error) {
+	query := `
+		UPDATE users
+		SET post_count = post_count + $1, updated_at = now()
+		WHERE id = $2
+		RETURNING updated_at;`
+	row := r.db.QueryRowContext(ctx, query, increaseAmount, userID)
+	var updatedAt time.Time
+	err := row.Scan(&updatedAt)
+	return updatedAt, err
 }

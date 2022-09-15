@@ -50,13 +50,15 @@ func run() error {
 	renderer := renderer.New(logger)
 	session := session.NewCollegeSessionAdapter(logger, configs.Session)
 	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, logger)
-	client := queue.New(rabbitmqClient)
 
 	repository := repository.New(logger, db)
 	service := service.New(repository, logger, session, rabbitmqClient)
 	webHandler := web.NewHandler(logger, session, service, renderer)
+	client := queue.New(rabbitmqClient, logger, service)
 
-	go client.IncreasePostCommentCountConsumer(service, logger)
+	go client.ConsumeIncreasePostCommentCount()
+	go client.ConsumeIncreaseUserPostCount()
+
 	if err != nil {
 		return err
 	}

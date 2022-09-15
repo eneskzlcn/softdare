@@ -20,7 +20,7 @@ func (s *Service) CreateComment(ctx context.Context, postID, content string) (*e
 	user, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error("%s , Exists: %t", entity.CouldNotTakeUserFromContext, exists)
-		return nil, entity.CouldNotTakeUserFromContext.Err()
+		return nil, entity.CouldNotTakeUserFromContext
 	}
 	id := xid.New().String()
 	createdAt, err := s.repository.CreateComment(ctx, id, user.ID, postID, content)
