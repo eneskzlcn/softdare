@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users(
     email VARCHAR NOT NULL UNIQUE,
     username VARCHAR NOT NULL UNIQUE,
     post_count INTEGER NOT NULL DEFAULT 0 CHECK ( post_count >= 0 ),
-    followers_count INTEGER NOT NULL DEFAULT 0 CHECK (followers_count >= 0),
+    follower_count INTEGER NOT NULL DEFAULT 0 CHECK (follower_count >= 0),
     followed_count INTEGER NOT NULL DEFAULT 0 CHECK ( followed_count >= 0 ),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
