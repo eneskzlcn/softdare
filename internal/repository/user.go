@@ -87,7 +87,17 @@ func (r *Repository) IsUserExistsByEmail(ctx context.Context, email string) (boo
 	err := row.Scan(&exists)
 	return exists, err
 }
-
+func (r *Repository) IsUserExistsByID(ctx context.Context, userID string) (bool, error) {
+	query := `
+	SELECT EXISTS ( 
+		SELECT 1 
+		FROM users 
+		WHERE id = $1) `
+	row := r.db.QueryRowContext(ctx, query, userID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
 func (r *Repository) IsUserExistsByUsername(ctx context.Context, username string) (bool, error) {
 	query := `
 	SELECT EXISTS (
