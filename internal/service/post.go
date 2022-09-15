@@ -33,11 +33,11 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 		s.logger.Error("oops creating post on repository")
 		return nil, err
 	}
-	increaseUserPostCountMesssage := entity.IncreaseUserPostCountMessage{
-		UserID:         user.ID,
-		IncreaseAmount: 1,
+	increaseUserPostCountMessage := entity.PostCreatedMessage{
+		PostID: id,
+		UserID: user.ID,
 	}
-	err = s.rabbitmqClient.PushMessage(increaseUserPostCountMesssage, "increase-user-post-count")
+	err = s.rabbitmqClient.PushMessage(increaseUserPostCountMessage, "post-created")
 	if err != nil {
 		s.logger.Error("error pushing the increase user post count message to the rabbitmq")
 		//retry it..
@@ -61,8 +61,7 @@ func (s *Service) GetPostByID(ctx context.Context, postID string) (*entity.Post,
 	return s.repository.GetPostByID(ctx, postID)
 }
 func (s *Service) IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error) {
-	_, err := xid.FromString(postID)
-	if err != nil {
+	if err := validation.IsValidXID(postID); err != nil {
 		s.logger.Error("not valid postID : %", postID)
 		return time.Time{}, err
 	}
