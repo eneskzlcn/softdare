@@ -20,3 +20,4 @@ rabbitmq:
     - "comment-created"
     - "post-created"
     - "user-follow-created"
+    - "user-follow-deleted"

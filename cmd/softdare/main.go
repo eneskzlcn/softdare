@@ -59,6 +59,7 @@ func run() error {
 	go client.ConsumeCommentCreated()
 	go client.ConsumePostCreated()
 	go client.ConsumeUserFollowCreated()
+	go client.ConsumeUserFollowDeleted()
 
 	if err != nil {
 		return err

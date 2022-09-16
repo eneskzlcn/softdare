@@ -66,7 +66,7 @@ func (s *Service) AdjustUserPostCount(ctx context.Context, userID string, adjust
 		s.logger.Error(entity.InvalidUserID, s.logger.StringModifier("userID", userID))
 		return time.Time{}, err
 	}
-	if adjustment <= 0 || adjustment >= 10 {
+	if adjustment <= -10 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
 		return time.Time{}, entity.AdjustmentNotValid
 	}
@@ -77,7 +77,7 @@ func (s *Service) AdjustUserFollowerOrFollowedCount(ctx context.Context, userID 
 		s.logger.Error(entity.InvalidUserID, s.logger.StringModifier("userID", userID))
 		return time.Time{}, err
 	}
-	if adjustment <= 0 || adjustment >= 10 {
+	if adjustment <= -10 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
 		return time.Time{}, entity.AdjustmentNotValid
 	}

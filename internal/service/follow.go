@@ -59,6 +59,7 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 	message := entity.UserFollowCreatedMessage{
 		FollowerID: user.ID,
 		FollowedID: followedID,
+		CreatedAt:  createdAt,
 	}
 
 	err = s.rabbitmqClient.PushMessage(message, "user-follow-created")
@@ -107,7 +108,15 @@ func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time
 		s.logger.Error("can not delete user follow from repository")
 		return time.Time{}, err
 	}
-	//TODO: publish a user follow deleted event
+	message := entity.UserFollowDeletedMessage{
+		FollowerID: userIdentity.ID,
+		FollowedID: followedID,
+		DeletedAt:  deletedAt,
+	}
+	err = s.rabbitmqClient.PushMessage(message, "user-follow-deleted")
+	if err != nil {
+		s.logger.Error("error publishing user follow deleted message")
+	}
 	return deletedAt, nil
 }
 func (s *Service) IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error) {

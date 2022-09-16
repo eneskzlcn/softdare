@@ -34,8 +34,9 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 		return nil, err
 	}
 	message := entity.PostCreatedMessage{
-		PostID: id,
-		UserID: user.ID,
+		PostID:    id,
+		UserID:    user.ID,
+		CreatedAt: createdAt,
 	}
 	err = s.rabbitmqClient.PushMessage(message, "post-created")
 	if err != nil {
@@ -63,9 +64,9 @@ func (s *Service) GetPostByID(ctx context.Context, postID string) (*entity.Post,
 func (s *Service) AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
 	if err := validation.IsValidXID(postID); err != nil {
 		s.logger.Error("not valid postID : %", postID)
-		return time.Time{}, err
+		return time.Time{}, entity.InvalidPostID
 	}
-	if adjustment <= 0 || adjustment >= 10 {
+	if adjustment <= -10 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
 		return time.Time{}, entity.AdjustmentNotValid
 	}
