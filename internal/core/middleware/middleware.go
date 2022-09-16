@@ -13,6 +13,8 @@ Another method is putting a header value generally with the key
 If input not placed then that middleware looks at the header and
 get the target from there.
 
+I saw the method and the idea from Alex Edwards
+from https://www.alexedwards.net/blog/http-method-spoofing
 */
 func OverrideFormMethods(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
