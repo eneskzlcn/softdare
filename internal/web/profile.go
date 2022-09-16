@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
+	timeUtil "github.com/eneskzlcn/softdare/internal/util/time"
 	"net/http"
 )
 
@@ -26,11 +28,12 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("error getting user from service", h.logger.StringModifier("username", username), h.logger.ErrorModifier(err))
 		return
 	}
-	posts, err := h.service.GetFormattedPosts(ctx, user.ID)
+	posts, err := h.service.GetPosts(ctx, user.ID)
 	if err != nil {
 		h.logger.Error("error getting posts from service", h.logger.StringModifier("userID", user.ID), h.logger.ErrorModifier(err))
 		return
 	}
+	formattedPosts := postUtil.FormatPosts(posts, timeUtil.ToAgoFormatter)
 	isLoggedIn, userIdentity := h.CommonSessionDataFromRequest(r)
 	isFollowedUser := false
 	if isLoggedIn && userIdentity.ID != user.ID {
@@ -42,7 +45,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 			isFollowedUser = true
 		}
 	}
-	h.RenderProfile(w, profileData{User: *user, Posts: posts, IsFollowedUser: isFollowedUser, Session: CommonSessionData{IsLoggedIn: isLoggedIn, User: userIdentity}}, http.StatusFound)
+	h.RenderProfile(w, profileData{User: *user, Posts: formattedPosts, IsFollowedUser: isFollowedUser, Session: CommonSessionData{IsLoggedIn: isLoggedIn, User: userIdentity}}, http.StatusFound)
 }
 func (h *Handler) CreateUserFollow(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {

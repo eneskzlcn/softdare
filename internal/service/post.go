@@ -5,7 +5,6 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
-	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
 	"github.com/rs/xid"
 	"time"
 )
@@ -72,22 +71,26 @@ func (s *Service) AdjustPostCommentCount(ctx context.Context, postID string, adj
 	}
 	return s.repository.AdjustPostCommentCount(ctx, postID, adjustment)
 }
-func (s *Service) GetFormattedPosts(ctx context.Context, userID string) ([]entity.FormattedPost, error) {
-	posts, err := s.GetPosts(ctx, userID)
+func (s *Service) GetFollowingUsersPosts(ctx context.Context, maxCount int) ([]*entity.Post, error) {
+	user, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
+	if !exists {
+		s.logger.Error(entity.UserNotInContext)
+		return nil, entity.UserNotInContext
+	}
+	followedUserIDs, err := s.repository.GetFollowedUsersOfFollower(ctx, user.ID)
 	if err != nil {
-		s.logger.Error("oops getting posts from post service")
+		s.logger.Error("error occured when getting followed users of follower")
 		return nil, err
 	}
-	formattedPosts := make([]entity.FormattedPost, 0)
-	for _, postPtr := range posts {
-		formattedPost := entity.FormattedPost{
-			ID:           postPtr.ID,
-			Username:     postPtr.Username,
-			Content:      postPtr.Content,
-			CommentCount: postPtr.CommentCount,
-		}
-		formattedPost.CreatedAt = postUtil.FormatPostTime(postPtr.CreatedAt)
-		formattedPosts = append(formattedPosts, formattedPost)
+	if len(followedUserIDs) == 0 {
+		s.logger.Debug("user not following anybody.")
+		return s.repository.GetPostsOfGivenUsers(ctx, []string{user.ID}, maxCount)
 	}
-	return formattedPosts, nil
+	usersIncludingCurrentUser := append(followedUserIDs, user.ID)
+	followedUsersPosts, err := s.repository.GetPostsOfGivenUsers(ctx, usersIncludingCurrentUser, maxCount)
+	if err != nil {
+		s.logger.Error("error getting posts of given users from repository", s.logger.ErrorModifier(err))
+		return nil, err
+	}
+	return followedUsersPosts, nil
 }

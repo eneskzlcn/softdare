@@ -4,7 +4,10 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	commentUtil "github.com/eneskzlcn/softdare/internal/util/comment"
 	"github.com/eneskzlcn/softdare/internal/util/convertion"
+	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
+	timeUtil "github.com/eneskzlcn/softdare/internal/util/time"
 	"github.com/nicolasparada/go-mux"
 	"net/http"
 	"net/url"
@@ -29,7 +32,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := h.session.Get(r, "user")
-	user, err := convertion.AnyToGivenType[entity.UserIdentity](data)
+	user, err := convertionUtil.AnyTo[entity.UserIdentity](data)
 	if err != nil {
 		h.logger.Errorf("can not converted session data to user struct with error %s", err.Error())
 		return
@@ -62,8 +65,8 @@ func (h *Handler) ShowPost(w http.ResponseWriter, r *http.Request) {
 		h.ShowOops(w, r, err, http.StatusFound)
 		return
 	}
-	formattedPost := entity.FormatPost(post)
-	formattedComments := entity.FormatComments(comments)
+	formattedPost := postUtil.FormatPost(post, timeUtil.ToAgoFormatter)
+	formattedComments := commentUtil.FormatComments(comments, timeUtil.ToAgoFormatter)
 	sessionData := h.GetPostSessionData(r)
 	h.RenderPost(w, postData{Post: formattedPost, Session: sessionData, Comments: formattedComments}, http.StatusFound)
 }
@@ -81,7 +84,7 @@ func (h *Handler) GetPostSessionData(r *http.Request) (out postSessionData) {
 	}
 	if h.session.Exists(r, "create-comment-form") {
 		form := h.session.Get(r, "create-comment-form")
-		urlForm, err := convertion.AnyToGivenType[url.Values](form)
+		urlForm, err := convertionUtil.AnyTo[url.Values](form)
 		if err == nil {
 			out.CreateCommentForm = urlForm
 		}

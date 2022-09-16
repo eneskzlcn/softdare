@@ -16,10 +16,10 @@ import (
 
 type PostService interface {
 	GetPosts(ctx context.Context, userID string) ([]*entity.Post, error)
-	GetFormattedPosts(ctx context.Context, userID string) ([]entity.FormattedPost, error)
 	CreatePost(ctx context.Context, content string) (*entity.Post, error)
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	GetFollowingUsersPosts(ctx context.Context, maxCount int) ([]*entity.Post, error)
 }
 type UserService interface {
 	Login(ctx context.Context, email string, username *string) (*entity.User, error)

@@ -35,3 +35,25 @@ func (r *Repository) IsUserFollowExists(ctx context.Context, followerID string, 
 	}
 	return exists, nil
 }
+func (r *Repository) GetFollowedUsersOfFollower(ctx context.Context, userID string) ([]string, error) {
+	query := `
+		SELECT followed_id
+		FROM user_follows
+		WHERE follower_id = $1
+	`
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		r.logger.Error("error getting followed users of follower from database", r.logger.ErrorModifier(err))
+		return nil, err
+	}
+	followedUserIDs := make([]string, 0)
+	for rows.Next() {
+		var followedUserID string
+		if err = rows.Scan(&followedUserID); err != nil {
+			r.logger.Error(err)
+			return nil, err
+		}
+		followedUserIDs = append(followedUserIDs, followedUserID)
+	}
+	return followedUserIDs, nil
+}

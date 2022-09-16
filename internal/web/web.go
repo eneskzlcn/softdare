@@ -14,7 +14,7 @@ type CommonSessionData struct {
 func (h *Handler) CommonSessionDataFromRequest(r *http.Request) (isLoggedIn bool, user entity.UserIdentity) {
 	if h.session.Exists(r, "user") {
 		data := h.session.Get(r, "user")
-		userData, err := convertionUtil.AnyToGivenType[entity.UserIdentity](data)
+		userData, err := convertionUtil.AnyTo[entity.UserIdentity](data)
 		if err == nil {
 			user = userData
 			isLoggedIn = true

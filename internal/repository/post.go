@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -97,4 +98,42 @@ func (r *Repository) AdjustPostCommentCount(ctx context.Context, postID string, 
 		return updatedAt, err
 	}
 	return updatedAt, nil
+}
+func (r *Repository) GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error) {
+	query := `
+		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username
+		FROM posts
+		INNER JOIN users ON posts.user_id = users.id
+		WHERE posts.user_id = ANY($1)
+		ORDER BY posts.created_at DESC
+		LIMIT $2
+	`
+	rows, err := r.db.QueryContext(ctx, query, pq.Array(followedUserIDs), maxCount)
+	if err != nil {
+		r.logger.Error("can not take posts of given users from database", r.logger.ErrorModifier(err))
+		return nil, err
+	}
+	var items []*entity.Post
+	for rows.Next() {
+		var i entity.Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CommentCount,
+			&i.Username,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err = rows.Close(); err != nil {
+		return nil, err
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

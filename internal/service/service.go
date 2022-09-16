@@ -28,6 +28,7 @@ type PostRepository interface {
 	CreatePost(ctx context.Context, postID, userID, content string) (time.Time, error)
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error)
 }
 type CommentRepository interface {
 	CreateComment(ctx context.Context, commentID, userID, postID, content string) (time.Time, error)
@@ -37,6 +38,7 @@ type FollowRepository interface {
 	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
 	CreateUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
 	DeleteUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
+	GetFollowedUsersOfFollower(ctx context.Context, userID string) ([]string, error)
 }
 type Repository interface {
 	UserRepository

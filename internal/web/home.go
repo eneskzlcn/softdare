@@ -1,8 +1,11 @@
 package web
 
 import (
+	"context"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
+	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
+	timeUtil "github.com/eneskzlcn/softdare/internal/util/time"
 	"net/http"
 	"net/url"
 )
@@ -19,16 +22,20 @@ type homeData struct {
 	Posts   []entity.FormattedPost
 }
 
-func (h *Handler) ShowHome(w http.ResponseWriter, req *http.Request) {
+func (h *Handler) ShowHome(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debugf("HOME SHOW HANDLER ACCEPTED A REQUEST")
-	session := h.GetHomeSessionData(req)
-	posts, err := h.service.GetFormattedPosts(req.Context(), "")
+	session := h.GetHomeSessionData(r)
+	ctx := context.WithValue(r.Context(), "user", session.User)
+
+	posts, err := h.service.GetFollowingUsersPosts(ctx, 5)
 	if err != nil {
-		h.logger.Error("oops getting posts from service")
-		h.ShowOops(w, req, err, http.StatusFound)
+		h.logger.Error("oops getting following users posts from service")
+		h.ShowOops(w, r, err, http.StatusFound)
 		return
 	}
-	h.RenderHome(w, homeData{Session: session, Posts: posts}, http.StatusFound)
+	formattedPosts := postUtil.FormatPosts(posts, timeUtil.ToAgoFormatter)
+
+	h.RenderHome(w, homeData{Session: session, Posts: formattedPosts}, http.StatusFound)
 }
 
 func (h *Handler) RenderHome(w http.ResponseWriter, data homeData, status int) {
@@ -43,7 +50,7 @@ func (h *Handler) GetHomeSessionData(r *http.Request) (out homeSessionData) {
 
 		if h.session.Exists(r, "create-post-form") {
 			form := h.session.Pop(r, "create-post-form")
-			formData, err := convertionUtil.AnyToGivenType[url.Values](form)
+			formData, err := convertionUtil.AnyTo[url.Values](form)
 			if err == nil {
 				out.CreatePostForm = formData
 			}

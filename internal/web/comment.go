@@ -16,7 +16,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, req *http.Request) {
 	postID := req.PostFormValue("post_id")
 	content := req.PostFormValue("content")
 	data := h.session.Get(req, "user")
-	user, err := convertion.AnyToGivenType[entity.UserIdentity](data)
+	user, err := convertionUtil.AnyTo[entity.UserIdentity](data)
 	if err != nil {
 		h.logger.Error("error getting user from session")
 		h.handleCreateCommentError(w, req, err)
