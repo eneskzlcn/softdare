@@ -61,29 +61,28 @@ func (s *Service) Login(ctx context.Context, email string, username *string) (*e
 func (s *Service) GetUserByUsername(ctx context.Context, username string) (*entity.User, error) {
 	return s.repository.GetUserByUsername(ctx, username)
 }
-func (s *Service) IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error) {
+func (s *Service) AdjustUserPostCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	if err := validation.IsValidXID(userID); err != nil {
 		s.logger.Error(entity.InvalidUserID, s.logger.StringModifier("userID", userID))
 		return time.Time{}, err
 	}
-	if increaseAmount <= 0 || increaseAmount >= 10 {
+	if adjustment <= 0 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
-		return time.Time{}, entity.IncreaseAmountNotValid
+		return time.Time{}, entity.AdjustmentNotValid
 	}
-	return s.repository.IncreaseUserPostCount(ctx, userID, increaseAmount)
+	return s.repository.AdjustUserPostCount(ctx, userID, adjustment)
 }
-func (s *Service) IncreaseUserFollowerOrFollowedCount(ctx context.Context, userID string, increaseAmount int, isFollower bool) (time.Time, error) {
+func (s *Service) AdjustUserFollowerOrFollowedCount(ctx context.Context, userID string, adjustment int, isFollower bool) (time.Time, error) {
 	if err := validation.IsValidXID(userID); err != nil {
 		s.logger.Error(entity.InvalidUserID, s.logger.StringModifier("userID", userID))
 		return time.Time{}, err
 	}
-	if increaseAmount <= 0 || increaseAmount >= 10 {
+	if adjustment <= 0 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
-		return time.Time{}, entity.IncreaseAmountNotValid
+		return time.Time{}, entity.AdjustmentNotValid
 	}
 	if isFollower {
-		return s.repository.IncreaseUserFollowedCount(ctx, userID, increaseAmount)
-
+		return s.repository.AdjustUserFollowedCount(ctx, userID, adjustment)
 	}
-	return s.repository.IncreaseUserFollowerCount(ctx, userID, increaseAmount)
+	return s.repository.AdjustUserFollowerCount(ctx, userID, adjustment)
 }

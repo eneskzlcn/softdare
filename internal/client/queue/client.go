@@ -11,11 +11,11 @@ type RabbitMQClient interface {
 	PushMessage(message any, queue string) error
 }
 type UserService interface {
-	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
-	IncreaseUserFollowerOrFollowedCount(ctx context.Context, userID string, increaseAmount int, isFollower bool) (time.Time, error)
+	AdjustUserPostCount(ctx context.Context, userID string, adjustment int) (time.Time, error)
+	AdjustUserFollowerOrFollowedCount(ctx context.Context, userID string, adjustment int, isFollower bool) (time.Time, error)
 }
 type PostService interface {
-	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 
 type Service interface {

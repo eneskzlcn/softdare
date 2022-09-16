@@ -109,35 +109,35 @@ func (r *Repository) IsUserExistsByUsername(ctx context.Context, username string
 	err := row.Scan(&exists)
 	return exists, err
 }
-func (r *Repository) IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error) {
+func (r *Repository) AdjustUserPostCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	query := `
 		UPDATE users
 		SET post_count = post_count + $1, updated_at = now()
 		WHERE id = $2
 		RETURNING updated_at;`
-	row := r.db.QueryRowContext(ctx, query, increaseAmount, userID)
+	row := r.db.QueryRowContext(ctx, query, adjustment, userID)
 	var updatedAt time.Time
 	err := row.Scan(&updatedAt)
 	return updatedAt, err
 }
-func (r *Repository) IncreaseUserFollowerCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error) {
+func (r *Repository) AdjustUserFollowerCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	query := `
 	UPDATE users
 	SET follower_count = follower_count + $1, updated_at = now()
 	WHERE id = $2
 	RETURNING updated_at;`
-	row := r.db.QueryRowContext(ctx, query, increaseAmount, userID)
+	row := r.db.QueryRowContext(ctx, query, adjustment, userID)
 	var updatedAt time.Time
 	err := row.Scan(&updatedAt)
 	return updatedAt, err
 }
-func (r *Repository) IncreaseUserFollowedCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error) {
+func (r *Repository) AdjustUserFollowedCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	query := `
 	UPDATE users
 	SET followed_count = followed_count + $1, updated_at = now()
 	WHERE id = $2
 	RETURNING updated_at;`
-	row := r.db.QueryRowContext(ctx, query, increaseAmount, userID)
+	row := r.db.QueryRowContext(ctx, query, adjustment, userID)
 	var updatedAt time.Time
 	err := row.Scan(&updatedAt)
 	return updatedAt, err

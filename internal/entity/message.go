@@ -12,3 +12,7 @@ type UserFollowCreatedMessage struct {
 	FollowerID string `json:"follower_id"`
 	FollowedID string `json:"followed_id"`
 }
+type UserFollowDeletedMessage struct {
+	FollowerID string `json:"follower_id"`
+	FollowedID string `json:"followed_id"`
+}

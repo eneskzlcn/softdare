@@ -84,13 +84,13 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*entity.Po
 	}
 	return &i, err
 }
-func (r *Repository) IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error) {
+func (r *Repository) AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
 	query := `
 	UPDATE posts
 	SET comment_count = comment_count + $1, updated_at = now()
 	WHERE id = $2
 	RETURNING updated_at;`
-	row := r.db.QueryRowContext(ctx, query, increaseAmount, postID)
+	row := r.db.QueryRowContext(ctx, query, adjustment, postID)
 	var updatedAt time.Time
 	if err := row.Scan(&updatedAt); err != nil {
 		r.logger.Error("error scanning query returning")

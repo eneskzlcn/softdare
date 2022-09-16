@@ -18,7 +18,7 @@ type PostService interface {
 	GetFormattedPosts(ctx context.Context, userID string) ([]entity.FormattedPost, error)
 	CreatePost(ctx context.Context, content string) (*entity.Post, error)
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
-	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 type UserService interface {
 	Login(ctx context.Context, email string, username *string) (*entity.User, error)

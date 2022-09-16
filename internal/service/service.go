@@ -19,15 +19,15 @@ type UserRepository interface {
 	IsUserExistsByUsername(ctx context.Context, username string) (bool, error)
 	IsUserExistsByID(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, userID, email, username string) (time.Time, error)
-	IncreaseUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
-	IncreaseUserFollowerCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
-	IncreaseUserFollowedCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	AdjustUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	AdjustUserFollowerCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	AdjustUserFollowedCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
 }
 type PostRepository interface {
 	GetPosts(ctx context.Context, userID string) ([]*entity.Post, error)
 	CreatePost(ctx context.Context, postID, userID, content string) (time.Time, error)
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
-	IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 }
 type CommentRepository interface {
 	CreateComment(ctx context.Context, commentID, userID, postID, content string) (time.Time, error)

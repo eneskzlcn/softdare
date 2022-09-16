@@ -19,7 +19,7 @@ func (c *Client) ConsumeCommentCreated() {
 				c.logger.Error("unmarshalling error")
 				continue
 			}
-			_, err = c.service.IncreasePostCommentCount(context.Background(), message.PostID, 1)
+			_, err = c.service.AdjustPostCommentCount(context.Background(), message.PostID, 1)
 			if err != nil {
 				c.logger.Error("error on increasing post comment count ", err)
 				//maybe we can add a retry mechanism t

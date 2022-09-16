@@ -23,7 +23,7 @@ var (
 	InvalidConstructorArguments = errors.New("invalid constructor arguments(some of them is probably nil)")
 	NilLogger                   = errors.New("given logger is nil")
 	NilRouteHandler             = errors.New("given route handler is nil")
-	IncreaseAmountNotValid      = errors.New("increase amount not valid")
+	AdjustmentNotValid          = errors.New("not valid adjustment")
 	UserNotInContext            = errors.New("username not found in context")
 	UserCanNotFollowItself      = errors.New("a person can not follow itself")
 	AlreadyFollowsTheUser       = errors.New("already following user")

@@ -33,11 +33,11 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 		s.logger.Error("oops creating post on repository")
 		return nil, err
 	}
-	increaseUserPostCountMessage := entity.PostCreatedMessage{
+	message := entity.PostCreatedMessage{
 		PostID: id,
 		UserID: user.ID,
 	}
-	err = s.rabbitmqClient.PushMessage(increaseUserPostCountMessage, "post-created")
+	err = s.rabbitmqClient.PushMessage(message, "post-created")
 	if err != nil {
 		s.logger.Error("error pushing the increase user post count message to the rabbitmq")
 		//retry it..
@@ -60,16 +60,16 @@ func (s *Service) GetPostByID(ctx context.Context, postID string) (*entity.Post,
 	}
 	return s.repository.GetPostByID(ctx, postID)
 }
-func (s *Service) IncreasePostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error) {
+func (s *Service) AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
 	if err := validation.IsValidXID(postID); err != nil {
 		s.logger.Error("not valid postID : %", postID)
 		return time.Time{}, err
 	}
-	if increaseAmount <= 0 || increaseAmount >= 10 {
+	if adjustment <= 0 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
-		return time.Time{}, entity.IncreaseAmountNotValid
+		return time.Time{}, entity.AdjustmentNotValid
 	}
-	return s.repository.IncreasePostCommentCount(ctx, postID, increaseAmount)
+	return s.repository.AdjustPostCommentCount(ctx, postID, adjustment)
 }
 func (s *Service) GetFormattedPosts(ctx context.Context, userID string) ([]entity.FormattedPost, error) {
 	posts, err := s.GetPosts(ctx, userID)
