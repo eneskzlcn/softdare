@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/gob"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/middleware"
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/entity"
@@ -72,8 +73,9 @@ func (h *Handler) init() {
 	muxRouter := router.NewMuxRouterAdapter()
 	h.urlParamExtractor = muxRouter.ExtractURLParam
 	h.handler = muxRouter
-	h.handler = h.session.Enable(h.handler)
 	h.RegisterHandlers(muxRouter)
+
+	h.applyMiddlewares()
 
 	gob.Register(url.Values{})
 	gob.Register(entity.UserIdentity{})
@@ -85,6 +87,12 @@ func (h *Handler) init() {
 	templates["oops"] = ParseTemplate("oops.gohtml")
 	templates["profile"] = ParseTemplate("profile.gohtml")
 	h.templates = templates
+}
+func (h *Handler) applyMiddlewares() {
+	//apply session middleware
+	h.handler = h.session.Enable(h.handler)
+	//apply method overriding middleware
+	h.handler = middleware.OverrideFormMethods(h.handler)
 }
 func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h.handler.ServeHTTP(w, req)
@@ -119,6 +127,6 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 		http.MethodPost: h.CreateUserFollow,
 	})
 	muxRouter.Handle("/unfollow", router.MethodHandlers{
-		http.MethodPost: h.DeleteUserFollow,
+		http.MethodDelete: h.DeleteUserFollow,
 	})
 }
