@@ -36,6 +36,7 @@ type CommentRepository interface {
 type FollowRepository interface {
 	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
 	CreateUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
+	DeleteUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
 }
 type Repository interface {
 	UserRepository

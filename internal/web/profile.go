@@ -69,6 +69,31 @@ func (h *Handler) CreateUserFollow(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
+func (h *Handler) DeleteUserFollow(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		h.logger.Error("can not parse request form", h.logger.ErrorModifier(err))
+		return
+	}
+	followedUserID := r.PostFormValue("userID")
+	if err := validation.IsValidXID(followedUserID); err != nil {
+		h.logger.Error("invalid user id to follow")
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+	isLoggedIn, userIdentity := h.CommonSessionDataFromRequest(r)
+	if !isLoggedIn {
+		h.logger.Error("not logged in user can not unfollow anybody")
+		http.Redirect(w, r, "/login", http.StatusBadRequest)
+		return
+	}
+	ctx := context.WithValue(r.Context(), "user", userIdentity)
+	_, err := h.service.DeleteUserFollow(ctx, followedUserID)
+	if err != nil {
+		h.logger.Error("error creating user follow from service layer", h.logger.ErrorModifier(err))
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
+	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
 func (h *Handler) RenderProfile(w http.ResponseWriter, data profileData, statusCode int) {
 	h.RenderPage("profile", w, data, statusCode)
 }

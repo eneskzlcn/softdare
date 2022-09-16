@@ -142,3 +142,17 @@ func (r *Repository) IncreaseUserFollowedCount(ctx context.Context, userID strin
 	err := row.Scan(&updatedAt)
 	return updatedAt, err
 }
+func (r *Repository) DeleteUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error) {
+	query := `
+	DELETE from user_follows
+	WHERE follower_id = $1 AND followed_id = $2
+	RETURNING now()::timestamp AS deleted_at;
+	`
+	row := r.db.QueryRowContext(ctx, query, followerID, followedID)
+	var deletedAt time.Time
+	if err := row.Scan(&deletedAt); err != nil {
+		r.logger.Error(err)
+		return time.Time{}, err
+	}
+	return deletedAt, nil
+}

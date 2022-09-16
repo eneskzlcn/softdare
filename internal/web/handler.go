@@ -31,6 +31,7 @@ type CommentService interface {
 type FollowService interface {
 	CreateUserFollow(ctx context.Context, followedID string) (*entity.UserFollow, error)
 	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
+	DeleteUserFollow(ctx context.Context, followedID string) (time.Time, error)
 }
 type Service interface {
 	PostService
@@ -116,5 +117,8 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 	})
 	muxRouter.Handle("/follow", router.MethodHandlers{
 		http.MethodPost: h.CreateUserFollow,
+	})
+	muxRouter.Handle("/unfollow", router.MethodHandlers{
+		http.MethodPost: h.DeleteUserFollow,
 	})
 }

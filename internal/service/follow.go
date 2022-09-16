@@ -5,6 +5,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
+	"time"
 )
 
 /*FollowUser
@@ -71,6 +72,43 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 		CreatedAt:  createdAt,
 		UpdatedAt:  createdAt,
 	}, nil
+}
+func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time.Time, error) {
+	if err := validation.IsValidXID(followedID); err != nil {
+		s.logger.Error(entity.InvalidUserID)
+		return time.Time{}, entity.InvalidUserID
+	}
+	userIdentity, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
+	if !exists {
+		s.logger.Error(entity.UserNotInContext)
+		return time.Time{}, entity.UserNotInContext
+	}
+
+	exists, err := s.repository.IsUserExistsByID(ctx, userIdentity.ID)
+	if err != nil {
+		s.logger.Error(err)
+		return time.Time{}, err
+	}
+	if !exists {
+		s.logger.Error("user can not found in database")
+		return time.Time{}, entity.UserNotFound
+	}
+	exists, err = s.repository.IsUserFollowExists(ctx, userIdentity.ID, followedID)
+	if err != nil {
+		s.logger.Error(err)
+		return time.Time{}, err
+	}
+	if !exists {
+		s.logger.Error(entity.UserFollowNotFound)
+		return time.Time{}, entity.UserFollowNotFound
+	}
+	deletedAt, err := s.repository.DeleteUserFollow(ctx, userIdentity.ID, followedID)
+	if err != nil {
+		s.logger.Error("can not delete user follow from repository")
+		return time.Time{}, err
+	}
+	//TODO: publish a user follow deleted event
+	return deletedAt, nil
 }
 func (s *Service) IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error) {
 	return s.repository.IsUserFollowExists(ctx, followerID, followedID)

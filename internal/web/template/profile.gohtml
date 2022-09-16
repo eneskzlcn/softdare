@@ -10,7 +10,11 @@
         </form>
         {{end}}
         {{if and .Session.IsLoggedIn  .IsFollowedUser}}
-        <button style="color: aqua" disabled>Following </button>
+           <form action = "/unfollow" method="POST">
+               <input type="hidden" name="userID" value="{{.User.ID}}">
+               <button style="color: antiquewhite">Unfollow</button>
+           </form>
+
         {{end}}
         <p> Followers: {{.User.FollowerCount}}</p>
         <p> Following: {{.User.FollowedCount}}</p>

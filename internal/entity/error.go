@@ -27,6 +27,7 @@ var (
 	UserNotInContext            = errors.New("username not found in context")
 	UserCanNotFollowItself      = errors.New("a person can not follow itself")
 	AlreadyFollowsTheUser       = errors.New("already following user")
+	UserFollowNotFound          = errors.New("user follow not found")
 )
 
 func IsLoginError(err error) bool {
