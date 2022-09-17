@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
-	commentUtil "github.com/eneskzlcn/softdare/internal/util/comment"
-	"github.com/eneskzlcn/softdare/internal/util/convertion"
-	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
-	timeUtil "github.com/eneskzlcn/softdare/internal/util/time"
+	"github.com/eneskzlcn/softdare/internal/util/commentutil"
+	"github.com/eneskzlcn/softdare/internal/util/convertutil"
+	"github.com/eneskzlcn/softdare/internal/util/postutil"
+	"github.com/eneskzlcn/softdare/internal/util/timeutil"
 	"github.com/nicolasparada/go-mux"
 	"net/http"
 	"net/url"
@@ -18,6 +18,7 @@ type postData struct {
 	Post     entity.FormattedPost
 	Comments []entity.FormattedComment
 }
+
 type postSessionData struct {
 	IsLoggedIn         bool
 	User               entity.UserIdentity
@@ -32,7 +33,8 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := h.session.Get(r, "user")
-	user, err := convertionUtil.AnyTo[entity.UserIdentity](data)
+
+	user, err := convertutil.AnyTo[entity.UserIdentity](data)
 	if err != nil {
 		h.logger.Errorf("can not converted session data to user struct with error %s", err.Error())
 		return
@@ -48,6 +50,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
 func (h *Handler) ShowPost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	postID := mux.URLParam(ctx, "postID")
@@ -65,14 +68,16 @@ func (h *Handler) ShowPost(w http.ResponseWriter, r *http.Request) {
 		h.ShowOops(w, r, err, http.StatusFound)
 		return
 	}
-	formattedPost := postUtil.FormatPost(post, timeUtil.ToAgoFormatter)
-	formattedComments := commentUtil.FormatComments(comments, timeUtil.ToAgoFormatter)
+	formattedPost := postutil.FormatPost(post, timeutil.ToAgoFormatter)
+	formattedComments := commentutil.FormatComments(comments, timeutil.ToAgoFormatter)
 	sessionData := h.GetPostSessionData(r)
 	h.RenderPost(w, postData{Post: formattedPost, Session: sessionData, Comments: formattedComments}, http.StatusFound)
 }
+
 func (h *Handler) RenderPost(w http.ResponseWriter, data postData, status int) {
 	h.RenderPage("post", w, data, status)
 }
+
 func (h *Handler) GetPostSessionData(r *http.Request) (out postSessionData) {
 	isLoggedIn, user := h.CommonSessionDataFromRequest(r)
 	if isLoggedIn {
@@ -84,7 +89,7 @@ func (h *Handler) GetPostSessionData(r *http.Request) (out postSessionData) {
 	}
 	if h.session.Exists(r, "create-comment-form") {
 		form := h.session.Get(r, "create-comment-form")
-		urlForm, err := convertionUtil.AnyTo[url.Values](form)
+		urlForm, err := convertutil.AnyTo[url.Values](form)
 		if err == nil {
 			out.CreateCommentForm = urlForm
 		}

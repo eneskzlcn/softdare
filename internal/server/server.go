@@ -30,6 +30,7 @@ func New(config config.Server, handler RootHandler, logger logger.Logger) *Serve
 	server.server = &http.Server{Addr: config.Address, Handler: handler}
 	return &server
 }
+
 func (s *Server) ListenAndServe() error {
 	return s.server.ListenAndServe()
 }

@@ -30,6 +30,7 @@ func (c *Client) ConsumePostCreated() {
 	}
 	<-forever
 }
+
 func (c *Client) ConsumeUserFollowCreated() {
 	onReceivedChan := make(chan []byte, 0)
 	go c.consume(onReceivedChan, "user-follow-created-consumer", "user-follow-created")
@@ -62,6 +63,7 @@ func (c *Client) ConsumeUserFollowCreated() {
 	}
 	<-forever
 }
+
 func (c *Client) ConsumeUserFollowDeleted() {
 	onReceivedChan := make(chan []byte, 0)
 	go c.consume(onReceivedChan, "user-follow-deleted-consumer", "user-follow-deleted")

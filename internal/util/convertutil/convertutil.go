@@ -1,4 +1,4 @@
-package convertionUtil
+package convertutil
 
 import "encoding/json"
 

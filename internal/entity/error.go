@@ -28,6 +28,7 @@ var (
 	UserCanNotFollowItself      = errors.New("a person can not follow itself")
 	AlreadyFollowsTheUser       = errors.New("already following user")
 	UserFollowNotFound          = errors.New("user follow not found")
+	NotValidLoggerEnvironment   = errors.New("not valid logger environment")
 )
 
 func IsLoginError(err error) bool {

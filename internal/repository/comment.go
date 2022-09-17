@@ -20,6 +20,7 @@ func (r *Repository) CreateComment(ctx context.Context, commentID, userID, postI
 	return createdAt, err
 
 }
+
 func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error) {
 	r.logger.Debugf("Get Comments By Post ID Request Arrived To Repository With Post ID:%s", postID)
 	query := `

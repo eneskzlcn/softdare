@@ -1,4 +1,4 @@
-package postUtil
+package postutil
 
 import (
 	"github.com/eneskzlcn/softdare/internal/entity"

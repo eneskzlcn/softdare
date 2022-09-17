@@ -21,28 +21,34 @@ type PostService interface {
 	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 	GetFollowingUsersPosts(ctx context.Context, maxCount int) ([]*entity.Post, error)
 }
+
 type UserService interface {
 	Login(ctx context.Context, email string, username *string) (*entity.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*entity.User, error)
 }
+
 type CommentService interface {
 	CreateComment(ctx context.Context, postID, content string) (*entity.Comment, error)
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
+
 type FollowService interface {
 	CreateUserFollow(ctx context.Context, followedID string) (*entity.UserFollow, error)
 	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
 	DeleteUserFollow(ctx context.Context, followedID string) (time.Time, error)
 }
+
 type Service interface {
 	PostService
 	CommentService
 	UserService
 	FollowService
 }
+
 type Renderer interface {
 	Render(w http.ResponseWriter, tmpl *template.Template, data any, statusCode int)
 }
+
 type PageTemplates map[string]*template.Template
 
 type Handler struct {
@@ -69,6 +75,7 @@ func NewHandler(logger logger.Logger, session session.Session, service Service, 
 
 	return &handler
 }
+
 func (h *Handler) init() {
 	muxRouter := router.NewMuxRouterAdapter()
 	h.urlParamExtractor = muxRouter.ExtractURLParam
@@ -88,22 +95,27 @@ func (h *Handler) init() {
 	templates["profile"] = ParseTemplate("profile.gohtml")
 	h.templates = templates
 }
+
 func (h *Handler) applyMiddlewares() {
 	//apply session middleware
 	h.handler = h.session.Enable(h.handler)
 	//apply method overriding middleware
 	h.handler = middleware.OverrideFormMethods(h.handler)
 }
+
 func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h.handler.ServeHTTP(w, req)
 }
+
 func (h *Handler) RenderPage(page string, w http.ResponseWriter, data any, statusCode int) {
 	h.renderer.Render(w, h.templates[page], data, statusCode)
 }
+
 func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 	muxRouter.Handle("/", router.MethodHandlers{
 		http.MethodGet: h.ShowHome,
 	})
+
 	muxRouter.Handle("/comments", router.MethodHandlers{
 		http.MethodPost: h.CreateComment,
 	})
@@ -129,4 +141,5 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 	muxRouter.Handle("/unfollow", router.MethodHandlers{
 		http.MethodDelete: h.DeleteUserFollow,
 	})
+
 }

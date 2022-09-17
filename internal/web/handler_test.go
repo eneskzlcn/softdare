@@ -1,60 +1,43 @@
 package web_test
 
-//
-//import (
-//	mocks "github.com/eneskzlcn/softdare/internal/mocks/server"
-//	server "github.com/eneskzlcn/softdare/internal/server"
-//	"github.com/golang/mock/gomock"
-//	"github.com/stretchr/testify/assert"
-//	"go.uber.org/zap"
-//	"testing"
-//)
-//
-//func TestNewHandler(t *testing.T) {
-//	type testCase struct {
-//		logger          *zap.SugaredLogger
-//		routeHandlers   []server.RouteHandler
-//		sessionProvider server.Session
-//		scenario        string
-//		expectedObject  *server.Handler
-//		expectedError   error
-//	}
-//	exLogger := zap.NewExample().Sugar()
-//	controller := gomock.NewController(t)
-//	exSessionProvider := mocks.NewMockSession(controller)
-//	exSessionProvider.EXPECT().Enable(gomock.Any()).Return(nil)
-//	handlerCreateScenarios := []testCase{
-//		{
-//			logger:          exLogger,
-//			routeHandlers:   nil,
-//			sessionProvider: nil,
-//			scenario:        "test given empty session provider then it should return nil with oops when new handler called",
-//			expectedError:   server.ErrSessionProviderNil,
-//		},
-//		{
-//			logger:          nil,
-//			routeHandlers:   nil,
-//			sessionProvider: exSessionProvider,
-//			scenario:        "test given empty logger then it should return nil with oops when new handler called",
-//			expectedError:   server.ErrLoggerNil,
-//		},
-//		{
-//			logger:          exLogger,
-//			routeHandlers:   []server.RouteHandler{nil, nil, nil},
-//			sessionProvider: exSessionProvider,
-//			scenario:        "test given a nil route handler then it should return nil with oops when new handler called",
-//			expectedError:   server.ErrGivenRouteHandlerNil,
-//		},
-//		{
-//			logger:          exLogger,
-//			routeHandlers:   nil,
-//			sessionProvider: exSessionProvider,
-//			scenario:        "test given valid arguments then it should return handler without oops when new handler called",
-//			expectedError:   nil,
-//		},
-//	}
-//	for _, testCase := range handlerCreateScenarios {
-//		_, err := server.NewHandler(testCase.logger, testCase.routeHandlers, testCase.sessionProvider)
-//		assert.Equal(t, err, testCase.expectedError)
-//	}
-//}
+import (
+	"github.com/eneskzlcn/softdare/internal/entity"
+	mocks "github.com/eneskzlcn/softdare/internal/mocks/web"
+	"github.com/eneskzlcn/softdare/internal/web"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/golang/mock/gomock"
+	"testing"
+)
+
+func TestNewHandler(t *testing.T) {
+	controller := gomock.NewController(t)
+	mockService := mocks.NewMockService(controller)
+	mockRenderer := mocks.NewMockRenderer(controller)
+	mockLogger := mocks.NewMockLogger(controller)
+	mockSession := mocks.NewMockSession(controller)
+	t.Run("given nil logger then it should return nil", func(t *testing.T) {
+		handler := web.NewHandler(nil, mockSession, mockService, mockRenderer)
+		assert.Nil(t, handler)
+	})
+	t.Run("given nil session then it should return nil", func(t *testing.T) {
+		mockLogger.EXPECT().Error(entity.InvalidConstructorArguments).Times(1)
+		handler := web.NewHandler(mockLogger, nil, mockService, mockRenderer)
+		assert.Nil(t, handler)
+	})
+	t.Run("given nil service then it should return nil", func(t *testing.T) {
+		mockLogger.EXPECT().Error(entity.InvalidConstructorArguments).Times(1)
+		handler := web.NewHandler(mockLogger, mockSession, nil, mockRenderer)
+		assert.Nil(t, handler)
+	})
+	t.Run("given nil renderer then it should return nil", func(t *testing.T) {
+		mockLogger.EXPECT().Error(entity.InvalidConstructorArguments).Times(1)
+		handler := web.NewHandler(mockLogger, mockSession, mockService, nil)
+		assert.Nil(t, handler)
+	})
+	t.Run("given valid arguments then it should return handler", func(t *testing.T) {
+		mockSession.EXPECT().Enable(gomock.Any()).Times(1)
+		handler := web.NewHandler(mockLogger, mockSession, mockService, mockRenderer)
+		assert.NotNil(t, handler)
+	})
+}

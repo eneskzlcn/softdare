@@ -20,6 +20,7 @@ func (r *Repository) CreateUserFollow(ctx context.Context, followerID string, fo
 	}
 	return createdAt, nil
 }
+
 func (r *Repository) IsUserFollowExists(ctx context.Context, followerID string, followedID string) (bool, error) {
 	query := `
 		SELECT EXISTS(
@@ -35,6 +36,7 @@ func (r *Repository) IsUserFollowExists(ctx context.Context, followerID string, 
 	}
 	return exists, nil
 }
+
 func (r *Repository) GetFollowedUsersOfFollower(ctx context.Context, userID string) ([]string, error) {
 	query := `
 		SELECT followed_id

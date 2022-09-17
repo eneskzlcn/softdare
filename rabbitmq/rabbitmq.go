@@ -37,6 +37,7 @@ func New(config config.RabbitMQ, logger logger.Logger) *Client {
 
 	return &Client{connection: con, logger: logger}
 }
+
 func (c *Client) PushMessage(message any, queue string) error {
 	c.logger.Debug("PUSHING MESSAGE TO RABBITMQ", c.logger.StringModifier("queue", queue))
 	messageBytes, err := json.Marshal(message)
@@ -90,6 +91,7 @@ func (c *Client) Consume(messageReceived chan []byte, consumer string, queue str
 	}()
 	<-forever
 }
+
 func createConnectionUrl(config config.RabbitMQ) string {
 	return fmt.Sprintf("amqp://%s:%s@%s:%s/", config.Username, config.Password, config.Host, config.Port)
 }

@@ -3,9 +3,9 @@ package web
 import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/entity"
-	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
-	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
-	timeUtil "github.com/eneskzlcn/softdare/internal/util/time"
+	"github.com/eneskzlcn/softdare/internal/util/convertutil"
+	"github.com/eneskzlcn/softdare/internal/util/postutil"
+	"github.com/eneskzlcn/softdare/internal/util/timeutil"
 	"net/http"
 	"net/url"
 )
@@ -33,7 +33,7 @@ func (h *Handler) ShowHome(w http.ResponseWriter, r *http.Request) {
 		h.ShowOops(w, r, err, http.StatusFound)
 		return
 	}
-	formattedPosts := postUtil.FormatPosts(posts, timeUtil.ToAgoFormatter)
+	formattedPosts := postutil.FormatPosts(posts, timeutil.ToAgoFormatter)
 
 	h.RenderHome(w, homeData{Session: session, Posts: formattedPosts}, http.StatusFound)
 }
@@ -41,6 +41,7 @@ func (h *Handler) ShowHome(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) RenderHome(w http.ResponseWriter, data homeData, status int) {
 	h.RenderPage("home", w, data, status)
 }
+
 func (h *Handler) GetHomeSessionData(r *http.Request) (out homeSessionData) {
 	isLoggedIn, user := h.CommonSessionDataFromRequest(r)
 	if isLoggedIn {
@@ -50,7 +51,7 @@ func (h *Handler) GetHomeSessionData(r *http.Request) (out homeSessionData) {
 
 		if h.session.Exists(r, "create-post-form") {
 			form := h.session.Pop(r, "create-post-form")
-			formData, err := convertionUtil.AnyTo[url.Values](form)
+			formData, err := convertutil.AnyTo[url.Values](form)
 			if err == nil {
 				out.CreatePostForm = formData
 			}

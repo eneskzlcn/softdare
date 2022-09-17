@@ -18,6 +18,7 @@ func NewMuxRouterAdapter() *MuxRouterAdapter {
 	router := mux.NewRouter()
 	return &MuxRouterAdapter{router: router}
 }
+
 func (m *MuxRouterAdapter) Handle(pattern string, handlers MethodHandlers) {
 	muxMethodHandlers := (mux.MethodHandler)(handlers)
 	m.router.Handle(pattern, muxMethodHandlers)

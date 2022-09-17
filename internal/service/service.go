@@ -12,6 +12,7 @@ import (
 type RabbitMQClient interface {
 	PushMessage(message any, queue string) error
 }
+
 type UserRepository interface {
 	IsUserExistsByEmail(ctx context.Context, email string) (bool, error)
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
@@ -23,6 +24,7 @@ type UserRepository interface {
 	AdjustUserFollowerCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
 	AdjustUserFollowedCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
 }
+
 type PostRepository interface {
 	GetPosts(ctx context.Context, userID string) ([]*entity.Post, error)
 	CreatePost(ctx context.Context, postID, userID, content string) (time.Time, error)
@@ -30,16 +32,19 @@ type PostRepository interface {
 	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 	GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error)
 }
+
 type CommentRepository interface {
 	CreateComment(ctx context.Context, commentID, userID, postID, content string) (time.Time, error)
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
 }
+
 type FollowRepository interface {
 	IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error)
 	CreateUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
 	DeleteUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error)
 	GetFollowedUsersOfFollower(ctx context.Context, userID string) ([]string, error)
 }
+
 type Repository interface {
 	UserRepository
 	PostRepository

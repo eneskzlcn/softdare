@@ -16,6 +16,7 @@ func (h *Handler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	sessionData := h.GetLoginSessionData(r)
 	h.RenderLogin(w, loginPageData{Session: sessionData}, http.StatusOK)
 }
+
 func (h *Handler) RenderLogin(w http.ResponseWriter, data loginPageData, status int) {
 	h.RenderPage("login", w, data, status)
 }
@@ -44,6 +45,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	h.session.Put(r, "user", entity.UserIdentity{ID: user.ID, Email: user.Email, Username: user.Username})
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	h.session.Remove(r, "user")
 	http.Redirect(w, r, "/", http.StatusFound)

@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
-	postUtil "github.com/eneskzlcn/softdare/internal/util/post"
-	timeUtil "github.com/eneskzlcn/softdare/internal/util/time"
+	"github.com/eneskzlcn/softdare/internal/util/postutil"
+	"github.com/eneskzlcn/softdare/internal/util/timeutil"
 	"net/http"
 )
 
@@ -33,7 +33,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("error getting posts from service", h.logger.StringModifier("userID", user.ID), h.logger.ErrorModifier(err))
 		return
 	}
-	formattedPosts := postUtil.FormatPosts(posts, timeUtil.ToAgoFormatter)
+	formattedPosts := postutil.FormatPosts(posts, timeutil.ToAgoFormatter)
 	isLoggedIn, userIdentity := h.CommonSessionDataFromRequest(r)
 	isFollowedUser := false
 	if isLoggedIn && userIdentity.ID != user.ID {
@@ -47,6 +47,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	h.RenderProfile(w, profileData{User: *user, Posts: formattedPosts, IsFollowedUser: isFollowedUser, Session: CommonSessionData{IsLoggedIn: isLoggedIn, User: userIdentity}}, http.StatusFound)
 }
+
 func (h *Handler) CreateUserFollow(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		h.logger.Error("can not parse request form", h.logger.ErrorModifier(err))
@@ -72,6 +73,7 @@ func (h *Handler) CreateUserFollow(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
+
 func (h *Handler) DeleteUserFollow(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		h.logger.Error("can not parse request form", h.logger.ErrorModifier(err))
@@ -97,6 +99,7 @@ func (h *Handler) DeleteUserFollow(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
+
 func (h *Handler) RenderProfile(w http.ResponseWriter, data profileData, statusCode int) {
 	h.RenderPage("profile", w, data, statusCode)
 }

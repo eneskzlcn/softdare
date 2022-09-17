@@ -60,6 +60,7 @@ func (r *Repository) GetPosts(ctx context.Context, userID string) ([]*entity.Pos
 	}
 	return items, nil
 }
+
 func (r *Repository) GetPostByID(ctx context.Context, postID string) (*entity.Post, error) {
 	r.logger.Debug("Query arrived for get post by id :%", postID)
 
@@ -85,6 +86,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*entity.Po
 	}
 	return &i, err
 }
+
 func (r *Repository) AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
 	query := `
 	UPDATE posts
@@ -99,6 +101,7 @@ func (r *Repository) AdjustPostCommentCount(ctx context.Context, postID string, 
 	}
 	return updatedAt, nil
 }
+
 func (r *Repository) GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error) {
 	query := `
 		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username

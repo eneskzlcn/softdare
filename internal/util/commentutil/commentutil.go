@@ -1,4 +1,4 @@
-package commentUtil
+package commentutil
 
 import (
 	"github.com/eneskzlcn/softdare/internal/entity"
@@ -12,6 +12,7 @@ func FormatComments(comments []*entity.Comment, timeAgoFormatter func(time.Time)
 	}
 	return formattedComments
 }
+
 func FormatComment(comment *entity.Comment, timeAgoFormatter func(time.Time) string) (formattedComment entity.FormattedComment) {
 	formattedComment.ID = comment.ID
 	formattedComment.PostID = comment.PostID

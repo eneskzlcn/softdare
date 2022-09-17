@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
-	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
+	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"time"
 )
 
@@ -25,7 +25,7 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 		s.logger.Error(entity.InvalidUserID)
 		return nil, err
 	}
-	user, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
+	user, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error("can not taken the user from context")
 		return nil, entity.UserNotInContext
@@ -74,12 +74,13 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 		UpdatedAt:  createdAt,
 	}, nil
 }
+
 func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time.Time, error) {
 	if err := validation.IsValidXID(followedID); err != nil {
 		s.logger.Error(entity.InvalidUserID)
 		return time.Time{}, entity.InvalidUserID
 	}
-	userIdentity, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
+	userIdentity, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error(entity.UserNotInContext)
 		return time.Time{}, entity.UserNotInContext
@@ -119,6 +120,7 @@ func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time
 	}
 	return deletedAt, nil
 }
+
 func (s *Service) IsUserFollowExists(ctx context.Context, followerID, followedID string) (bool, error) {
 	return s.repository.IsUserFollowExists(ctx, followerID, followedID)
 }

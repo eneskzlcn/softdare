@@ -1,4 +1,4 @@
-package timeUtil
+package timeutil
 
 import (
 	"fmt"
@@ -10,7 +10,6 @@ and converts it to the format like 'Just Now' , '1m ago' , '1y ago'
 Function calculates the minutes between now and given date
 and the decides which format is suitable for that duration.
 */
-
 func ToAgoFormatter(t time.Time) string {
 	durationBetweenNow := time.Now().Sub(t)
 	durationMinutes := int(durationBetweenNow.Minutes())

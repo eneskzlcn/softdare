@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
-	contextUtil "github.com/eneskzlcn/softdare/internal/util/context"
+	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"github.com/rs/xid"
 )
 
@@ -17,7 +17,7 @@ func (s *Service) CreateComment(ctx context.Context, postID, content string) (*e
 		s.logger.Error(err)
 		return nil, err
 	}
-	user, exists := contextUtil.FromContext[entity.UserIdentity]("user", ctx)
+	user, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error("%s , Exists: %t", entity.CouldNotTakeUserFromContext, exists)
 		return nil, entity.CouldNotTakeUserFromContext

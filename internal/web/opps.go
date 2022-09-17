@@ -9,6 +9,7 @@ type oopsSessionData struct {
 	IsLoggedIn bool
 	User       entity.UserIdentity
 }
+
 type oopsData struct {
 	Err     error
 	Session oopsSessionData

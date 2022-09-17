@@ -37,6 +37,7 @@ func (r *Repository) GetUserByID(ctx context.Context, userID string) (*entity.Us
 	)
 	return &i, err
 }
+
 func (r *Repository) GetUserByUsername(ctx context.Context, username string) (*entity.User, error) {
 	query := `
 		SELECT id, email, username, post_count, follower_count, followed_count, created_at, updated_at 
@@ -56,6 +57,7 @@ func (r *Repository) GetUserByUsername(ctx context.Context, username string) (*e
 	)
 	return &i, err
 }
+
 func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	query := `
 		SELECT id, email, username, post_count, follower_count, followed_count ,created_at, updated_at 
@@ -87,6 +89,7 @@ func (r *Repository) IsUserExistsByEmail(ctx context.Context, email string) (boo
 	err := row.Scan(&exists)
 	return exists, err
 }
+
 func (r *Repository) IsUserExistsByID(ctx context.Context, userID string) (bool, error) {
 	query := `
 	SELECT EXISTS ( 
@@ -98,6 +101,7 @@ func (r *Repository) IsUserExistsByID(ctx context.Context, userID string) (bool,
 	err := row.Scan(&exists)
 	return exists, err
 }
+
 func (r *Repository) IsUserExistsByUsername(ctx context.Context, username string) (bool, error) {
 	query := `
 	SELECT EXISTS (
@@ -109,6 +113,7 @@ func (r *Repository) IsUserExistsByUsername(ctx context.Context, username string
 	err := row.Scan(&exists)
 	return exists, err
 }
+
 func (r *Repository) AdjustUserPostCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	query := `
 		UPDATE users
@@ -120,6 +125,7 @@ func (r *Repository) AdjustUserPostCount(ctx context.Context, userID string, adj
 	err := row.Scan(&updatedAt)
 	return updatedAt, err
 }
+
 func (r *Repository) AdjustUserFollowerCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	query := `
 	UPDATE users
@@ -131,6 +137,7 @@ func (r *Repository) AdjustUserFollowerCount(ctx context.Context, userID string,
 	err := row.Scan(&updatedAt)
 	return updatedAt, err
 }
+
 func (r *Repository) AdjustUserFollowedCount(ctx context.Context, userID string, adjustment int) (time.Time, error) {
 	query := `
 	UPDATE users
@@ -142,6 +149,7 @@ func (r *Repository) AdjustUserFollowedCount(ctx context.Context, userID string,
 	err := row.Scan(&updatedAt)
 	return updatedAt, err
 }
+
 func (r *Repository) DeleteUserFollow(ctx context.Context, followerID, followedID string) (time.Time, error) {
 	query := `
 	DELETE from user_follows

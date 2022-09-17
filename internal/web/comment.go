@@ -3,7 +3,7 @@ package web
 import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/entity"
-	"github.com/eneskzlcn/softdare/internal/util/convertion"
+	"github.com/eneskzlcn/softdare/internal/util/convertutil"
 	"github.com/rs/xid"
 	"net/http"
 )
@@ -16,7 +16,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, req *http.Request) {
 	postID := req.PostFormValue("post_id")
 	content := req.PostFormValue("content")
 	data := h.session.Get(req, "user")
-	user, err := convertionUtil.AnyTo[entity.UserIdentity](data)
+	user, err := convertutil.AnyTo[entity.UserIdentity](data)
 	if err != nil {
 		h.logger.Error("error getting user from session")
 		h.handleCreateCommentError(w, req, err)
@@ -37,6 +37,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, req *http.Request) {
 
 	http.Redirect(w, req, req.Referer(), http.StatusFound)
 }
+
 func (h *Handler) handleCreateCommentError(w http.ResponseWriter, req *http.Request, err error) {
 	h.logger.Error("error creating comment on service")
 	h.session.Put(req, "create-comment-error", err.Error())

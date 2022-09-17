@@ -48,14 +48,17 @@ func (s *CollegeSessionAdapter) Remove(r *http.Request, key string) {
 	s.logger.Debugf("SESSION REMOVE REQUEST ARRIVED FOR KEY %s ", key)
 	s.session.Remove(r, key)
 }
+
 func (s *CollegeSessionAdapter) GetString(r *http.Request, key string) string {
 	s.logger.Debugf("SESSION GET STRING REQUEST ARRIVED FOR KEY %s", key)
 	return s.session.GetString(r, key)
 }
+
 func (s *CollegeSessionAdapter) PopString(r *http.Request, key string) string {
 	s.logger.Debugf("SESSION POP STRING REQUEST ARRIVED FOR KEY %s", key)
 	return s.session.PopString(r, key)
 }
+
 func (s *CollegeSessionAdapter) Pop(r *http.Request, key string) any {
 	s.logger.Debugf("SESSION POP REQUEST ARRIVED FOR KEY %s", key)
 	return s.session.Pop(r, key)

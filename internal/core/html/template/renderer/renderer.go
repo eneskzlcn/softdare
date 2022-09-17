@@ -11,6 +11,7 @@ type Logger interface {
 	Debugf(template string, args ...interface{})
 	Errorf(template string, args ...interface{})
 }
+
 type Renderer struct {
 	logger Logger
 }

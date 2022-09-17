@@ -2,7 +2,7 @@ package web
 
 import (
 	"github.com/eneskzlcn/softdare/internal/entity"
-	convertionUtil "github.com/eneskzlcn/softdare/internal/util/convertion"
+	"github.com/eneskzlcn/softdare/internal/util/convertutil"
 	"net/http"
 )
 
@@ -14,7 +14,7 @@ type CommonSessionData struct {
 func (h *Handler) CommonSessionDataFromRequest(r *http.Request) (isLoggedIn bool, user entity.UserIdentity) {
 	if h.session.Exists(r, "user") {
 		data := h.session.Get(r, "user")
-		userData, err := convertionUtil.AnyTo[entity.UserIdentity](data)
+		userData, err := convertutil.AnyTo[entity.UserIdentity](data)
 		if err == nil {
 			user = userData
 			isLoggedIn = true
