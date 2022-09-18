@@ -17,7 +17,8 @@ type UserService interface {
 }
 
 type PostService interface {
-	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
+	AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
+	AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
 }
 
 type Service interface {

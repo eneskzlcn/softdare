@@ -47,6 +47,7 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 		UserID:       user.ID,
 		Content:      content,
 		CommentCount: 0,
+		LikeCount:    0,
 		CreatedAt:    createdAt,
 		UpdatedAt:    createdAt,
 		Username:     user.Username,
@@ -100,4 +101,16 @@ func (s *Service) GetFollowingUsersPosts(ctx context.Context, maxCount int) ([]*
 	}
 
 	return followedUsersPosts, nil
+}
+
+func (s *Service) AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
+	if err := validation.IsValidXID(postID); err != nil {
+		s.logger.Error(err)
+		return time.Time{}, err
+	}
+	if adjustment >= PostLikeAdjustmentUpperBound || adjustment <= PostLikeAdjustmentLowerBound {
+		s.logger.Error(entity.AdjustmentNotValid)
+		return time.Time{}, entity.AdjustmentNotValid
+	}
+	return s.repository.AdjustPostLikeCount(ctx, postID, adjustment)
 }

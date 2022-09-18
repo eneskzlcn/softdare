@@ -42,5 +42,5 @@ CREATE TABLE IF NOT EXISTS post_likes(
     user_id VARCHAR NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    PRIMARY KEY (user_id, post_id)
+    PRIMARY KEY (post_id, user_id)
 );

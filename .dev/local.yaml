@@ -21,3 +21,4 @@ rabbitmq:
     - "post-created"
     - "user-follow-created"
     - "user-follow-deleted"
+    - "post-like-created"

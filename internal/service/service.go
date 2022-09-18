@@ -47,6 +47,7 @@ type FollowRepository interface {
 
 type LikeRepository interface {
 	CreatePostLike(ctx context.Context, userID, postID string) (time.Time, error)
+	AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
 }
 
 type Repository interface {

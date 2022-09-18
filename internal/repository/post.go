@@ -22,7 +22,7 @@ func (r *Repository) CreatePost(ctx context.Context, postID, userID, content str
 func (r *Repository) GetPosts(ctx context.Context, userID string) ([]*entity.Post, error) {
 	r.logger.Debug("query arrived for all posts")
 	query := `
-		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username
+		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.like_count ,posts.comment_count, users.username
 		FROM posts
 		INNER JOIN users ON posts.user_id = users.id
 		WHERE
@@ -45,6 +45,7 @@ func (r *Repository) GetPosts(ctx context.Context, userID string) ([]*entity.Pos
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LikeCount,
 			&i.CommentCount,
 			&i.Username,
 		); err != nil {
@@ -65,7 +66,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*entity.Po
 	r.logger.Debug("Query arrived for get post by id :%", postID)
 
 	query := `
-		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username
+		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.like_count, posts.comment_count, users.username
 		FROM posts 
 		INNER JOIN users ON posts.user_id = users.id 
 		WHERE posts.id = $1`
@@ -78,6 +79,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID string) (*entity.Po
 		&i.Content,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.LikeCount,
 		&i.CommentCount,
 		&i.Username,
 	)
@@ -104,7 +106,7 @@ func (r *Repository) AdjustPostCommentCount(ctx context.Context, postID string, 
 
 func (r *Repository) GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error) {
 	query := `
-		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.comment_count, users.username
+		SELECT posts.id, posts.user_id, posts.content, posts.created_at, posts.updated_at, posts.like_count, posts.comment_count, users.username
 		FROM posts
 		INNER JOIN users ON posts.user_id = users.id
 		WHERE posts.user_id = ANY($1)
@@ -125,6 +127,7 @@ func (r *Repository) GetPostsOfGivenUsers(ctx context.Context, followedUserIDs [
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.LikeCount,
 			&i.CommentCount,
 			&i.Username,
 		); err != nil {
@@ -139,4 +142,19 @@ func (r *Repository) GetPostsOfGivenUsers(ctx context.Context, followedUserIDs [
 		return nil, err
 	}
 	return items, nil
+}
+
+func (r *Repository) AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
+	query := `
+		UPDATE posts
+		SET like_count = like_count + $1, updated_at = now()
+		WHERE id = $2
+		RETURNING updated_at;`
+	row := r.db.QueryRowContext(ctx, query, adjustment, postID)
+	var updatedAt time.Time
+	if err := row.Scan(&updatedAt); err != nil {
+		r.logger.Error(err)
+		return time.Time{}, err
+	}
+	return updatedAt, nil
 }

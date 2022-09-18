@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+const (
+	PostLikeAdjustmentLowerBound = -10
+	PostLikeAdjustmentUpperBound = 10
+)
+
 func (s *Service) CreatePostLike(ctx context.Context, postID string) (time.Time, error) {
 	if err := validation.IsValidXID(postID); err != nil {
 		s.logger.Error(err)
@@ -25,6 +30,14 @@ func (s *Service) CreatePostLike(ctx context.Context, postID string) (time.Time,
 		s.logger.Error(err)
 		return time.Time{}, err
 	}
-	//publish a post-like-created message.
+	adjustPostLikeCountMessage := entity.PostLikeCreatedMessage{
+		PostID:    postID,
+		UserID:    userIdentity.ID,
+		CreatedAt: createdAt,
+	}
+	err = s.rabbitmqClient.PushMessage(adjustPostLikeCountMessage, "post-like-created")
+	if err != nil {
+		s.logger.Error(err)
+	}
 	return createdAt, nil
 }
