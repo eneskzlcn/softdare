@@ -3,27 +3,36 @@
 {{define "content"}}
 
 <main>
-    <h1> Login </h1>
-    <form action="/login" method="POST">
-        <div>
-            <label for="email">Email</label>
-            <input type="email" name="email" placeholder="example@mail.com" value='{{$.Form.Get "email"}}' required>
+    {{if .Session.ComeFromHome}}
+        <div class="alert alert-info" role="alert">
+            You are redirected to here because you are not logged in.
         </div>
-        {{with .Err}}
-{{/*        {{if or (eq .Error "user not found") (eq .Error "username already taken") (eq .Error "invalid username") (ne .Error "invalid email") (eq .Error "username not given")}}*/}}
-        {{if (isLoginError .Error)}}
-        <div>
-            <label for="username">Username</label>
-            <input type="username" name="username" placeholder="example123" value='{{$.Form.Get "username"}}' required>
-        </div>
-        {{end}}
-        {{end}}
+    {{end}}
 
-        {{with .Err}}
-            <p> Could Not login: <code> {{.Error}}</code></p>
-        {{end}}
-        <button> Login </button>
-    </form>
+    <div class="mx-auto border border-info rounded" style="width: 500px; padding: 20px; display-content: center">
+        <h2 class="" style="width: 12rem; padding-bottom: 10px;"> Login </h2>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" name="email" placeholder="example@mail.com" value='{{$.Form.Get "email"}}' required>
+            </div>
+            {{with .Err}}
+                {{if (isLoginError .Error)}}
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="username" class="form-control" name="username" placeholder="example123" value='{{$.Form.Get "username"}}' required>
+                    </div>
+                {{end}}
+            {{end}}
+
+            {{with .Err}}
+                <code style="color: brown;"> {{.Error}}</code></p>
+            {{end}}
+            <button class="btn btn-outline-info">Login</button>
+
+        </form>
+    </div>
+
 
 
 </main>

@@ -1,12 +1,22 @@
-<article style="background-color: rgba(18,0,47,0.72);">
+<li class="list-group-item p-2 border rounded d-flex flex-column" style="background-color: rgba(5,127,154,0)">
     <div>
-        <a href="/{{.Username}}">
-            <h2 style="display: inline">{{.Username}}</h2>
+        <a class="nav-link" style="color: brown" href="/{{.Username}}">
+           <h6> {{.Username}}</h6>
+            <span class="sr-only">(current)</span>
         </a>
-        <a href="/posts/{{.ID}}">
-            {{.CreatedAt}}
-        </a>
+        <p style="margin-left: 1rem;"> {{linkify .Content}}</p>
     </div>
-        <p> {{linkify .Content}}</p>
-        <p>Comment Count: {{.CommentCount}}</p>
-</article>
+    <div style="display: inline;padding-left: 1.2rem;">
+        <div style="display: inline;">
+            <i class="fa-regular fa-comment" style="cursor: pointer;"></i>
+            {{.CommentCount}}
+        </div>
+       <div style="display: inline; padding-left: 1rem;">
+           <i class="fa-regular fa-heart"></i>
+           {{.LikeCount}}
+       </div>
+    </div>
+    <a href="/posts/{{.ID}}" style="align-self: flex-end">
+        {{.CreatedAt}}
+    </a>
+</li>
