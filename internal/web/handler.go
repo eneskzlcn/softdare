@@ -38,11 +38,16 @@ type FollowService interface {
 	DeleteUserFollow(ctx context.Context, followedID string) (time.Time, error)
 }
 
+type LikeService interface {
+	CreatePostLike(ctx context.Context, postID string) (time.Time, error)
+}
+
 type Service interface {
 	PostService
 	CommentService
 	UserService
 	FollowService
+	LikeService
 }
 
 type Renderer interface {
@@ -119,27 +124,37 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 	muxRouter.Handle("/comments", router.MethodHandlers{
 		http.MethodPost: h.CreateComment,
 	})
+
 	muxRouter.Handle("/login", router.MethodHandlers{
 		http.MethodGet:  h.ShowLogin,
 		http.MethodPost: h.Login,
 	})
+
 	muxRouter.Handle("/logout", router.MethodHandlers{
 		http.MethodPost: h.Logout,
 	})
+
 	muxRouter.Handle("/posts", router.MethodHandlers{
 		http.MethodPost: h.CreatePost,
 	})
+
 	muxRouter.Handle("/posts/{postID}", router.MethodHandlers{
 		http.MethodGet: h.ShowPost,
 	})
+
 	muxRouter.Handle("/{username}", router.MethodHandlers{
 		http.MethodGet: h.ShowProfile,
 	})
+
 	muxRouter.Handle("/follow", router.MethodHandlers{
 		http.MethodPost: h.CreateUserFollow,
 	})
+
 	muxRouter.Handle("/unfollow", router.MethodHandlers{
 		http.MethodDelete: h.DeleteUserFollow,
 	})
 
+	muxRouter.Handle("/like/post", router.MethodHandlers{
+		http.MethodPost: h.CreatePostLike,
+	})
 }

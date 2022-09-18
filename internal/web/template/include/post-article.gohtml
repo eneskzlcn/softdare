@@ -7,16 +7,24 @@
         <p style="margin-left: 1rem;"> {{linkify .Content}}</p>
     </div>
     <div style="display: inline;padding-left: 1.2rem;">
-        <div style="display: inline;">
-            <i class="fa-regular fa-comment" style="cursor: pointer;"></i>
+        <div style="display:inline;">
+            <a style="color: rgba(15,183,177,0.71) ;border: none" href="/posts/{{.ID}}">
+                <i class="fa-regular fa-comment" style="cursor: pointer;"></i>
+            </a>
             {{.CommentCount}}
         </div>
        <div style="display: inline; padding-left: 1rem;">
-           <i class="fa-regular fa-heart"></i>
-           {{.LikeCount}}
+           <form action="/like/post" method="POST" style="display: inline;">
+               <input type="hidden" name="postID" value="{{.ID}}">
+               <button style="background-color: rgba(16,245,255,0); border: none">
+                   <i class="fa-regular fa-heart" style="color: brown"></i>
+               </button>
+               {{.LikeCount}}
+           </form>
+
        </div>
     </div>
-    <a href="/posts/{{.ID}}" style="align-self: flex-end">
+    <a href="/posts/{{.ID}}" style="align-self: flex-end; color: rgba(15,183,177,0.71)">
         {{.CreatedAt}}
     </a>
 </li>

@@ -19,6 +19,7 @@ func FormatPost(post *entity.Post, timeAgoFormatter func(time.Time) string) (for
 	formattedPost.ID = post.ID
 	formattedPost.Content = post.Content
 	formattedPost.CommentCount = post.CommentCount
+	formattedPost.LikeCount = post.LikeCount
 	formattedPost.UserID = post.UserID
 	formattedPost.Username = post.Username
 	return

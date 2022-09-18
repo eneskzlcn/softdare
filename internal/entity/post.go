@@ -9,6 +9,7 @@ type Post struct {
 	UserID       string
 	Content      string
 	CommentCount int
+	LikeCount    int
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	Username     string
@@ -18,6 +19,7 @@ type FormattedPost struct {
 	UserID       string
 	Content      string
 	CommentCount int
+	LikeCount    int
 	CreatedAt    string
 	UpdatedAt    string
 	Username     string

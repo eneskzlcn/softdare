@@ -45,12 +45,18 @@ type FollowRepository interface {
 	GetFollowedUsersOfFollower(ctx context.Context, userID string) ([]string, error)
 }
 
+type LikeRepository interface {
+	CreatePostLike(ctx context.Context, userID, postID string) (time.Time, error)
+}
+
 type Repository interface {
 	UserRepository
 	PostRepository
 	CommentRepository
 	FollowRepository
+	LikeRepository
 }
+
 type Service struct {
 	logger         logger.Logger
 	repository     Repository
