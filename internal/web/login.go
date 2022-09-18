@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/eneskzlcn/softdare/internal/entity"
+	"github.com/eneskzlcn/softdare/internal/util/convertutil"
 	"net/http"
 	"net/url"
 )
@@ -9,7 +10,12 @@ import (
 type loginPageData struct {
 	Form    url.Values
 	Err     error
-	Session CommonSessionData
+	Session loginSessionData
+}
+type loginSessionData struct {
+	IsLoggedIn   bool
+	User         entity.UserIdentity
+	ComeFromHome bool
 }
 
 func (h *Handler) ShowLogin(w http.ResponseWriter, r *http.Request) {
@@ -51,11 +57,18 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (h *Handler) GetLoginSessionData(r *http.Request) (out CommonSessionData) {
+func (h *Handler) GetLoginSessionData(r *http.Request) (out loginSessionData) {
 	isLoggedIn, user := h.CommonSessionDataFromRequest(r)
 	if isLoggedIn {
 		out.IsLoggedIn = isLoggedIn
 		out.User = user
+	}
+	if h.session.Exists(r, "come-from-home") {
+		comeFromHomeAny := h.session.Pop(r, "come-from-home")
+		comeFromHome, err := convertutil.AnyTo[bool](comeFromHomeAny)
+		if err == nil {
+			out.ComeFromHome = comeFromHome
+		}
 	}
 	return
 }

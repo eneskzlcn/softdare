@@ -26,7 +26,11 @@ func (h *Handler) ShowHome(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debugf("HOME SHOW HANDLER ACCEPTED A REQUEST")
 	session := h.GetHomeSessionData(r)
 	ctx := context.WithValue(r.Context(), "user", session.User)
-
+	if !session.IsLoggedIn {
+		h.session.Put(r, "come-from-home", true)
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
 	posts, err := h.service.GetFollowingUsersPosts(ctx, 5)
 	if err != nil {
 		h.logger.Error("oops getting following users posts from service")
@@ -56,6 +60,7 @@ func (h *Handler) GetHomeSessionData(r *http.Request) (out homeSessionData) {
 				out.CreatePostForm = formData
 			}
 		}
+
 		h.logger.Debugf("Session data exists for user with id %s", out.User.ID)
 	}
 	return out
