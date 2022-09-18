@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/eneskzlcn/mux-router v0.0.0-20220905145954-a2f6fed57ced
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/golang/mock v1.6.0
 	github.com/golangcollege/sessions v1.2.0
