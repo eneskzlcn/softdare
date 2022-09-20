@@ -1,6 +1,6 @@
 <li class="list-group-item p-2 border rounded d-flex flex-column" style="background-color: rgba(5,127,154,0)">
     <div>
-        <a class="nav-link" style="color: brown" href="/{{.Username}}">
+        <a class="nav-link" style="color: brown" href="/@{{.Username}}">
            <h6> {{.Username}}</h6>
             <span class="sr-only">(current)</span>
         </a>
@@ -8,7 +8,7 @@
     </div>
     <div style="display: inline;padding-left: 1.2rem;">
         <div style="display:inline;">
-            <a style="color: rgba(15,183,177,0.71) ;border: none" href="/posts/{{.ID}}">
+            <a style="color: rgba(15,183,177,0.71) ;border: none" href="/posts/@{{.ID}}">
                 <i class="fa-regular fa-comment" style="cursor: pointer;"></i>
             </a>
             {{.CommentCount}}
@@ -24,7 +24,7 @@
 
        </div>
     </div>
-    <a href="/posts/{{.ID}}" style="align-self: flex-end; color: rgba(15,183,177,0.71)">
+    <a href="/posts/@{{.ID}}" style="align-self: flex-end; color: rgba(15,183,177,0.71)">
         {{.CreatedAt}}
     </a>
 </li>

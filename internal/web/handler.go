@@ -40,6 +40,7 @@ type FollowService interface {
 
 type LikeService interface {
 	CreatePostLike(ctx context.Context, postID string) (time.Time, error)
+	CreateCommentLike(ctx context.Context, commentID string) (time.Time, error)
 }
 
 type Service interface {
@@ -138,11 +139,11 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 		http.MethodPost: h.CreatePost,
 	})
 
-	muxRouter.Handle("/posts/{postID}", router.MethodHandlers{
+	muxRouter.Handle("/posts/@{postID}", router.MethodHandlers{
 		http.MethodGet: h.ShowPost,
 	})
 
-	muxRouter.Handle("/{username}", router.MethodHandlers{
+	muxRouter.Handle("/@{username}", router.MethodHandlers{
 		http.MethodGet: h.ShowProfile,
 	})
 
@@ -156,5 +157,9 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 
 	muxRouter.Handle("/like/post", router.MethodHandlers{
 		http.MethodPost: h.CreatePostLike,
+	})
+
+	muxRouter.Handle("/like/comment", router.MethodHandlers{
+		http.MethodPost: h.CreateCommentLike,
 	})
 }

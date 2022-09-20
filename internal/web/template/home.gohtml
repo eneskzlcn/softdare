@@ -7,7 +7,7 @@
             <h3 style="margin: 0 auto">Home</h3>
             <hr>
             <form action="/posts"style="margin: 0 auto; gap: 2rem;" class="d-flex flex-column mb-3 p-3" method="POST">
-                <textarea name="content" aria-label="content" style="width: 40rem;height: 7rem; min-height: 7rem; max-height: 11rem; background-color: rgba(13,184,210,0.08);border-width: 0; border-radius: 1rem; color: rgba(3,3,6,1); padding: 15px; color; outline-color: black" placeholder="Write something..." required></textarea>
+                <textarea name="content" aria-label="content" style="width: 40rem;height: 7rem; min-height: 7rem; max-height: 11rem; background-color: rgba(13,184,210,0.08);border-width: 0; border-radius: 1rem; color: rgba(3,3,6,1); padding: 15px; outline-color: black" placeholder="Write something..." required></textarea>
                 {{with .Session.CreatePostError}}
                     <code style="color: brown">{{.Error}}</code>
                 {{end}}

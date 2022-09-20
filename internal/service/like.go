@@ -41,3 +41,29 @@ func (s *Service) CreatePostLike(ctx context.Context, postID string) (time.Time,
 	}
 	return createdAt, nil
 }
+func (s *Service) CreateCommentLike(ctx context.Context, commentID string) (time.Time, error) {
+	if err := validation.IsValidXID(commentID); err != nil {
+		s.logger.Error(err)
+		return time.Time{}, err
+	}
+	userIdentity, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
+	if !exists {
+		s.logger.Error(entity.CouldNotTakeUserFromContext)
+		return time.Time{}, entity.CouldNotTakeUserFromContext
+	}
+	createdAt, err := s.repository.CreateCommentLike(ctx, commentID, userIdentity.ID)
+	if err != nil {
+		s.logger.Error(err)
+		return time.Time{}, err
+	}
+	commentLikeCreatedMessage := entity.CommentLikeCreatedMessage{
+		CommentID: commentID,
+		UserID:    userIdentity.ID,
+		CreatedAt: createdAt,
+	}
+	err = s.rabbitmqClient.PushMessage(commentLikeCreatedMessage, "comment-like-created")
+	if err != nil {
+		s.logger.Error("Can not push comment like created message.", err)
+	}
+	return createdAt, nil
+}

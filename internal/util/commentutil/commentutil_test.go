@@ -23,7 +23,7 @@ func TestFormatComment(t *testing.T) {
 	}
 	formattedPost := commentutil.FormatComment(comment, timeAgoFormatter)
 	assert.Equal(t, formattedPost.CreatedAt, "Just now")
-	assert.Equal(t, formattedPost.UpdatedAt, "Just Now")
+	assert.Equal(t, formattedPost.UpdatedAt, "Just now")
 
 }
 

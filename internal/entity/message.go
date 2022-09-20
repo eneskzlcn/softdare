@@ -27,3 +27,8 @@ type PostLikeCreatedMessage struct {
 	UserID    string    `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
+type CommentLikeCreatedMessage struct {
+	CommentID string    `json:"comment_id"`
+	UserID    string    `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}

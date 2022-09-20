@@ -24,7 +24,7 @@ func (r *Repository) CreateComment(ctx context.Context, commentID, userID, postI
 func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error) {
 	r.logger.Debugf("Get Comments By Post ID Request Arrived To Repository With Post ID:%s", postID)
 	query := `
-		SELECT comments.id, comments.user_id, comments.post_id, comments.content, comments.created_at, comments.updated_at, users.username 
+		SELECT comments.id, comments.user_id, comments.post_id, comments.content, comments.like_count, comments.created_at, comments.updated_at, users.username 
 		FROM comments
 		INNER JOIN users ON comments.user_id = users.id 
 		WHERE comments.post_id = $1   
@@ -43,6 +43,7 @@ func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]
 			&c.UserID,
 			&c.PostID,
 			&c.Content,
+			&c.LikeCount,
 			&c.CreatedAt,
 			&c.UpdatedAt,
 			&c.Username,
@@ -59,4 +60,18 @@ func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]
 		return nil, err
 	}
 	return comments, nil
+}
+
+func (r *Repository) AdjustCommentLikeCount(ctx context.Context, commentID string, adjustment int) (time.Time, error) {
+	query := `
+	UPDATE comments
+	SET like_count = like_count+ $1, updated_at = now()
+	RETURNING updated_at;`
+	row := r.db.QueryRowContext(ctx, query, adjustment, commentID)
+	var updatedAt time.Time
+	if err := row.Scan(&updatedAt); err != nil {
+		r.logger.Error(err)
+		return time.Time{}, err
+	}
+	return updatedAt, nil
 }

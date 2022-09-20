@@ -41,6 +41,7 @@ func (s *Service) CreateComment(ctx context.Context, postID, content string) (*e
 		PostID:    postID,
 		UserID:    user.ID,
 		Content:   content,
+		LikeCount: 0,
 		CreatedAt: createdAt,
 		UpdatedAt: createdAt,
 		Username:  user.Username,

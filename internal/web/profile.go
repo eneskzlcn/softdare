@@ -26,6 +26,7 @@ func (h *Handler) ShowProfile(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.GetUserByUsername(ctx, username)
 	if err != nil {
 		h.logger.Error("error getting user from service", h.logger.StringModifier("username", username), h.logger.ErrorModifier(err))
+		h.logger.Info(username)
 		return
 	}
 	posts, err := h.service.GetPosts(ctx, user.ID)

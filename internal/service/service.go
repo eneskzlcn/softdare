@@ -31,11 +31,13 @@ type PostRepository interface {
 	GetPostByID(ctx context.Context, postID string) (*entity.Post, error)
 	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 	GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error)
+	AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
 }
 
 type CommentRepository interface {
 	CreateComment(ctx context.Context, commentID, userID, postID, content string) (time.Time, error)
 	GetCommentsByPostID(ctx context.Context, postID string) ([]*entity.Comment, error)
+	AdjustCommentLikeCount(ctx context.Context, commentID string, adjustment int) (time.Time, error)
 }
 
 type FollowRepository interface {
@@ -47,7 +49,7 @@ type FollowRepository interface {
 
 type LikeRepository interface {
 	CreatePostLike(ctx context.Context, userID, postID string) (time.Time, error)
-	AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
+	CreateCommentLike(ctx context.Context, commentID, userID string) (time.Time, error)
 }
 
 type Repository interface {
