@@ -6,6 +6,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/entity"
 	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"github.com/rs/xid"
+	"time"
 )
 
 func (s *Service) CreateComment(ctx context.Context, postID, content string) (*entity.Comment, error) {
@@ -59,4 +60,16 @@ func (s *Service) GetCommentsByPostID(ctx context.Context, postID string) ([]*en
 		return nil, err
 	}
 	return comments, nil
+}
+
+func (s *Service) AdjustCommentLikeCount(ctx context.Context, commentID string, adjustment int) (time.Time, error) {
+	if err := validation.IsValidXID(commentID); err != nil {
+		s.logger.Error(err)
+		return time.Time{}, err
+	}
+	if adjustment <= CommentLikeAdjustmentLowerBound || adjustment >= CommentLikeAdjustmentUpperBound {
+		s.logger.Error(entity.AdjustmentNotValid)
+		return time.Time{}, entity.AdjustmentNotValid
+	}
+	return s.repository.AdjustCommentLikeCount(ctx, commentID, adjustment)
 }

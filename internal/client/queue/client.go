@@ -20,10 +20,13 @@ type PostService interface {
 	AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
 	AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
 }
-
+type CommentService interface {
+	AdjustCommentLikeCount(ctx context.Context, commentID string, adjustment int) (time.Time, error)
+}
 type Service interface {
 	UserService
 	PostService
+	CommentService
 }
 
 type Client struct {

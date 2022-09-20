@@ -50,6 +50,8 @@ type FollowRepository interface {
 type LikeRepository interface {
 	CreatePostLike(ctx context.Context, userID, postID string) (time.Time, error)
 	CreateCommentLike(ctx context.Context, commentID, userID string) (time.Time, error)
+	IsCommentLikeExists(ctx context.Context, commentID, userID string) (bool, error)
+	IsPostLikeExists(ctx context.Context, postID, userID string) (bool, error)
 }
 
 type Repository interface {

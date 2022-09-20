@@ -20,22 +20,23 @@ or you can directly use `make start` to build first then run.
 - `make clean` to clear all additional files.
 - `make generate-mocks` to generate all needed mock to run tests.
 - `make test` to run all written tests.
+- 
 ### Architectural Decisions
 This project teach me a lot of on how you need to choose
 an architecture for your application. I was generally using DDD approach
 to create backend applications which recommends that you need to
 keep inside the things that domain consist of. An example
-if you are creating an order domain, than all structures, functionalities,
+if you are creating an order domain, then all structures, functionalities,
 tests, business and database access operations should be in the package of that domain.
 
 So first, I tried to make all the domains like post, login, comment, user etc.
 seperated and independent of each other. After I structured the project like 
 that, I enjoyed and thought to gain a victory about that. Then when time comes
-to the creating new features on that architecture things started to get more complexed.
-Every need were causing a dependency between domains/sub-domains. The most great
+to the creating new features on that architecture things started to get more complicated.
+Every need were causing a dependency between domains/subdomains. The most great
 example was the entities. I thought any way to protect that structure
 so I see that it will be costly. So I decided to move all the entities out of
-the domains and all the domains can reach them without creating a dependecy
+the domains and all the domains can reach them without creating a dependency
 between domains. The folder structure were like;
 
 - entities/

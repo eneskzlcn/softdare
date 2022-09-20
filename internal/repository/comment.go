@@ -63,9 +63,11 @@ func (r *Repository) GetCommentsByPostID(ctx context.Context, postID string) ([]
 }
 
 func (r *Repository) AdjustCommentLikeCount(ctx context.Context, commentID string, adjustment int) (time.Time, error) {
+	r.logger.Debugf("Adjust Comment Like Count Request Arriver For CommentID %s", commentID)
 	query := `
 	UPDATE comments
-	SET like_count = like_count+ $1, updated_at = now()
+	SET like_count = like_count + $1, updated_at = now()
+	WHERE id = $2
 	RETURNING updated_at;`
 	row := r.db.QueryRowContext(ctx, query, adjustment, commentID)
 	var updatedAt time.Time

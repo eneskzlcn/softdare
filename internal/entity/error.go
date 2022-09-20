@@ -30,6 +30,8 @@ var (
 	UserFollowNotFound          = errors.New("user follow not found")
 	NotValidLoggerEnvironment   = errors.New("not valid logger environment")
 	NotLoggedInUser             = errors.New("user not logged in")
+	UserAlreadyLikedTheComment  = errors.New("given user already liked the comment")
+	UserAlreadyLikedThePost     = errors.New("given user already liked the post")
 )
 
 func IsLoginError(err error) bool {
