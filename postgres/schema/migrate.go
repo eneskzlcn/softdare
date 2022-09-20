@@ -1,11 +1,11 @@
-package postgres
+package main
 
 import (
 	"context"
 	_ "embed"
 )
 
-//go:embed schema/schema.sql
+//go:embed schema.sql
 var schemaSql string
 
 func MigrateTables(ctx context.Context, db DB) error {

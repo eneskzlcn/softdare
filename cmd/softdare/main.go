@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/client/queue"
@@ -41,9 +40,6 @@ func run() error {
 
 	db, err := postgres.New(configs.Db)
 	if err != nil {
-		return err
-	}
-	if err = postgres.MigrateTables(context.Background(), db); err != nil {
 		return err
 	}
 

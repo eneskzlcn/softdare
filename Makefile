@@ -9,6 +9,16 @@ start:
 
 clean:
 	rm -rf bin/ && rm -rf internal/mocks/ && rm -rf internal/server/mocks/
+
+test:
+	go test ./...
+
+migrate-tables:
+	go build ./postgres/schema && ./schema -type=migrate && rm -rf schema && clear
+
+drop-tables:
+	go build ./postgres/schema && ./schema -type=drop && rm -rf schema && clear
+
 generate-mocks:
 	mockgen -destination=internal/mocks/web/mock_service.go -package mocks github.com/eneskzlcn/softdare/internal/web Service
 	mockgen -destination=internal/mocks/web/mock_renderer.go -package mocks github.com/eneskzlcn/softdare/internal/web Renderer

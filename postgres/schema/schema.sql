@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS comments(
     user_id VARCHAR NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
     post_id VARCHAR NOT NULL REFERENCES posts ON DELETE CASCADE ON UPDATE CASCADE,
     content TEXT NOT NULL,
+    like_count INT DEFAULT 0 CHECK ( like_count >= 0 ),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
@@ -43,4 +44,12 @@ CREATE TABLE IF NOT EXISTS post_likes(
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (post_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS comment_likes(
+    comment_id VARCHAR NOT NULL REFERENCES comments ON DELETE CASCADE ON UPDATE CASCADE,
+    user_id VARCHAR NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY (comment_id, user_id)
 );
