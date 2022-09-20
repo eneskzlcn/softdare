@@ -5,15 +5,21 @@ writings, follow other users, comment on other users posts,
 like other users posts or comments.
 
 
-### Local Setup
+### Local Setup To Run
 
 You need the docker installed on your machine to run the
 application.
 
 - `docker compose up -d` to start rabbitmq and postgres database services.
+- `go mod tidy` to install all needed dependencies and a cleanup for not needed ones...
 - `make build` to build the application and `make run` to start.
 or you can directly use `make start` to build first then run.
 
+### Local Setup For Tests
+- `go mod tidy` to install all needed dependencies and a cleanup for not needed ones...
+- `make clean` to clear all additional files.
+- `make generate-mocks` to generate all needed mock to run tests.
+- `make test` to run all written tests.
 ### Architectural Decisions
 This project teach me a lot of on how you need to choose
 an architecture for your application. I was generally using DDD approach
