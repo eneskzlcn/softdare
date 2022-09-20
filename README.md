@@ -36,6 +36,23 @@ file, the program will create the queue automatically when it restarts.
 internal/client/queue. You can add a consumer function like the others I write and provide
 a consume operation for your purposes.
 
+- You should not change the directory of gohtml templates. Because there is
+an `embed` usage to read that template which should exactly be in the directory that
+embed expects(or you should change the directory that embed reads from internal/web/template.go too.)
+
+- If you want to add a new page(new .gohtml) you should put it to the internal/web/templates if it
+is not a reusable or layout component(that ones go to the include/ directory under the templates directory.) and then
+you should name your template by registering it to the map sits on internal/web/handler.go (in the init function of Handler struct)
+
+- If you want to add a new feature starting from web handler and goes to the repository then you should register your
+web handler functions to the Handler struct defined under internal/web/ directory and better to
+keep in different file(you can look at my examples like profile, post ,home or etc.), and register
+service functions to the Service struct in the internal/service and better to
+keep different file, and register your data access layer functions to
+Repository struct in the internal/repository and better to keep in different file. Do not forget to register your web handler
+to the Handler by adding your handler with its route and method to the RegisterHandlers function
+of the Handler struct which is in internal/web/handler.go
+
 ### Local Setup For Tests
 - `go mod tidy` to install all needed dependencies and a cleanup for not needed ones...
 - `make clean` to clear all additional files.

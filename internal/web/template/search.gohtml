@@ -1,0 +1,22 @@
+{{template "layout.gohtml" .}}
+{{define "content"}}
+<div>
+    {{if eq (len .Users) 0}}
+        <p>No users found.</p>
+    {{else}}
+            {{range .Users }}
+                    <div style="display: inline; margin-left: 10px;">
+                        <p>{{.Username}}</p>
+                        <p>{{.Email}}</p>
+                    {{if .IsFollowed}}
+                        <button>Unfollow</button>
+                    {{else}}
+                        <button>Follow</button>
+                    {{end}}
+                    </div>
+
+                    <hr>
+            {{end}}
+    {{end}}
+</div>
+{{end}}

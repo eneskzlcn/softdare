@@ -6,6 +6,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/middleware"
 	"github.com/eneskzlcn/softdare/internal/core/router"
+	"github.com/eneskzlcn/softdare/internal/core/search"
 	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	customerror "github.com/eneskzlcn/softdare/internal/error"
@@ -26,6 +27,7 @@ type PostService interface {
 type UserService interface {
 	Login(ctx context.Context, email string, username *string) (*entity.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*entity.User, error)
+	SearchUserByGivenSearchCriteria(ctx context.Context, searchContent string, criteria search.Criteria) ([]entity.FormattedUserWithFollowedOption, error)
 }
 
 type CommentService interface {
@@ -100,6 +102,7 @@ func (h *Handler) init() {
 	templates["post"] = ParseTemplate("post.gohtml")
 	templates["oops"] = ParseTemplate("oops.gohtml")
 	templates["profile"] = ParseTemplate("profile.gohtml")
+	templates["search"] = ParseTemplate("search.gohtml")
 	h.templates = templates
 }
 
@@ -162,5 +165,9 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 
 	muxRouter.Handle("/like/comment", router.MethodHandlers{
 		http.MethodPost: h.CreateCommentLike,
+	})
+
+	muxRouter.Handle("/search", router.MethodHandlers{
+		http.MethodPost: h.Search,
 	})
 }

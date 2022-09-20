@@ -53,10 +53,12 @@ func run() error {
 		if err = MigrateTables(context.Background(), postgresDB); err != nil {
 			return fmt.Errorf("migration error")
 		}
+		break
 	case "drop":
 		if err = DropTables(context.Background(), postgresDB); err != nil {
 			return fmt.Errorf("drop error")
 		}
+		break
 	default:
 		return errors.New("not valid flag type for action")
 	}

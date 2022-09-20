@@ -20,7 +20,7 @@ func (r *Repository) CreateUser(ctx context.Context, userID, email, username str
 
 func (r *Repository) GetUserByID(ctx context.Context, userID string) (*entity.User, error) {
 	query := `
-		SELECT id, email, username, post,count, follower_count, followed_count, created_at, updated_at 
+		SELECT id, email, username, post_count, follower_count, followed_count, created_at, updated_at 
 		FROM users 
 		WHERE id = $1`
 	row := r.db.QueryRowContext(ctx, query, userID)
@@ -163,4 +163,50 @@ func (r *Repository) DeleteUserFollow(ctx context.Context, followerID, followedI
 		return time.Time{}, err
 	}
 	return deletedAt, nil
+}
+
+func (r *Repository) GetUsersWithFollowedOptionHasUsernameSimilarTo(ctx context.Context, usernameSimilarTo string, userID string) ([]*entity.UserWithFollowedOption, error) {
+	query := `
+	SELECT id, email, username, post_count, follower_count, followed_count, created_at, updated_at,
+		(SELECT EXISTS ( SELECT 1 FROM user_follows uf WHERE uf.follower_id = $1 and uf.followed_id = u.id )) as isFollowed
+	FROM users u
+	WHERE u.username similar to $2`
+
+	sqlParameterFormOfUsernameSimilarTo := "%" + usernameSimilarTo + "%"
+
+	rows, err := r.db.QueryContext(ctx, query, userID, sqlParameterFormOfUsernameSimilarTo)
+	defer rows.Close()
+	if err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+
+	usersWithFollowedOption := make([]*entity.UserWithFollowedOption, 0)
+	for rows.Next() {
+		var user entity.UserWithFollowedOption
+		err = rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.Username,
+			&user.PostCount,
+			&user.FollowerCount,
+			&user.FollowedCount,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+			&user.IsFollowed)
+		if err != nil {
+			r.logger.Error(err)
+			return nil, err
+		}
+		usersWithFollowedOption = append(usersWithFollowedOption, &user)
+	}
+	if err = rows.Err(); err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+	if err = rows.Close(); err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+	return usersWithFollowedOption, nil
 }

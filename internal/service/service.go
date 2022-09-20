@@ -24,6 +24,7 @@ type UserRepository interface {
 	AdjustUserPostCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
 	AdjustUserFollowerCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
 	AdjustUserFollowedCount(ctx context.Context, userID string, increaseAmount int) (time.Time, error)
+	GetUsersWithFollowedOptionHasUsernameSimilarTo(ctx context.Context, usernameSimilarTo, currentUserID string) ([]*entity.UserWithFollowedOption, error)
 }
 
 type PostRepository interface {

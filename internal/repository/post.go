@@ -53,10 +53,10 @@ func (r *Repository) GetPosts(ctx context.Context, userID string) ([]*entity.Pos
 		}
 		items = append(items, &i)
 	}
-	if err := rows.Close(); err != nil {
+	if err = rows.Close(); err != nil {
 		return nil, err
 	}
-	if err := rows.Err(); err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 	return items, nil
