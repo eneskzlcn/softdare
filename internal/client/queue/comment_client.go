@@ -3,7 +3,7 @@ package queue
 import (
 	"context"
 	"encoding/json"
-	"github.com/eneskzlcn/softdare/internal/entity"
+	"github.com/eneskzlcn/softdare/internal/message"
 )
 
 func (c *Client) ConsumeCommentLikeCreated() {
@@ -12,7 +12,7 @@ func (c *Client) ConsumeCommentLikeCreated() {
 	var forever chan struct{}
 	go func() {
 		for d := range onReceivedChan {
-			var message entity.CommentLikeCreatedMessage
+			var message message.CommentLikeCreated
 			c.logger.Debug("comment-like-created-consumer received a message", c.logger.AnyModifier("message", message))
 			err := json.Unmarshal(d, &message)
 			if err != nil {

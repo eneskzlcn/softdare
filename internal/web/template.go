@@ -3,7 +3,7 @@ package web
 import (
 	"embed"
 	coreTemplate "github.com/eneskzlcn/softdare/internal/core/html/template"
-	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
 	"html/template"
 )
 
@@ -22,5 +22,5 @@ func ParseTemplate(name string) *template.Template {
 }
 
 func IsLoginError(err string) bool {
-	return entity.IsLoginErrorStr(err)
+	return customerror.IsLoginErrorStr(err)
 }

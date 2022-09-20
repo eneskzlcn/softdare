@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
-	"github.com/eneskzlcn/softdare/internal/entity"
 )
 
 type DB interface {
@@ -26,7 +25,7 @@ func New(logger logger.Logger, db DB) *Repository {
 		return nil
 	}
 	if db == nil {
-		logger.Error(entity.NilDatabase)
+		logger.Error("given database is nil")
 		return nil
 	}
 	return &Repository{db: db, logger: logger}

@@ -4,11 +4,13 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
+	"github.com/eneskzlcn/softdare/internal/message"
 	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"time"
 )
 
-/*FollowUser
+/*CreateUserFollow
 - check the followed_id is valid
 - take the current user from context
 - check if the current user exists ( any login user found)
@@ -22,17 +24,17 @@ import (
 */
 func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*entity.UserFollow, error) {
 	if err := validation.IsValidXID(followedID); err != nil {
-		s.logger.Error(entity.InvalidUserID)
+		s.logger.Error(customerror.InvalidUserID)
 		return nil, err
 	}
 	user, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error("can not taken the user from context")
-		return nil, entity.UserNotInContext
+		return nil, customerror.UserNotInContext
 	}
 	if user.ID == followedID {
 		s.logger.Debugf("a person can not follow itself.")
-		return nil, entity.UserCanNotFollowItself
+		return nil, customerror.UserCanNotFollowItself
 	}
 	exists, err := s.repository.IsUserExistsByID(ctx, followedID)
 	if err != nil {
@@ -40,8 +42,8 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 		return nil, err
 	}
 	if !exists {
-		s.logger.Error(entity.UserNotFound)
-		return nil, entity.UserNotFound
+		s.logger.Error(customerror.UserNotFound)
+		return nil, customerror.UserNotFound
 	}
 	exists, err = s.repository.IsUserFollowExists(ctx, user.ID, followedID)
 	if err != nil {
@@ -49,14 +51,14 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 		return nil, err
 	}
 	if exists {
-		return nil, entity.AlreadyFollowsTheUser
+		return nil, customerror.AlreadyFollowsTheUser
 	}
 	createdAt, err := s.repository.CreateUserFollow(ctx, user.ID, followedID)
 	if err != nil {
 		s.logger.Error("Error creating user follow from repository", s.logger.ErrorModifier(err))
 		return nil, err
 	}
-	message := entity.UserFollowCreatedMessage{
+	message := message.UserFollowCreated{
 		FollowerID: user.ID,
 		FollowedID: followedID,
 		CreatedAt:  createdAt,
@@ -77,13 +79,13 @@ func (s *Service) CreateUserFollow(ctx context.Context, followedID string) (*ent
 
 func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time.Time, error) {
 	if err := validation.IsValidXID(followedID); err != nil {
-		s.logger.Error(entity.InvalidUserID)
-		return time.Time{}, entity.InvalidUserID
+		s.logger.Error(customerror.InvalidUserID)
+		return time.Time{}, customerror.InvalidUserID
 	}
 	userIdentity, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
-		s.logger.Error(entity.UserNotInContext)
-		return time.Time{}, entity.UserNotInContext
+		s.logger.Error(customerror.UserNotInContext)
+		return time.Time{}, customerror.UserNotInContext
 	}
 
 	exists, err := s.repository.IsUserExistsByID(ctx, userIdentity.ID)
@@ -93,7 +95,7 @@ func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time
 	}
 	if !exists {
 		s.logger.Error("user can not found in database")
-		return time.Time{}, entity.UserNotFound
+		return time.Time{}, customerror.UserNotFound
 	}
 	exists, err = s.repository.IsUserFollowExists(ctx, userIdentity.ID, followedID)
 	if err != nil {
@@ -101,15 +103,15 @@ func (s *Service) DeleteUserFollow(ctx context.Context, followedID string) (time
 		return time.Time{}, err
 	}
 	if !exists {
-		s.logger.Error(entity.UserFollowNotFound)
-		return time.Time{}, entity.UserFollowNotFound
+		s.logger.Error(customerror.UserFollowNotFound)
+		return time.Time{}, customerror.UserFollowNotFound
 	}
 	deletedAt, err := s.repository.DeleteUserFollow(ctx, userIdentity.ID, followedID)
 	if err != nil {
 		s.logger.Error("can not delete user follow from repository")
 		return time.Time{}, err
 	}
-	message := entity.UserFollowDeletedMessage{
+	message := message.UserFollowDeleted{
 		FollowerID: userIdentity.ID,
 		FollowedID: followedID,
 		DeletedAt:  deletedAt,

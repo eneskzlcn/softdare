@@ -14,10 +14,10 @@ test:
 	go test ./...
 
 migrate-tables:
-	go build ./postgres/schema && ./schema -type=migrate && rm -rf schema && clear
+	go build ./postgres/migration && ./schema -type=migrate && rm -rf migration && clear
 
 drop-tables:
-	go build ./postgres/schema && ./schema -type=drop && rm -rf schema && clear
+	go build ./postgres/migration && ./schema -type=drop && rm -rf migration && clear
 
 generate-mocks:
 	mockgen -destination=internal/mocks/web/mock_service.go -package mocks github.com/eneskzlcn/softdare/internal/web Service

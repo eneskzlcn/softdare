@@ -8,6 +8,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -72,7 +73,7 @@ func NewHandler(logger logger.Logger, session session.Session, service Service, 
 		return nil
 	}
 	if session == nil || service == nil || renderer == nil {
-		logger.Error(entity.InvalidConstructorArguments)
+		logger.Error(customerror.InvalidConstructorArguments)
 		return nil
 	}
 	handler := Handler{logger: logger, session: session, service: service, renderer: renderer}

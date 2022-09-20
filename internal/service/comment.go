@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
+	"github.com/eneskzlcn/softdare/internal/message"
 	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"github.com/rs/xid"
 	"time"
@@ -20,8 +22,8 @@ func (s *Service) CreateComment(ctx context.Context, postID, content string) (*e
 	}
 	user, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
-		s.logger.Error("%s , Exists: %t", entity.CouldNotTakeUserFromContext, exists)
-		return nil, entity.CouldNotTakeUserFromContext
+		s.logger.Error("%s , Exists: %t", customerror.CouldNotTakeUserFromContext, exists)
+		return nil, customerror.CouldNotTakeUserFromContext
 	}
 	id := xid.New().String()
 	createdAt, err := s.repository.CreateComment(ctx, id, user.ID, postID, content)
@@ -29,7 +31,7 @@ func (s *Service) CreateComment(ctx context.Context, postID, content string) (*e
 		s.logger.Error(err)
 		return nil, err
 	}
-	err = s.rabbitmqClient.PushMessage(entity.CommentCreatedMessage{
+	err = s.rabbitmqClient.PushMessage(message.CommentCreated{
 		CommentID: id,
 		PostID:    postID,
 		CreatedAt: createdAt,
@@ -68,8 +70,8 @@ func (s *Service) AdjustCommentLikeCount(ctx context.Context, commentID string, 
 		return time.Time{}, err
 	}
 	if adjustment <= CommentLikeAdjustmentLowerBound || adjustment >= CommentLikeAdjustmentUpperBound {
-		s.logger.Error(entity.AdjustmentNotValid)
-		return time.Time{}, entity.AdjustmentNotValid
+		s.logger.Error(customerror.AdjustmentNotValid)
+		return time.Time{}, customerror.AdjustmentNotValid
 	}
 	return s.repository.AdjustCommentLikeCount(ctx, commentID, adjustment)
 }

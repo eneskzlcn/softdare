@@ -6,6 +6,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
 	"time"
 )
 
@@ -71,11 +72,11 @@ type Service struct {
 
 func New(repository Repository, logger logger.Logger, session session.Session, rabbitmqClient RabbitMQClient) *Service {
 	if logger == nil {
-		fmt.Println(entity.NilLogger)
+		fmt.Println(customerror.NilLogger)
 		return nil
 	}
 	if repository == nil || session == nil || rabbitmqClient == nil {
-		logger.Error(entity.InvalidConstructorArguments)
+		logger.Error(customerror.InvalidConstructorArguments)
 		return nil
 	}
 	return &Service{repository: repository, logger: logger, session: session, rabbitmqClient: rabbitmqClient}

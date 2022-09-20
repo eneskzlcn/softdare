@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
 	"github.com/eneskzlcn/softdare/internal/util/convertutil"
 	"net/http"
 	"net/url"
@@ -40,7 +41,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.Login(ctx, email, &username)
 	if err != nil {
 		h.logger.Debug("could not login", h.logger.ErrorModifier(err))
-		if entity.IsLoginError(err) {
+		if customerror.IsLoginError(err) {
 			h.RenderLogin(w, loginPageData{Form: r.PostForm, Err: err}, http.StatusBadRequest)
 			return
 		}

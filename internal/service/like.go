@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
+	"github.com/eneskzlcn/softdare/internal/message"
 	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"time"
 )
@@ -23,8 +25,8 @@ func (s *Service) CreatePostLike(ctx context.Context, postID string) (time.Time,
 
 	userIdentity, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
-		s.logger.Error(entity.CouldNotTakeUserFromContext)
-		return time.Time{}, entity.CouldNotTakeUserFromContext
+		s.logger.Error(customerror.CouldNotTakeUserFromContext)
+		return time.Time{}, customerror.CouldNotTakeUserFromContext
 	}
 	exists, err := s.repository.IsPostLikeExists(ctx, postID, userIdentity.ID)
 	if err != nil {
@@ -32,15 +34,15 @@ func (s *Service) CreatePostLike(ctx context.Context, postID string) (time.Time,
 		return time.Time{}, err
 	}
 	if exists {
-		s.logger.Error(entity.UserAlreadyLikedThePost)
-		return time.Time{}, entity.UserAlreadyLikedThePost
+		s.logger.Error(customerror.UserAlreadyLikedThePost)
+		return time.Time{}, customerror.UserAlreadyLikedThePost
 	}
 	createdAt, err := s.repository.CreatePostLike(ctx, userIdentity.ID, postID)
 	if err != nil {
 		s.logger.Error(err)
 		return time.Time{}, err
 	}
-	adjustPostLikeCountMessage := entity.PostLikeCreatedMessage{
+	adjustPostLikeCountMessage := message.PostLikeCreated{
 		PostID:    postID,
 		UserID:    userIdentity.ID,
 		CreatedAt: createdAt,
@@ -59,8 +61,8 @@ func (s *Service) CreateCommentLike(ctx context.Context, commentID string) (time
 	}
 	userIdentity, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
-		s.logger.Error(entity.CouldNotTakeUserFromContext)
-		return time.Time{}, entity.CouldNotTakeUserFromContext
+		s.logger.Error(customerror.CouldNotTakeUserFromContext)
+		return time.Time{}, customerror.CouldNotTakeUserFromContext
 	}
 	exists, err := s.repository.IsCommentLikeExists(ctx, commentID, userIdentity.ID)
 	if err != nil {
@@ -68,8 +70,8 @@ func (s *Service) CreateCommentLike(ctx context.Context, commentID string) (time
 		return time.Time{}, err
 	}
 	if exists {
-		s.logger.Error(entity.UserAlreadyLikedTheComment)
-		return time.Time{}, entity.UserAlreadyLikedTheComment
+		s.logger.Error(customerror.UserAlreadyLikedTheComment)
+		return time.Time{}, customerror.UserAlreadyLikedTheComment
 	}
 
 	createdAt, err := s.repository.CreateCommentLike(ctx, commentID, userIdentity.ID)
@@ -78,7 +80,7 @@ func (s *Service) CreateCommentLike(ctx context.Context, commentID string) (time
 		return time.Time{}, err
 	}
 
-	commentLikeCreatedMessage := entity.CommentLikeCreatedMessage{
+	commentLikeCreatedMessage := message.CommentLikeCreated{
 		CommentID: commentID,
 		UserID:    userIdentity.ID,
 		CreatedAt: createdAt,

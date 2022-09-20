@@ -3,7 +3,7 @@ package queue
 import (
 	"context"
 	"encoding/json"
-	"github.com/eneskzlcn/softdare/internal/entity"
+	"github.com/eneskzlcn/softdare/internal/message"
 )
 
 func (c *Client) ConsumeCommentCreated() {
@@ -13,7 +13,7 @@ func (c *Client) ConsumeCommentCreated() {
 	go func() {
 		for d := range onReceivedChan {
 			c.logger.Debug("comment-created-consumer received a message")
-			var message entity.CommentCreatedMessage
+			var message message.CommentCreated
 			err := json.Unmarshal(d, &message)
 			if err != nil {
 				c.logger.Error("unmarshalling error")
@@ -37,7 +37,7 @@ func (c *Client) ConsumePostLikeCreated() {
 	go func() {
 		for d := range onReceivedChan {
 			c.logger.Debug("post-like-created-consumer received a message")
-			var message entity.PostLikeCreatedMessage
+			var message message.PostLikeCreated
 			err := json.Unmarshal(d, &message)
 			if err != nil {
 				c.logger.Error("unmarshalling error")

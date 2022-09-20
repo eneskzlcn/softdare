@@ -3,7 +3,7 @@ package queue
 import (
 	"context"
 	"encoding/json"
-	"github.com/eneskzlcn/softdare/internal/entity"
+	"github.com/eneskzlcn/softdare/internal/message"
 	"sync"
 )
 
@@ -13,7 +13,7 @@ func (c *Client) ConsumePostCreated() {
 	var forever chan struct{}
 	for d := range onReceivedChan {
 		c.logger.Debug("Post Created Consumer received a message")
-		var msg entity.PostCreatedMessage
+		var msg message.PostCreated
 		if err := json.Unmarshal(d, &msg); err != nil {
 			c.logger.Error("unmarshalling error", c.logger.ErrorModifier(err))
 			continue
@@ -36,7 +36,7 @@ func (c *Client) ConsumeUserFollowCreated() {
 	go c.consume(onReceivedChan, "user-follow-created-consumer", "user-follow-created")
 	var forever chan struct{}
 	for d := range onReceivedChan {
-		var msg entity.UserFollowCreatedMessage
+		var msg message.UserFollowCreated
 		if err := json.Unmarshal(d, &msg); err != nil {
 			c.logger.Error("unmarshalling error", c.logger.ErrorModifier(err))
 			continue
@@ -69,7 +69,7 @@ func (c *Client) ConsumeUserFollowDeleted() {
 	go c.consume(onReceivedChan, "user-follow-deleted-consumer", "user-follow-deleted")
 	var forever chan struct{}
 	for d := range onReceivedChan {
-		var msg entity.UserFollowDeletedMessage
+		var msg message.UserFollowDeleted
 		if err := json.Unmarshal(d, &msg); err != nil {
 			c.logger.Error("unmarshalling error", c.logger.ErrorModifier(err))
 			continue

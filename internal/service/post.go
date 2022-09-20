@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
+	"github.com/eneskzlcn/softdare/internal/message"
 	"github.com/eneskzlcn/softdare/internal/util/ctxutil"
 	"github.com/rs/xid"
 	"time"
@@ -22,7 +24,7 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 	user, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
 		s.logger.Error("unauthorized request user not exist on context")
-		return nil, entity.Unauthorized
+		return nil, customerror.Unauthorized
 	}
 
 	id := xid.New().String()
@@ -32,12 +34,12 @@ func (s *Service) CreatePost(ctx context.Context, content string) (*entity.Post,
 		s.logger.Error("oops creating post on repository")
 		return nil, err
 	}
-	message := entity.PostCreatedMessage{
+	postCreatedMessage := message.PostCreated{
 		PostID:    id,
 		UserID:    user.ID,
 		CreatedAt: createdAt,
 	}
-	err = s.rabbitmqClient.PushMessage(message, "post-created")
+	err = s.rabbitmqClient.PushMessage(postCreatedMessage, "post-created")
 	if err != nil {
 		s.logger.Error("error pushing the increase user post count message to the rabbitmq")
 		//retry it..
@@ -65,12 +67,12 @@ func (s *Service) GetPostByID(ctx context.Context, postID string) (*entity.Post,
 func (s *Service) AdjustPostCommentCount(ctx context.Context, postID string, adjustment int) (time.Time, error) {
 	if err := validation.IsValidXID(postID); err != nil {
 		s.logger.Error("not valid postID : %", postID)
-		return time.Time{}, entity.InvalidPostID
+		return time.Time{}, customerror.InvalidPostID
 	}
 
 	if adjustment <= -10 || adjustment >= 10 {
 		s.logger.Error("comment increase amount should be between 1-9 including 1 and 9")
-		return time.Time{}, entity.AdjustmentNotValid
+		return time.Time{}, customerror.AdjustmentNotValid
 	}
 
 	return s.repository.AdjustPostCommentCount(ctx, postID, adjustment)
@@ -79,8 +81,8 @@ func (s *Service) AdjustPostCommentCount(ctx context.Context, postID string, adj
 func (s *Service) GetFollowingUsersPosts(ctx context.Context, maxCount int) ([]*entity.Post, error) {
 	user, exists := ctxutil.FromContext[entity.UserIdentity]("user", ctx)
 	if !exists {
-		s.logger.Error(entity.UserNotInContext)
-		return nil, entity.UserNotInContext
+		s.logger.Error(customerror.UserNotInContext)
+		return nil, customerror.UserNotInContext
 	}
 
 	followedUserIDs, err := s.repository.GetFollowedUsersOfFollower(ctx, user.ID)
@@ -109,8 +111,8 @@ func (s *Service) AdjustPostLikeCount(ctx context.Context, postID string, adjust
 		return time.Time{}, err
 	}
 	if adjustment >= PostLikeAdjustmentUpperBound || adjustment <= PostLikeAdjustmentLowerBound {
-		s.logger.Error(entity.AdjustmentNotValid)
-		return time.Time{}, entity.AdjustmentNotValid
+		s.logger.Error(customerror.AdjustmentNotValid)
+		return time.Time{}, customerror.AdjustmentNotValid
 	}
 	return s.repository.AdjustPostLikeCount(ctx, postID, adjustment)
 }

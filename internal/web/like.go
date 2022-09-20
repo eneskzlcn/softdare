@@ -2,14 +2,14 @@ package web
 
 import (
 	"context"
-	"github.com/eneskzlcn/softdare/internal/entity"
+	customerror "github.com/eneskzlcn/softdare/internal/error"
 	"net/http"
 )
 
 func (h *Handler) CreatePostLike(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userSessionData := h.CommonSessionDataFromRequest(r)
 	if !isLoggedIn {
-		h.logger.Error(entity.NotLoggedInUser)
+		h.logger.Error(customerror.NotLoggedInUser)
 		h.session.Put(r, "come-from-home", true)
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
@@ -34,7 +34,7 @@ func (h *Handler) CreatePostLike(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateCommentLike(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userSessionData := h.CommonSessionDataFromRequest(r)
 	if !isLoggedIn {
-		h.logger.Error(entity.NotLoggedInUser)
+		h.logger.Error(customerror.NotLoggedInUser)
 		h.session.Put(r, "come-from-home", true)
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
