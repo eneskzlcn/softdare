@@ -1,8 +1,32 @@
-<article>
-    <div>
-        <a href="/{{.Username}}"> {{.Username}}</a>
-        <timestamp>{{.CreatedAt}}</timestamp>
-        <p> {{ .Content}}</p>
-    </div>
+{{/*<article>*/}}
+{{/*    <div>*/}}
+{{/*        <a href="/{{.Username}}"> {{.Username}}</a>*/}}
+{{/*        <timestamp>{{.CreatedAt}}</timestamp>*/}}
+{{/*        <p> {{ .Content}}</p>*/}}
+{{/*    </div>*/}}
 
-</article>
+{{/*</article>*/}}
+
+<li class="list-group-item p-2 border rounded d-flex flex-column" style="background-color: rgba(5,127,154,0)">
+    <div>
+        <a class="nav-link" style="color: brown" href="/{{.Username}}">
+            <h6> {{.Username}}</h6>
+            <span class="sr-only">(current)</span>
+        </a>
+        <p style="margin-left: 1rem;"> {{linkify .Content}}</p>
+    </div>
+    <div style="display: inline;padding-left: 1.2rem;">
+        <div style="display: inline; padding-left: 1rem;">
+            <form action="/like/comment" method="POST" style="display: inline;">
+                <input type="hidden" name="postID" value="{{.ID}}">
+                <button style="background-color: rgba(16,245,255,0); border: none">
+                    <i class="fa-regular fa-heart" style="color: brown"></i>
+                </button>
+{{/*                {{.LikeCount}}*/}}
+            </form>
+        </div>
+    </div>
+    <a href="/posts/{{.ID}}" style="align-self: flex-end; color: rgba(15,183,177,0.71)">
+        {{.CreatedAt}}
+    </a>
+</li>

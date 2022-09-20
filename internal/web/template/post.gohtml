@@ -2,28 +2,37 @@
 {{define "content"}}
     <main>
         {{if .Session.IsLoggedIn}}
-        {{template "post-article.gohtml" .Post}}
-        <h2> Comments</h2>
-        {{if eq (len .Comments)  0}}
-            <p>No comments yet...</p>
-        {{else}}
-            <section>
-                {{range .Comments}}
-                    {{template "comment.gohtml" .}}
-                {{end}}
-            </section>
-        {{end}}
-        <form action="/comments" method="POST">
-            <input type="hidden" name="post_id" value="{{.Post.ID}}">
-            <textarea name="content" aria-label="content" placeholder="Write something..." rows="3" required>
-                {{- .Session.CreateCommentForm.Get "content" -}}
-            </textarea>
-            {{with .Session.CreateCommentError}}
-                <p> Could not create comment: <code>{{.Error}}</code></p>
+            <div class="mx-auto" style="width: 50rem;">
+                <ul class="list-group list-group-flush">
+                    {{template "post-article.gohtml" .Post}}
+                </ul>
+            </div>
+            {{if .Session.IsLoggedIn}}
+            <div class="d-flex flex-column">
+                <form action="/comments"style="margin: 0 auto; gap: 2rem;" class="d-flex flex-column mb-3 p-3" method="POST">
+                    <input type="hidden" name="post_id" value="{{.Post.ID}}">
+                    <textarea name="content" aria-label="content" style="width: 40rem;height: 7rem; min-height: 7rem; max-height: 11rem; background-color: rgba(13,184,210,0.08);border-width: 0; border-radius: 1rem; color: rgba(3,3,6,1); padding: 15px; color; outline-color: black" placeholder="Write something..." required></textarea>
+                    {{- .Session.CreateCommentForm.Get "content" -}}
+                    </textarea>
+                    {{with .Session.CreateCommentError}}
+                        <code style="color: brown;">{{.Error}}</code>
+                    {{end}}
+                    <button class="btn btn-outline-info" style="width: 4rem;margin: 0; align-self: flex-end;">Post</button>
+                </form>
+                <h4 style="margin: 0 auto; color: saddlebrown;"> Comments</h4>
+            </div>
             {{end}}
-            <button>Post</button>
-        </form>
-
+            <div class="mx-auto" style="width: 600px; padding: 10px;">
+                {{if ne (len .Comments)  0}}
+                    <ul class="list-group list-group-flush">
+                        {{range .Comments}}
+                            {{template "comment.gohtml" .}}
+                        {{end}}
+                    </ul>
+                {{else}}
+                    <p style="margin: 0 auto; margin-top: 3rem; color: darkgray">No comments yet...</p>
+                {{end}}
+            </div>
         {{end}}
     </main>
 {{end}}

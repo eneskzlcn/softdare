@@ -2,32 +2,41 @@
 
 {{define "content"}}
     <main>
-        <h1>{{.User.Username}}</h1>
-        {{if and .Session.IsLoggedIn (ne .User.ID .Session.User.ID) (not .IsFollowedUser)}}
-        <form action="/follow" method="POST">
-            <input type="hidden" name="userID" value="{{.User.ID}}">
-            <button style="color: aqua">Follow</button>
-        </form>
-        {{end}}
-        {{if and .Session.IsLoggedIn  .IsFollowedUser}}
-           <form action = "/unfollow" method="POST">
-               <input type = "hidden" name="_method" value="DELETE">
-               <input type="hidden" name="userID" value="{{.User.ID}}">
-               <button style="color: antiquewhite">Unfollow</button>
-           </form>
+        <div class="d-flex flex-column" style="">
+            <div style="margin: 0 auto;display: inline;">
+                <h3 style="display: inline;">{{.User.Username}}</h3>
+                {{if and .Session.IsLoggedIn (ne .User.ID .Session.User.ID) (not .IsFollowedUser)}}
+                <form action="/follow" style="display: inline; margin-left: 2rem;" method="POST">
+                    <input type="hidden" name="userID" value="{{.User.ID}}">
+                    <button class="btn btn-outline-info" style="text-align: center;margin-inline-start: 21rem;">Follow</button>
+                </form>
+                {{end}}
+                {{if and .Session.IsLoggedIn  .IsFollowedUser}}
+                    <form action = "/unfollow" style="display: inline; margin-left: 2rem;" method="POST">
+                        <input type = "hidden" name="_method" value="DELETE">
+                        <input type="hidden" name="userID" value="{{.User.ID}}">
+                        <button class="btn btn-outline-secondary" style="text-align: center;margin-inline-start: 21rem;">Unfollow</button>
+                    </form>
+                {{end}}
+                <div style="text-align: left; margin: 0 auto;">
+                    <p style="margin-top: 2rem;"> {{.User.FollowerCount}} Follows</p>
+                    <p style="margin-top: 1rem;"> {{.User.FollowedCount}} Following</p>
+                    <p style="margin-top: 1rem;"> {{.User.PostCount}} Posts</p>
+                </div>
+            </div>
+        </div>
 
-        {{end}}
-        <p> Followers: {{.User.FollowerCount}}</p>
-        <p> Following: {{.User.FollowedCount}}</p>
-        {{if eq (.User.PostCount) 0}}
-            <p> No posts yet.</p>
+        <div class="mx-auto" style="width: 600px; padding: 10px;">
+        {{if eq (len .Posts) 0}}
+            <p> No posts yet...</p>
         {{else}}
-            <p> Post Count: {{.User.PostCount}}</p>
-            <section>
+            <ul class="list-group list-group-flush">
                 {{range .Posts}}
                     {{template "post-article.gohtml" .}}
+                    <hr>
                 {{end}}
-            </section>
+            </ul>
         {{end}}
+        </div>
     </main>
 {{end}}
