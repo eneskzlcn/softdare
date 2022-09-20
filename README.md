@@ -12,15 +12,36 @@ application.
 
 - `docker compose up -d` to start rabbitmq and postgres database services.
 - `go mod tidy` to install all needed dependencies and a cleanup for not needed ones...
+- `make migrate-tables` to create needed tables on postgres database
 - `make build` to build the application and `make run` to start.
 or you can directly use `make start` to build first then run.
+
+### Additional Information About Local Setup
+- You can find all the database schema under postgres/migration/schema.sql. If you
+want to contribute or use for your own purposes, you can simply add the tables you
+want to create to schema.sql and the command `make migrate-tables` will rebuild 
+all the tables for you after you clean up the database with the command `make drop-tables`
+(the thing you need to remember, you should add your new table to postgres/migration/drop.sql
+too to clean up correctly for next `make drop-tables` commands.).
+
+- If you want to clean up all the tables in database and restart again you can
+  call `make drop-tables` to clean up the database , and `make migrate-tables` to create
+  the tables again.
+
+- If you want to consume one more queue from rabbitmq, you need to add the queue name to
+the config files which is under the .dev/ folder. After you add that queue name to the config
+file, the program will create the queue automatically when it restarts.
+
+- If you want to add one more consumer for a queue, you can find the consumers under
+internal/client/queue. You can add a consumer function like the others I write and provide
+a consume operation for your purposes.
 
 ### Local Setup For Tests
 - `go mod tidy` to install all needed dependencies and a cleanup for not needed ones...
 - `make clean` to clear all additional files.
 - `make generate-mocks` to generate all needed mock to run tests.
 - `make test` to run all written tests.
-- 
+
 ### Architectural Decisions
 This project teach me a lot of on how you need to choose
 an architecture for your application. I was generally using DDD approach
