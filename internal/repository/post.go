@@ -158,3 +158,46 @@ func (r *Repository) AdjustPostLikeCount(ctx context.Context, postID string, adj
 	}
 	return updatedAt, nil
 }
+
+func (r *Repository) GetPostsHasLikeCountMoreThanGiven(ctx context.Context, minimumLikeCount int) ([]*entity.Post, error) {
+	query := `
+	SELECT posts.id, posts.user_id, posts.content, posts.created_at, 
+		posts.updated_at, posts.like_count, posts.comment_count, users.username
+	FROM posts
+	INNER JOIN users ON posts.user_id = users.id
+	WHERE posts.like_count >= $1
+	ORDER BY like_count DESC;`
+	rows, err := r.db.QueryContext(ctx, query, minimumLikeCount)
+	if err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+	posts := make([]*entity.Post, 0)
+	for rows.Next() {
+		var post entity.Post
+		err = rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Content,
+			&post.CreatedAt,
+			&post.UpdatedAt,
+			&post.LikeCount,
+			&post.CommentCount,
+			&post.Username)
+
+		if err != nil {
+			r.logger.Error(err)
+			return nil, err
+		}
+		posts = append(posts, &post)
+	}
+	if err = rows.Err(); err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+	if err = rows.Close(); err != nil {
+		r.logger.Error(err)
+		return nil, err
+	}
+	return posts, nil
+}

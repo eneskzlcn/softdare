@@ -23,6 +23,7 @@ var (
 	UserAlreadyLikedTheComment              = errors.New("given user already liked the comment")
 	UserAlreadyLikedThePost                 = errors.New("given user already liked the post")
 	SearchUserWithFollowingOptionByUsername = errors.New("can not searched users with following option by username search criteria")
+	NotExistingTrendFoundStrategy           = errors.New("not existing trend found strategy")
 )
 
 func IsLoginError(err error) bool {

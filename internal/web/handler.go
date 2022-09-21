@@ -8,6 +8,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/router"
 	"github.com/eneskzlcn/softdare/internal/core/search"
 	"github.com/eneskzlcn/softdare/internal/core/session"
+	"github.com/eneskzlcn/softdare/internal/core/trend"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	customerror "github.com/eneskzlcn/softdare/internal/error"
 	"html/template"
@@ -45,13 +46,16 @@ type LikeService interface {
 	CreatePostLike(ctx context.Context, postID string) (time.Time, error)
 	CreateCommentLike(ctx context.Context, commentID string) (time.Time, error)
 }
-
+type TrendService interface {
+	GetTrendPostsByGivenTrendFindingStrategy(ctx context.Context, strategy trend.FindingStrategy) ([]*entity.Post, error)
+}
 type Service interface {
 	PostService
 	CommentService
 	UserService
 	FollowService
 	LikeService
+	TrendService
 }
 
 type Renderer interface {
@@ -103,6 +107,7 @@ func (h *Handler) init() {
 	templates["oops"] = ParseTemplate("oops.gohtml")
 	templates["profile"] = ParseTemplate("profile.gohtml")
 	templates["search"] = ParseTemplate("search.gohtml")
+	templates["trends"] = ParseTemplate("trends.gohtml")
 	h.templates = templates
 }
 
@@ -169,5 +174,9 @@ func (h *Handler) RegisterHandlers(muxRouter router.Router) {
 
 	muxRouter.Handle("/search", router.MethodHandlers{
 		http.MethodPost: h.Search,
+	})
+
+	muxRouter.Handle("/trends", router.MethodHandlers{
+		http.MethodGet: h.ShowTrends,
 	})
 }

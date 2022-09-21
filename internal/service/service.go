@@ -34,6 +34,7 @@ type PostRepository interface {
 	AdjustPostCommentCount(ctx context.Context, postID string, increaseAmount int) (time.Time, error)
 	GetPostsOfGivenUsers(ctx context.Context, followedUserIDs []string, maxCount int) ([]*entity.Post, error)
 	AdjustPostLikeCount(ctx context.Context, postID string, adjustment int) (time.Time, error)
+	GetPostsHasLikeCountMoreThanGiven(ctx context.Context, minimumLikeCount int) ([]*entity.Post, error)
 }
 
 type CommentRepository interface {
