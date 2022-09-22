@@ -37,7 +37,12 @@ func run() error {
 	externalServiceLogger := logger.NewZapLoggerAdapter(env, 2)
 	defer internalServiceLogger.Sync()
 	defer externalServiceLogger.Sync()
-	configs, err := config.LoadConfig(".dev/", env, "yaml")
+
+	configs, err := config.LoadConfig[config.Config](".dev/", env, "yaml")
+	if err != nil {
+		return err
+	}
+	_, err = config.LoadConfig[config.Secrets](".secrets/", "secrets", "yaml")
 	if err != nil {
 		return err
 	}
