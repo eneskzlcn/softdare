@@ -120,6 +120,32 @@ Normally, trends can change anytime. But, keeping the trends in cache for a whil
 like 1 minutes, will not affect the correctness too much instead it will provide
 faster results for any user want to see the trends.
 
+### Configs
+You can find the configuration filed under .dev/ folder for any environment(I have not
+a production environment yet). After the application starts LoadConfig functions
+in the internal/config package reads related yaml configs from .dev/ and all configuration
+variables become a structured data that you pass in any related service that needs an extra
+configuration properties.
+
+### Secrets
+Secrets are the same with configs but the things I need to keep private. An
+example of that is mail service configuration properties which needs my email
+and its password to send an email.
+
+### Mail Service
+Mail service sends mail to the users when you needed. When you look at the mail
+service you notice that it takes all the configuration properties like username,
+host, port and password from configs (which is a secret config). For security,
+I kept that configurations as secret and do not push it to my remote repository.
+If you want to configure it with your own credentials you have two different way you can 
+follow. In first way, which you do not need to touch any path specification for your
+secrets, you can simply create a file named secrets.yaml to directory named .secrets
+which lives in project directory ($project_directory/.secrets/secrets.yaml).
+Then the other parts going to get handled by current code. In the second way, you
+can place your secrets anywhere you want on one condition that you need to change
+the path and file name with yours in LoadConfig[config.Secret] functions from
+cmd/main.go
+
 ### External Modules Used In Project
 - `html/templates` built-in module as a html parser and renderer technology.
 - `go.uber.org/zap` logger module to handle logging operations.
