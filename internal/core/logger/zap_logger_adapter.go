@@ -22,19 +22,19 @@ type ZapLoggerAdapter struct {
 	logger ZapLogger
 }
 
-func newZapLoggerForEnv(env string) (ZapLogger, error) {
+func newZapLoggerForEnv(env string, callerSkip int) (ZapLogger, error) {
 	if env == "" || env == "local" || env == "test" || env == "qa" || env == "dev" {
 		logger, err := zap.NewDevelopment(zap.AddCallerSkip(1))
 		return logger.Sugar(), err
 	} else if env == "prod" {
-		logger, err := zap.NewProduction(zap.AddCallerSkip(1), zap.AddStacktrace(zap.ErrorLevel))
+		logger, err := zap.NewProduction(zap.AddCallerSkip(callerSkip), zap.AddStacktrace(zap.ErrorLevel))
 		return logger.Sugar(), err
 	}
 	return nil, errors.New("not valid")
 }
 
-func NewZapLoggerAdapter(env string) *ZapLoggerAdapter {
-	logger, err := newZapLoggerForEnv(env)
+func NewZapLoggerAdapter(env string, callerSkip int) *ZapLoggerAdapter {
+	logger, err := newZapLoggerForEnv(env, callerSkip)
 
 	if err != nil {
 		fmt.Println("error logger is nil")

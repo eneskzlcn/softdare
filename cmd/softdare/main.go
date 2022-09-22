@@ -31,9 +31,12 @@ func run() error {
 	if !exists {
 		env = "local"
 	}
-	logger := logger.NewZapLoggerAdapter(env)
-	defer logger.Sync()
-
+	//
+	internalServiceLogger := logger.NewZapLoggerAdapter(env, 1)
+	//when there is an external service on use, we should caller skip 2 to see the exact place of the log.
+	externalServiceLogger := logger.NewZapLoggerAdapter(env, 2)
+	defer internalServiceLogger.Sync()
+	defer externalServiceLogger.Sync()
 	configs, err := config.LoadConfig(".dev/", env, "yaml")
 	if err != nil {
 		return err
@@ -44,15 +47,15 @@ func run() error {
 		return err
 	}
 
-	renderer := renderer.New(logger)
-	session := session.NewCollegeSessionAdapter(logger, configs.Session)
-	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, logger)
+	renderer := renderer.New(externalServiceLogger)
+	session := session.NewCollegeSessionAdapter(externalServiceLogger, configs.Session)
+	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, externalServiceLogger)
 	cache := cache.NewGCacheAdapter(5)
 
-	repository := repository.New(logger, db)
-	service := service.New(repository, logger, session, rabbitmqClient, cache)
-	webHandler := web.NewHandler(logger, session, service, renderer)
-	client := queue.New(rabbitmqClient, logger, service)
+	repository := repository.New(internalServiceLogger, db)
+	service := service.New(repository, internalServiceLogger, session, rabbitmqClient, cache)
+	webHandler := web.NewHandler(internalServiceLogger, session, service, renderer)
+	client := queue.New(rabbitmqClient, internalServiceLogger, service)
 
 	go client.ConsumeCommentCreated()
 	go client.ConsumePostCreated()
@@ -64,10 +67,10 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	server := server.New(configs.Server, webHandler, logger)
+	server := server.New(configs.Server, webHandler, internalServiceLogger)
 	defer server.Close()
 
-	logger.Infof("server started to listening and serve at address %s", configs.Server.Address)
+	internalServiceLogger.Infof("server started to listening and serve at address %s", configs.Server.Address)
 	err = server.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("listen and serve %w", err)
