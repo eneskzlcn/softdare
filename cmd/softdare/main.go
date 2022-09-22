@@ -8,6 +8,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/cache"
 	"github.com/eneskzlcn/softdare/internal/core/html/template/renderer"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/mail"
 	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/repository"
 	"github.com/eneskzlcn/softdare/internal/server"
@@ -42,7 +43,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	_, err = config.LoadConfig[config.Secrets](".secrets/", "secrets", "yaml")
+	secretConfigs, err := config.LoadConfig[config.Secrets](".secrets/", "secrets", "yaml")
 	if err != nil {
 		return err
 	}
@@ -55,12 +56,13 @@ func run() error {
 	renderer := renderer.New(externalServiceLogger)
 	session := session.NewCollegeSessionAdapter(externalServiceLogger, configs.Session)
 	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, externalServiceLogger)
+	mailService := mail.NewGomailServiceAdapter(secretConfigs.MailService, externalServiceLogger)
 	cache := cache.NewGCacheAdapter(5)
 
 	repository := repository.New(internalServiceLogger, db)
 	service := service.New(repository, internalServiceLogger, session, rabbitmqClient, cache)
 	webHandler := web.NewHandler(internalServiceLogger, session, service, renderer)
-	client := queue.New(rabbitmqClient, internalServiceLogger, service)
+	client := queue.New(rabbitmqClient, internalServiceLogger, service, mailService)
 
 	go client.ConsumeCommentCreated()
 	go client.ConsumePostCreated()
@@ -68,6 +70,7 @@ func run() error {
 	go client.ConsumeUserFollowDeleted()
 	go client.ConsumePostLikeCreated()
 	go client.ConsumeCommentLikeCreated()
+	go client.ConsumeUserCreated()
 
 	if err != nil {
 		return err

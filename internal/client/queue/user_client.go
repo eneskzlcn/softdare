@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/eneskzlcn/softdare/internal/message"
 	"sync"
 )
@@ -93,6 +94,25 @@ func (c *Client) ConsumeUserFollowDeleted() {
 			defer wg.Done()
 		}()
 		wg.Wait()
+	}
+	<-forever
+}
+
+func (c *Client) ConsumeUserCreated() {
+	onReceivedChan := make(chan []byte, 0)
+	go c.consume(onReceivedChan, "user-created-consumer", "user-created")
+	var forever chan struct{}
+	for d := range onReceivedChan {
+		var msg message.UserCreated
+		if err := json.Unmarshal(d, &msg); err != nil {
+			c.logger.Error("unmarshalling error", c.logger.ErrorModifier(err))
+			continue
+		}
+		err := c.mailService.SendTextMail(msg.Email, "You have succesfully created your account",
+			fmt.Sprintf("Welcome %s, \n\n You have successfuly created your account at %s", msg.Username, msg.CreatedAt.String()))
+		if err != nil {
+			c.logger.Errorf("error sending a welcome email to user %s", msg.Username)
+		}
 	}
 	<-forever
 }

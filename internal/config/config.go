@@ -34,7 +34,6 @@ func LoadConfig[T any](path, name, configType string) (config T, err error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigName(name)
 	viper.SetConfigType(configType)
-
 	err = viper.ReadInConfig()
 	if err != nil {
 		return

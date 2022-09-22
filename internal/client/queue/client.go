@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
+	"github.com/eneskzlcn/softdare/internal/core/mail"
 	"time"
 )
 
@@ -30,13 +31,14 @@ type Service interface {
 }
 
 type Client struct {
-	client  RabbitMQClient
-	logger  logger.Logger
-	service Service
+	client      RabbitMQClient
+	logger      logger.Logger
+	service     Service
+	mailService mail.Service
 }
 
-func New(client RabbitMQClient, logger logger.Logger, service Service) *Client {
-	return &Client{client: client, logger: logger, service: service}
+func New(client RabbitMQClient, logger logger.Logger, service Service, mailService mail.Service) *Client {
+	return &Client{client: client, logger: logger, service: service, mailService: mailService}
 }
 
 func (c *Client) consume(onReceived chan []byte, consumer string, queue string) {

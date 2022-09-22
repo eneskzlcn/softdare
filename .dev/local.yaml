@@ -17,6 +17,7 @@ rabbitmq:
   host: "localhost"
   port: "6001"
   queues:
+    - "user-created"
     - "comment-created"
     - "post-created"
     - "user-follow-created"

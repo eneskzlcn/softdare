@@ -5,6 +5,7 @@ import (
 	"github.com/eneskzlcn/softdare/internal/core/validation"
 	"github.com/eneskzlcn/softdare/internal/entity"
 	customerror "github.com/eneskzlcn/softdare/internal/error"
+	"github.com/eneskzlcn/softdare/internal/message"
 	"github.com/rs/xid"
 	"time"
 )
@@ -49,7 +50,18 @@ func (s *Service) Login(ctx context.Context, email string, username *string) (*e
 		s.logger.Error(err)
 		return nil, err
 	}
+	userCreatedMessage := message.UserCreated{
+		ID:        id,
+		Email:     email,
+		Username:  *username,
+		CreatedAt: createdAt,
+	}
+	err = s.rabbitmqClient.PushMessage(userCreatedMessage, "user-created")
+	if err != nil {
+		s.logger.Error(err)
+		//some retry mechanism maybe remove the user from database
 
+	}
 	return &entity.User{
 		ID:            id,
 		Email:         email,
