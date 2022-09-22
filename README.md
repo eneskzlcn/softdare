@@ -4,6 +4,17 @@ This is a social media project that users can post their
 writings, follow other users, comment on other users posts,
 like other users posts or comments.
 
+The screenshots of the project can be found:
+
+[Home Page](https://eneskzlcn.github.io/my-published-images/softdare/home.png)
+
+[Login](https://eneskzlcn.github.io/my-published-images/softdare/login.png)
+
+[User Profile](https://eneskzlcn.github.io/my-published-images/softdare/another-users-profile.png)
+
+[Post Details](https://eneskzlcn.github.io/my-published-images/softdare/post-comment.png)
+
+[Trends](https://eneskzlcn.github.io/my-published-images/softdare/trends.png)
 
 ### Local Setup To Run
 
@@ -154,6 +165,8 @@ cmd/main.go
 - `spf13/viper` configuration module to handle and structure environment specific configurations.
 - `golangcollege/sessions` session module to handle all session operations on the application.
 - `bluele/gcache` to cache user data to reduce database read load and provide faster
+- `bootstrap` to provide responsive ui components with nice styling with less css.
+- `fontawesome` to use custom icons that fontawesome provides.
 responses.
 
 ### Testing Modules
