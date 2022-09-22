@@ -24,3 +24,17 @@ func FormatPost(post *entity.Post, timeAgoFormatter func(time.Time) string) (for
 	formattedPost.Username = post.Username
 	return
 }
+func ToPostsPtr(posts []entity.Post) []*entity.Post {
+	postsPtr := make([]*entity.Post, 0)
+	for _, post := range posts {
+		postsPtr = append(postsPtr, &post)
+	}
+	return postsPtr
+}
+func ToPostValue(postsPtr []*entity.Post) []entity.Post {
+	posts := make([]entity.Post, 0)
+	for _, postPtr := range postsPtr {
+		posts = append(posts, *postPtr)
+	}
+	return posts
+}
