@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/eneskzlcn/softdare/internal/core/cache"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/session"
 	"github.com/eneskzlcn/softdare/internal/entity"
@@ -70,16 +71,17 @@ type Service struct {
 	repository     Repository
 	session        session.Session
 	rabbitmqClient RabbitMQClient
+	cache          cache.Cache
 }
 
-func New(repository Repository, logger logger.Logger, session session.Session, rabbitmqClient RabbitMQClient) *Service {
+func New(repository Repository, logger logger.Logger, session session.Session, rabbitmqClient RabbitMQClient, cache cache.Cache) *Service {
 	if logger == nil {
 		fmt.Println(customerror.NilLogger)
 		return nil
 	}
-	if repository == nil || session == nil || rabbitmqClient == nil {
+	if repository == nil || session == nil || rabbitmqClient == nil || cache == nil {
 		logger.Error(customerror.InvalidConstructorArguments)
 		return nil
 	}
-	return &Service{repository: repository, logger: logger, session: session, rabbitmqClient: rabbitmqClient}
+	return &Service{repository: repository, logger: logger, session: session, rabbitmqClient: rabbitmqClient, cache: cache}
 }

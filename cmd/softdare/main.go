@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/eneskzlcn/softdare/internal/client/queue"
 	"github.com/eneskzlcn/softdare/internal/config"
+	"github.com/eneskzlcn/softdare/internal/core/cache"
 	"github.com/eneskzlcn/softdare/internal/core/html/template/renderer"
 	"github.com/eneskzlcn/softdare/internal/core/logger"
 	"github.com/eneskzlcn/softdare/internal/core/session"
@@ -46,9 +47,10 @@ func run() error {
 	renderer := renderer.New(logger)
 	session := session.NewCollegeSessionAdapter(logger, configs.Session)
 	rabbitmqClient := rabbitmq.New(configs.RabbitMQ, logger)
+	cache := cache.NewGCacheAdapter(5)
 
 	repository := repository.New(logger, db)
-	service := service.New(repository, logger, session, rabbitmqClient)
+	service := service.New(repository, logger, session, rabbitmqClient, cache)
 	webHandler := web.NewHandler(logger, session, service, renderer)
 	client := queue.New(rabbitmqClient, logger, service)
 
