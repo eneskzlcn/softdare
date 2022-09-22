@@ -21,7 +21,7 @@ func New(logger Logger) *Renderer {
 }
 
 func (r *Renderer) Render(w http.ResponseWriter, tmpl *template.Template, data any, statusCode int) {
-	r.logger.Debugf("RENDERING THE TEMPLATE %s", tmpl.Name())
+	r.logger.Debugf("Rendering the template %s", tmpl.Name())
 	var buf bytes.Buffer
 	err := tmpl.Execute(&buf, data)
 	if err != nil {
@@ -36,5 +36,4 @@ func (r *Renderer) Render(w http.ResponseWriter, tmpl *template.Template, data a
 		r.logger.Errorf("could not send the template with error:%s", err.Error())
 		return
 	}
-	r.logger.Debugf("TEMPLATE %s RENDERED SUCCESSFULLY", tmpl.Name())
 }
