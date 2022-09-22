@@ -114,6 +114,12 @@ after first release, so it will be easier to decouple the services as independen
 But I learned that making a monolithic application in that
 way is very hard and painful.
 
+### Caching
+I use the caching to cache trends data which always going to be same for a while.
+Normally, trends can change anytime. But, keeping the trends in cache for a while
+like 1 minutes, will not affect the correctness too much instead it will provide
+faster results for any user want to see the trends.
+
 ### External Modules Used In Project
 - `html/templates` built-in module as a html parser and renderer technology.
 - `go.uber.org/zap` logger module to handle logging operations.
@@ -121,6 +127,8 @@ way is very hard and painful.
 - `/rs/xid` xid module to generate xid for database entities.
 - `spf13/viper` configuration module to handle and structure environment specific configurations.
 - `golangcollege/sessions` session module to handle all session operations on the application.
+- `bluele/gcache` to cache user data to reduce database read load and provide faster
+responses.
 
 ### Testing Modules
 - `DATA-DOG/go-sqlmock` sql db mock module to mock the database on
